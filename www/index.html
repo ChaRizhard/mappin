@@ -1055,6 +1055,26 @@
     .ts-bits { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--text-muted); }
     .ts-bits span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
     .ts-link { color: #10b981 !important; cursor: pointer; font-weight: 600; }
+    /* 1.1.1 */
+    .field-grid > div { min-width: 0; }
+    input[type="time"].edit-form-input { -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; text-align: left; line-height: 20px; }
+    input[type="time"].edit-form-input::-webkit-date-and-time-value { text-align: left; margin: 0; }
+    input[type="time"].edit-form-input::-webkit-datetime-edit { padding: 0; }
+    #budget-pill, #checklist-pill { display: none !important; } /* shown in the trip summary instead */
+    .trip-summary { cursor: pointer; transition: border-color 0.15s; -webkit-tap-highlight-color: transparent; }
+    .trip-summary:hover, .trip-summary:active { border-color: var(--accent-blue); }
+    .ts-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .ts-open { font-size: 11px; font-weight: 700; color: var(--accent-blue); white-space: nowrap; display: inline-flex; gap: 5px; align-items: center; }
+    @media (max-width: 820px) and (min-height: 521px) {
+      .modal-overlay:not(.previewing) { align-items: flex-end; }
+      .modal-overlay:not(.previewing) .modal-box {
+        width: 100% !important; max-width: 100% !important; border-radius: 18px 18px 0 0; max-height: 90vh; border-bottom: none;
+        padding-bottom: calc(20px + var(--sa-b)); animation: sheetUp 0.22s ease-out; overscroll-behavior: contain;
+      }
+      .modal-overlay:not(.previewing) .modal-box::before {
+        content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--group-dash); margin: -8px auto 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1100,6 +1120,7 @@
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-import"></i> <span data-i18n="importCsv">Import CSV</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); exportMapCSV()"><i class="fa-solid fa-file-export"></i> <span data-i18n="exportCsv">Export CSV</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openMasterColorModal()"><i class="fa-solid fa-palette"></i> <span data-i18n="coloursTitles">Colours &amp; titles</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openChecklist()"><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); printItinerary()"><i class="fa-solid fa-print"></i> <span data-i18n="printPdf">Print or save as PDF</span></div>
           <div class="menu-divider"></div>
@@ -1162,10 +1183,9 @@
           <select id="category-select" style="display:none"><option value="all">All categories</option></select>
         </div>
 
-        <!-- Day Chips Row + Paint Brush (Master Editor) -->
+        <!-- Day Chips Row -->
         <div class="day-chips-row">
           <div class="day-chips" id="day-chips-container"></div>
-          <button class="paint-btn" data-i18n-title="masterEditor" onclick="openMasterColorModal()"><i class="fa-solid fa-paint-roller"></i></button>
         </div>
       </div>
       <div class="select-bar" id="select-bar">
@@ -2206,6 +2226,18 @@
     de: { openNow: 'Jetzt geöffnet', closesInN: 'Schließt in {m} Min.', openUntil: 'Geöffnet bis {time}', closedToday: 'Heute geschlossen', opensAtT: 'Öffnet um {time}', closedNow: 'Jetzt geschlossen', fromYou: 'von dir', fromPrev: 'vom letzten Stopp', nDays: '{n} Tage' }
   };
   Object.keys(I18N_EXTRA6).forEach(l => Object.assign(I18N[l], I18N_EXTRA6[l]));
+
+  // Strings added in 1.1.1
+  const I18N_EXTRA7 = {
+    en: { autoToday: 'Open Today automatically on trip days', autoTodayStarted: "It's a trip day: showing {name}", coloursTitles: 'Colours & titles' },
+    ja: { autoToday: '旅行の日は「今日」を自動で開く', autoTodayStarted: '旅行の日です：{name} を表示', coloursTitles: '色とタイトル' },
+    zh: { autoToday: '旅行当天自动打开“今天”', autoTodayStarted: '今天是旅行日：显示{name}', coloursTitles: '颜色和标题' },
+    ko: { autoToday: '여행 날에는 오늘 모드 자동 열기', autoTodayStarted: '여행 날입니다: {name} 표시', coloursTitles: '색상 및 제목' },
+    es: { autoToday: 'Abrir Hoy automáticamente en días de viaje', autoTodayStarted: 'Es día de viaje: mostrando {name}', coloursTitles: 'Colores y títulos' },
+    fr: { autoToday: 'Ouvrir Aujourd’hui automatiquement les jours de voyage', autoTodayStarted: 'Jour de voyage : affichage de {name}', coloursTitles: 'Couleurs et titres' },
+    de: { autoToday: 'Heute an Reisetagen automatisch öffnen', autoTodayStarted: 'Reisetag: {name} wird angezeigt', coloursTitles: 'Farben & Titel' }
+  };
+  Object.keys(I18N_EXTRA7).forEach(l => Object.assign(I18N[l], I18N_EXTRA7[l]));
 
   /* =========================================================
      STATE
@@ -5971,7 +6003,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.1.0';
+  const APP_VERSION = '1.1.1';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -6542,6 +6574,7 @@
         <h3><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('planning'))}</h3>
         <div class="settings-row"><span>${escapeHtml(t('currency'))}</span><select class="lang-select" onchange="setCurrency(this.value)">${curOptions}</select></div>
         ${tempUnitSettingHtml()}
+        ${autoTodaySettingHtml()}
         <div class="settings-row"><span>${escapeHtml(t('checkHours'))}</span>${switchHtml(checkHoursOn, 'toggleCheckHours()', t('checkHours'))}</div>
         <p class="settings-note">${escapeHtml(t('checkHoursHint'))}</p>
       </div>
@@ -7408,6 +7441,8 @@
     if (!from || !to || !hasCoords(from) || !hasCoords(to)) return null;
     const mode = directionsMode(from, to);
     const p = TRAVEL[mode] || TRAVEL.walking;
+    const real = realTravelMinutes(mode, from, to);
+    if (real) return { mins: real, mode, real: true };
     const km = distMeters([from.lat, from.lng], [to.lat, to.lng]) / 1000 * p.detour;
     return { mins: Math.max(1, Math.round(km / p.kmh * 60 + p.extra)), mode };
   }
@@ -7416,7 +7451,8 @@
     if (!s || s.done) return '';
     const tr = travelMinutes(from, s);
     if (!tr || tr.mins > 240) return ''; // too far to be a real "next stop" journey
-    const modeLabel = t(tr.mode === 'walking' ? 'byWalk' : tr.mode === 'driving' ? 'byCar' : 'byTransit', { m: tr.mins });
+    let modeLabel = t(tr.mode === 'walking' ? 'byWalk' : tr.mode === 'driving' ? 'byCar' : 'byTransit', { m: tr.mins });
+    if (tr.real) modeLabel = modeLabel.replace(/^~\s?/, '');
     const fromLabel = fromKind === 'you' ? t('fromYou') : t('fromPrev');
     const isToday = effectiveDayIsToday();
     if (!isToday || !s.time || !/^\d{1,2}:\d{2}$/.test(s.time)) {
@@ -7659,8 +7695,10 @@
     if (meters > 0) bits.push(`<span><i class="fa-solid fa-route"></i> ${escapeHtml(formatDistance(meters))}</span>`);
     if (tripCost()) bits.push(`<span><i class="fa-solid fa-wallet"></i> ${escapeHtml(fmtMoney(tripCost()))}</span>`);
     const open = CHECKLIST.filter(c => !c.done).length;
-    if (open) bits.push(`<span class="ts-link" onclick="openChecklist()"><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('checklistOpenN', { n: open }))}</span>`);
-    return `<div class="trip-summary">${TRIP.title ? `<div class="ts-title">${escapeHtml(TRIP.title)}</div>` : ''}<div class="ts-bits">${bits.join('')}</div></div>`;
+    if (open) bits.push(`<span class="ts-link"><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('checklistOpenN', { n: open }))}</span>`);
+    return `<div class="trip-summary" role="button" tabindex="0" onclick="openChecklist()" title="${escapeHtml(t('checklist'))}">
+      <div class="ts-head">${TRIP.title ? `<div class="ts-title">${escapeHtml(TRIP.title)}</div>` : '<div></div>'}<span class="ts-open"><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('checklist'))} <i class="fa-solid fa-chevron-right"></i></span></div>
+      <div class="ts-bits">${bits.join('')}</div></div>`;
   }
   function renderTripSummary() {
     const tl = $('timeline');
@@ -7681,6 +7719,97 @@
       if (todayMode && isPortraitPhone() && sheetState === 'min' && tp.parentElement === $('sidebar')) setSheet('min');
     }).observe(tp);
   })();
+
+  /* =========================================================
+     1.1.1: swipe down to close windows, Today opens itself on trip days,
+     real walking / driving times in Today mode
+     ========================================================= */
+
+  /* ---------- Swipe a window down to close it (phones) ---------- */
+  function closeModalById(id) {
+    if (id === 'settings-modal') closeSettings();
+    else if (id === 'checklist-modal') closeChecklist();
+    else if (id === 'single-item-modal') closeSingleItemModal();
+    else if (id === 'color-modal') closeMasterColorModal();
+    else { const el = $(id); if (el) el.style.display = 'none'; }
+  }
+  (function initModalSwipe() {
+    let sw = null;
+    document.addEventListener('touchstart', e => {
+      const box = e.target.closest && e.target.closest('.modal-box');
+      if (!box || !isPhoneWidth() || e.touches.length !== 1) return;
+      const ov = box.closest('.modal-overlay');
+      if (!ov || ov.classList.contains('previewing') || !ov.id) return;
+      if (e.target.closest('input, textarea, select, .color-swatch, [contenteditable="true"]')) return;
+      if (box.scrollTop > 0) return;
+      sw = { box, ov, y0: e.touches[0].clientY, t0: Date.now(), dy: 0 };
+    }, { passive: true });
+    document.addEventListener('touchmove', e => {
+      if (!sw) return;
+      const dy = e.touches[0].clientY - sw.y0;
+      if (dy <= 0 || sw.box.scrollTop > 0) { if (!sw.dy) { sw = null; return; } }
+      sw.dy = Math.max(0, dy);
+      sw.box.style.transition = 'none';
+      sw.box.style.transform = `translateY(${sw.dy}px)`;
+      sw.ov.style.background = `rgba(2,6,23,${Math.max(0.1, 0.55 - sw.dy / 600)})`;
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+    const end = () => {
+      if (!sw) return;
+      const { box, ov, dy, t0 } = sw; sw = null;
+      const fast = dy > 60 && dy / Math.max(1, Date.now() - t0) > 0.55;
+      box.style.transition = 'transform 0.2s ease';
+      if (dy > 130 || fast) {
+        box.style.transform = 'translateY(110%)';
+        setTimeout(() => { closeModalById(ov.id); box.style.transform = ''; box.style.transition = ''; ov.style.background = ''; }, 190);
+      } else {
+        box.style.transform = '';
+        ov.style.background = '';
+        setTimeout(() => { box.style.transition = ''; }, 220);
+      }
+    };
+    document.addEventListener('touchend', end, { passive: true });
+    document.addEventListener('touchcancel', end, { passive: true });
+  })();
+
+  /* ---------- Today opens by itself when you open MapPin on a trip day ---------- */
+  let autoTodayOn = loadPref('mappin_auto_today', 'true') === 'true';
+  function toggleAutoToday() { autoTodayOn = !autoTodayOn; savePref('mappin_auto_today', String(autoTodayOn)); renderSettings(); }
+  function autoTodaySettingHtml() {
+    return `<div class="settings-row"><span>${escapeHtml(t('autoToday'))}</span>${switchHtml(autoTodayOn, 'toggleAutoToday()', t('autoToday'))}</div>`;
+  }
+  window.addEventListener('load', () => setTimeout(() => {
+    if (!autoTodayOn || todayMode || VIEW_ONLY || !rawData.length) return;
+    const d = todayDayNumber();
+    if (d === null) return;
+    const stops = rawData.filter(s => s.day === d);
+    if (!stops.length || stops.every(s => s.done)) return;
+    try { if (sessionStorage.getItem('mappin_auto_today') === isoFromDate(new Date())) return; sessionStorage.setItem('mappin_auto_today', isoFromDate(new Date())); } catch (e) {}
+    startToday();
+    showToast(t('autoTodayStarted', { name: getDayTitle(d) }), { ms: 4000 });
+  }, 1400));
+
+  /* ---------- Real walking / driving times for the Today card (free OpenStreetMap router) ---------- */
+  const todayRouteInflight = new Set();
+  const r3 = p => ({ lat: Math.round(p.lat * 1000) / 1000, lng: Math.round(p.lng * 1000) / 1000 });
+  function realTravelMinutes(mode, from, to) {
+    const rmode = mode === 'walking' ? 'foot' : mode === 'driving' ? 'car' : null;
+    if (!rmode) return null;
+    const a = r3(from), key = routeKey(rmode, a, to);
+    const c = routeCache[key];
+    if (c && c.d) return Math.max(1, Math.round(c.d / 60));
+    if (c && c.none) return null;
+    if (!todayRouteInflight.has(key) && navigator.onLine && distMeters([a.lat, a.lng], [to.lat, to.lng]) / 1000 < ROUTE_MAX_KM[rmode]) {
+      todayRouteInflight.add(key);
+      fetchJson(`${ROUTERS[rmode]}${a.lng},${a.lat};${to.lng},${to.lat}?overview=simplified&geometries=geojson`, 9000).then(d => {
+        const r = d && d.routes && d.routes[0];
+        routeCache[key] = r ? { d: r.duration, s: r.distance, c: r.geometry.coordinates.map(([x, y]) => [+y.toFixed(5), +x.toFixed(5)]) } : { none: true };
+        saveRouteCache();
+        if (todayMode) renderTodayPanel();
+      }).catch(() => {}).finally(() => todayRouteInflight.delete(key));
+    }
+    return null;
+  }
 
 </script>
 </body>
