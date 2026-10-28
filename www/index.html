@@ -751,18 +751,6 @@
     .header-in-sheet .sidebar-header { padding-top: 14px; }
     .header-in-sheet .brand-title .brand-sub { display: none; }
     .header-in-sheet .brand-title h1 { font-size: 19px; }
-    /* Top of the screen on phones (portrait): the status bar takes the map's own background colour
-       (set from script as --top-colour and theme-color), and the map fades softly into it. */
-    #status-shield { display: none; }
-    .header-in-sheet .map-wrap::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 16px; z-index: 450; pointer-events: none;
-      background: linear-gradient(to bottom, var(--top-colour, transparent), transparent);
-    }
-    /* Home Screen apps added before 1.0.8 still draw under the clock: keep it on a plain strip */
-    :root.top-under.header-in-sheet #status-shield {
-      display: block; position: fixed; top: 0; left: 0; right: 0; height: var(--sa-t); z-index: 2500; pointer-events: none; background: var(--top-colour);
-    }
-    :root.top-under.header-in-sheet #app-container { padding-top: var(--sa-t); }
     .dropdown-menu { max-height: calc(100vh - 16px); overflow-y: auto; }
 
     /* Filters row: sort + category chips */
@@ -1002,17 +990,25 @@
     .tp-leave.lb-late b { color: #ef4444; }
     .tp-check { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 5px 10px; font-size: 12px; font-weight: 600; border-radius: 999px; cursor: pointer;
       background: rgba(16,185,129,0.14); color: #10b981; border: none; }
+    /* 1.0.9: weather and Today day switcher */
+    .day-wx { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+    .day-wx .fa-sun { color: #f59e0b; } .day-wx .fa-cloud-rain, .day-wx .fa-cloud-showers-heavy { color: #60a5fa; }
+    .wx-min { opacity: 0.7; }
+    .wx-rain { color: #60a5fa; display: inline-flex; gap: 2px; align-items: center; }
+    .tp-wx { font-size: 11px; font-weight: 600; color: var(--text-muted); display: inline-flex; gap: 4px; align-items: center; white-space: nowrap; }
+    .tp-wx .fa-sun { color: #f59e0b; }
+    .tp-dayname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tp-day { background: var(--tint); border: 1px solid var(--panel-border); color: var(--text-main); border-radius: 8px; width: 26px; height: 26px; flex-shrink: 0; cursor: pointer; font-size: 11px; }
+    .tp-day:disabled { opacity: 0.35; cursor: default; }
   </style>
 </head>
 <body>
 
-<div id="status-shield" aria-hidden="true"></div>
 <div id="app-container">
   <header>
     <div class="brand">
       <div class="brand-title">
         <h1><span class="wordmark" aria-label="MapPin"><span>Map</span><svg class="wm-p" viewBox="0 0 60 104" overflow="visible" aria-hidden="true"><defs><linearGradient id="wmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient><linearGradient id="wmr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b82f6" stop-opacity="0"/><stop offset="0.35" stop-color="#3b82f6" stop-opacity="0.9"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><path class="wm-route" d="M-178 101 C-120 112 -60 90 2 99" fill="none" stroke="url(#wmr)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 13"/><ellipse cx="13" cy="100.5" rx="7" ry="1.8" fill="currentColor" opacity="0.28"/><path fill="url(#wmg)" fill-rule="evenodd" d="M6 8H32A24 24 0 0 1 32 56H20V74L13 98L6 74ZM45 32A10 10 0 1 0 25 32A10 10 0 1 0 45 32Z"/><circle cx="35" cy="32" r="3.2" fill="#fff" opacity="0.9"/></svg><span>in</span></span></h1>
-        <span class="brand-sub" data-i18n="subtitle">Directional Itinerary Mapper</span>
       </div>
     </div>
     <div class="header-actions">
@@ -2131,6 +2127,18 @@
     }
   };
   Object.keys(I18N_EXTRA4).forEach(l => Object.assign(I18N[l], I18N_EXTRA4[l]));
+
+  // Strings added in 1.0.9
+  const I18N_EXTRA5 = {
+    en: { wxTitle: 'Forecast from Open-Meteo', tempUnit: 'Temperature', prevDay: 'Previous day', nextDayL: 'Next day' },
+    ja: { wxTitle: 'Open-Meteo の天気予報', tempUnit: '気温の単位', prevDay: '前の日', nextDayL: '次の日' },
+    zh: { wxTitle: '天气预报来自 Open-Meteo', tempUnit: '温度单位', prevDay: '前一天', nextDayL: '后一天' },
+    ko: { wxTitle: 'Open-Meteo 일기예보', tempUnit: '온도 단위', prevDay: '이전 날', nextDayL: '다음 날' },
+    es: { wxTitle: 'Previsión de Open-Meteo', tempUnit: 'Temperatura', prevDay: 'Día anterior', nextDayL: 'Día siguiente' },
+    fr: { wxTitle: 'Prévisions Open-Meteo', tempUnit: 'Température', prevDay: 'Jour précédent', nextDayL: 'Jour suivant' },
+    de: { wxTitle: 'Vorhersage von Open-Meteo', tempUnit: 'Temperatur', prevDay: 'Vorheriger Tag', nextDayL: 'Nächster Tag' }
+  };
+  Object.keys(I18N_EXTRA5).forEach(l => Object.assign(I18N[l], I18N_EXTRA5[l]));
 
   /* =========================================================
      STATE
@@ -3597,6 +3605,7 @@
           <div class="color-dot-picker" style="background:${dayColour}" title="${escapeHtml(t('changeColour'))}" onclick="openSingleDayModal(${dayNum})"></div>
           <span class="day-title-text" onclick="openSingleDayModal(${dayNum})">${escapeHtml(displayDayTitle)}</span>
           ${DAY_DATES[dayNum] ? `<span class="day-date">${escapeHtml(formatDateShort(DAY_DATES[dayNum]))}</span>` : ''}
+          ${weatherHtml(dayNum)}
           ${dayCost(dayNum) > 0 ? `<span class="day-cost">${escapeHtml(fmtMoney(dayCost(dayNum)))}</span>` : ''}
           <span class="day-count" style="${isCollapsed ? '' : 'display:none'}">${escapeHtml(t('stopsCount', { n: dayItems.length }))}</span>
           <div class="day-line" onclick="toggleDayCollapse(${dayNum})"><i class="fa-solid fa-chevron-down day-chevron"></i></div>
@@ -5883,7 +5892,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.0.8';
+  const APP_VERSION = '1.0.9';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -5924,48 +5933,7 @@
     initZoomReset();
     cloudInit();
     scheduleHoursCheck(4000);
-    fixIosInsets();
-    maybeShowReinstallTip();
-    window.addEventListener('resize', () => setTimeout(fixIosInsets, 120));
     if (loadPref('mappin_start_at_location', 'true') === 'true') locateMe({ silent: true, startup: true });
-  }
-
-  /* ---------- iPhone Home Screen app: make sure the top bar clears the clock / Dynamic Island ----------
-     Some iOS versions report 0 for the status-bar space in Home Screen apps (WebKit bug 301994),
-     which pushes the top bar underneath the status bar. Detect that and reserve the space ourselves. */
-  function measureEnv(side) {
-    const p = document.createElement('div');
-    p.style.cssText = `position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;width:env(safe-area-inset-${side});height:env(safe-area-inset-${side})`;
-    document.body.appendChild(p);
-    const v = side === 'left' || side === 'right' ? p.getBoundingClientRect().width : p.getBoundingClientRect().height;
-    p.remove();
-    return v;
-  }
-
-  function fixIosInsets() {
-    const root = document.documentElement.style;
-    ['--sa-t', '--sa-b', '--sa-l', '--sa-r'].forEach(v => root.removeProperty(v));
-    document.documentElement.classList.remove('top-under');
-    if (!isIos() || !isStandalone() || IS_NATIVE) { updateTopColour(); return; }
-    const sh = Math.max(screen.width, screen.height);
-    const portrait = window.innerHeight >= window.innerWidth;
-    const modern = sh >= 812;              // Face ID iPhones
-    const island = sh >= 852;              // Dynamic Island iPhones (14 Pro and later)
-    const top = island ? 62 : modern ? 47 : 20;
-    // Added to the Home Screen with 1.0.8 or later, iOS starts the app below the status bar (nothing to do).
-    // Older installs draw underneath it, so reserve the space ourselves.
-    const under = window.innerHeight >= screen.height - 4;
-    document.documentElement.classList.toggle('top-under', portrait && under);
-    if (portrait) {
-      if (under && measureEnv('top') < 10) root.setProperty('--sa-t', top + 'px');
-      if (modern && measureEnv('bottom') < 10) root.setProperty('--sa-b', '34px');
-    } else if (modern) {
-      if (measureEnv('left') < 10) root.setProperty('--sa-l', top + 'px');
-      if (measureEnv('right') < 10) root.setProperty('--sa-r', top + 'px');
-      if (measureEnv('bottom') < 10) root.setProperty('--sa-b', '21px');
-    }
-    updateTopColour();
-    if (map) setTimeout(() => map.invalidateSize(), 50);
   }
 
   /* ---------- iPhone: zoom the page back out after typing ----------
@@ -6494,6 +6462,7 @@
       <div class="settings-section">
         <h3><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('planning'))}</h3>
         <div class="settings-row"><span>${escapeHtml(t('currency'))}</span><select class="lang-select" onchange="setCurrency(this.value)">${curOptions}</select></div>
+        ${tempUnitSettingHtml()}
         <div class="settings-row"><span>${escapeHtml(t('checkHours'))}</span>${switchHtml(checkHoursOn, 'toggleCheckHours()', t('checkHours'))}</div>
         <p class="settings-note">${escapeHtml(t('checkHoursHint'))}</p>
       </div>
@@ -6897,7 +6866,10 @@
     panel.style.display = 'block';
     const head = `
       <div class="tp-head">
-        <span><i class="fa-solid fa-location-arrow"></i> ${escapeHtml(t('today'))} · ${escapeHtml(getDayTitle(todayDay))}</span>
+        <button class="tp-day" onclick="todaySwitchDay(-1)" ${getAllDays().indexOf(todayDay) <= 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('prevDay'))}"><i class="fa-solid fa-chevron-left"></i></button>
+        <span class="tp-dayname"><i class="fa-solid fa-location-arrow"></i> ${escapeHtml(getDayTitle(todayDay))}</span>
+        <button class="tp-day" onclick="todaySwitchDay(1)" ${getAllDays().indexOf(todayDay) >= getAllDays().length - 1 ? 'disabled' : ''} aria-label="${escapeHtml(t('nextDayL'))}"><i class="fa-solid fa-chevron-right"></i></button>
+        ${todayWeatherHtml()}
         <span class="tp-progress">${escapeHtml(t('progressN', { n: doneCount, m: list.length }))}</span>
         <button class="tp-close" onclick="exitToday()" aria-label="${escapeHtml(t('close'))}"><i class="fa-solid fa-xmark"></i></button>
       </div>`;
@@ -7224,37 +7196,17 @@
      1.0.8: seamless top, map layers button, trip checklist, "leave by" times
      ========================================================= */
 
-  /* ---------- Seamless top: the status bar takes the colour of the map underneath it ----------
-     iOS 26 blurs busy content under the clock, or paints it one flat colour. Matching that colour to the
-     map's own background makes the top of the screen read as one continuous map. */
-  const MAP_TOP_COLOURS = { light: '#f7f7f7', dark: '#131313', sat: '#15191e' };
-  const isLightColour = hex => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 150; };
-
+  /* ---------- Status bar colour follows the app theme (standard iOS / Android behaviour) ---------- */
   function updateTopColour() {
-    const root = document.documentElement;
-    const uiLight = root.getAttribute('data-ui') === 'light';
-    const uiColour = uiLight ? '#ffffff' : '#0f172a';
-    const mapOnTop = root.classList.contains('header-in-sheet') && window.matchMedia('(max-width: 820px) and (min-height: 521px)').matches;
-    let c = mapOnTop ? (MAP_TOP_COLOURS[typeof currentTileType === 'string' ? currentTileType : 'light'] || MAP_TOP_COLOURS.light) : uiColour;
-    // Home Screen apps added before 1.0.8 draw under a white clock, so they keep a dark strip
-    if (root.classList.contains('top-under')) c = '#0f172a';
-    root.style.setProperty('--top-colour', c);
+    const c = document.documentElement.getAttribute('data-ui') === 'light' ? '#ffffff' : '#0f172a';
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', c);
     const SB = IS_NATIVE ? capPlugin('StatusBar') : null;
     if (!SB) return;
     try {
-      Promise.resolve(SB.setStyle({ style: isLightColour(c) ? 'LIGHT' : 'DARK' })).catch(() => {});
+      Promise.resolve(SB.setStyle({ style: c === '#ffffff' ? 'LIGHT' : 'DARK' })).catch(() => {});
       if (SB.setBackgroundColor) Promise.resolve(SB.setBackgroundColor({ color: c })).catch(() => {});
     } catch (e) {}
-  }
-
-  // One-time tip for Home Screen apps added before 1.0.8
-  function maybeShowReinstallTip() {
-    if (!document.documentElement.classList.contains('top-under')) return;
-    if (loadPref('mappin_tip_reinstall', '') === '1') return;
-    savePref('mappin_tip_reinstall', '1');
-    setTimeout(() => showToast(t('reinstallTip'), { ms: 12000, actionLabel: t('exportCsv'), onAction: exportMapCSV }), 2500);
   }
 
   /* ---------- Map layers button (phones): map type and route style in one place ---------- */
@@ -7401,6 +7353,123 @@
     return `<button class="tp-check" onclick="openChecklist(${todayDay})"><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('checklistTodayN', { n: items.length }))}</button>`;
   }
   setInterval(() => { if (todayMode && !document.hidden) renderTodayPanel(); }, 60000);
+
+  /* =========================================================
+     1.0.9: weather on each day, switching days in Today mode
+     ========================================================= */
+
+  /* ---------- Weather forecast for dated days (Open-Meteo, free, no key) ---------- */
+  let TEMP_UNIT = loadPref('mappin_temp_unit', /-(US|LR|MM)$/i.test(navigator.language || '') ? 'F' : 'C');
+  let WX = {};
+  try { WX = JSON.parse(localStorage.getItem('mappin_wx_v1') || '{}') || {}; } catch (e) { WX = {}; }
+  const WX_TTL = 3 * 3600e3;
+  const wxPending = new Set();
+  let wxTimer = null;
+
+  function dayDateIso(d) {
+    return DAY_DATES[d] || ((rawData.filter(s => s.day === d && s.date).sort((a, b) => a.order - b.order)[0] || {}).date) || null;
+  }
+  function dayCentre(d) {
+    const pts = rawData.filter(s => s.day === d && hasCoords(s));
+    if (!pts.length) return null;
+    return { lat: pts.reduce((a, s) => a + s.lat, 0) / pts.length, lng: pts.reduce((a, s) => a + s.lng, 0) / pts.length };
+  }
+  function wxKey(d) {
+    const iso = dayDateIso(d), c = dayCentre(d);
+    if (!iso || !c) return null;
+    const days = Math.round((isoToDate(iso) - isoToDate(isoFromDate(new Date()))) / 864e5);
+    if (days < 0 || days > 15) return null; // forecasts reach about two weeks ahead
+    return `${c.lat.toFixed(1)},${c.lng.toFixed(1)},${iso},${TEMP_UNIT}`;
+  }
+
+  const WX_ICONS = [[0, 'fa-sun'], [2, 'fa-cloud-sun'], [3, 'fa-cloud'], [48, 'fa-smog'], [67, 'fa-cloud-rain'], [77, 'fa-snowflake'], [82, 'fa-cloud-showers-heavy'], [86, 'fa-snowflake'], [99, 'fa-cloud-bolt']];
+  const wxIcon = code => (WX_ICONS.find(([max]) => code <= max) || WX_ICONS[0])[1];
+
+  function wxText(w) {
+    return `<i class="fa-solid ${wxIcon(w.code)}"></i> ${Math.round(w.max)}°<span class="wx-min">/${Math.round(w.min)}°</span>${w.pop >= 20 ? ` <span class="wx-rain"><i class="fa-solid fa-droplet"></i>${w.pop}%</span>` : ''}`;
+  }
+
+  // Placeholder in the day heading; filled in as soon as the forecast arrives
+  function weatherHtml(d) {
+    const k = wxKey(d);
+    if (!k) return '';
+    const w = WX[k];
+    if (w && Date.now() - w.at < WX_TTL) return `<span class="day-wx" title="${escapeHtml(t('wxTitle'))}">${wxText(w)}</span>`;
+    wxPending.add(d);
+    clearTimeout(wxTimer);
+    wxTimer = setTimeout(fetchPendingWeather, 500);
+    return w ? `<span class="day-wx" data-wx-day="${d}" title="${escapeHtml(t('wxTitle'))}">${wxText(w)}</span>` : `<span class="day-wx" data-wx-day="${d}"></span>`;
+  }
+
+  async function fetchPendingWeather() {
+    if (!navigator.onLine) return;
+    const days = [...wxPending]; wxPending.clear();
+    for (const d of days) {
+      const k = wxKey(d);
+      if (!k) continue;
+      const [lat, lng, iso] = k.split(',');
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${iso}&end_date=${iso}${TEMP_UNIT === 'F' ? '&temperature_unit=fahrenheit' : ''}`;
+        const j = await fetchJson(url, 6000);
+        const dl = j && j.daily;
+        if (!dl || !dl.time || !dl.time.length) continue;
+        WX[k] = { code: dl.weather_code[0] || 0, max: dl.temperature_2m_max[0], min: dl.temperature_2m_min[0], pop: dl.precipitation_probability_max ? (dl.precipitation_probability_max[0] || 0) : 0, at: Date.now() };
+        document.querySelectorAll(`[data-wx-day="${d}"]`).forEach(el => { el.innerHTML = wxText(WX[k]); el.title = t('wxTitle'); });
+        if (todayMode && todayDay === d) renderTodayPanel();
+      } catch (e) {}
+    }
+    // keep the saved forecasts small
+    const keys = Object.keys(WX).filter(k => Date.now() - WX[k].at < 48 * 3600e3);
+    const keep = {}; keys.slice(-60).forEach(k => { keep[k] = WX[k]; }); WX = keep;
+    try { localStorage.setItem('mappin_wx_v1', JSON.stringify(WX)); } catch (e) {}
+  }
+
+  function todayWeatherHtml() {
+    const k = todayDay !== null ? wxKey(todayDay) : null;
+    return k && WX[k] ? `<span class="tp-wx">${wxText(WX[k])}</span>` : '';
+  }
+
+  function setTempUnit(u) {
+    TEMP_UNIT = u;
+    savePref('mappin_temp_unit', u);
+    renderItinerary();
+    if ($('settings-modal').style.display === 'flex') renderSettings();
+  }
+  function tempUnitSettingHtml() {
+    return `<div class="settings-row"><span>${escapeHtml(t('tempUnit'))}</span>
+        <div class="segmented">
+          <button class="${TEMP_UNIT === 'C' ? 'active' : ''}" onclick="setTempUnit('C')">°C</button>
+          <button class="${TEMP_UNIT === 'F' ? 'active' : ''}" onclick="setTempUnit('F')">°F</button>
+        </div></div>`;
+  }
+
+  /* ---------- Today mode: switch days with the arrows or a sideways swipe ---------- */
+  function todaySwitchDay(delta) {
+    const days = getAllDays();
+    const i = days.indexOf(todayDay);
+    const next = days[i + delta];
+    if (next === undefined) return;
+    todayDay = next;
+    activeDay = next;
+    revealDay(next);
+    todayIdx = firstOpenIndex();
+    populateFilters();
+    renderItinerary();
+    focusTodayStop();
+  }
+
+  (function initTodaySwipe() {
+    const panel = $('today-panel');
+    if (!panel) return;
+    let x0 = null, y0 = 0;
+    panel.addEventListener('touchstart', e => { const p = e.touches[0]; x0 = p.clientX; y0 = p.clientY; }, { passive: true });
+    panel.addEventListener('touchend', e => {
+      if (x0 === null) return;
+      const p = e.changedTouches[0], dx = p.clientX - x0, dy = p.clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) todaySwitchDay(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  })();
 
 </script>
 </body>

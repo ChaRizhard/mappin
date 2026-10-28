@@ -3,14 +3,14 @@
    - Libraries from the online fallbacks (fonts, icons, map library) are cached the first time they load.
    - Place searches, routes and opening hours fall back to their last saved answer when offline.
    - Map pieces saved with "Save map for offline" are shown when there's no connection. */
-const VERSION = 'mappin-1.0.8';
+const VERSION = 'mappin-1.0.9';
 const TILE_CACHE = 'mappin-tiles';
 const DATA_CACHE = 'mappin-data';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png', './privacy.html'];
 const LIB_HOSTS = ['unpkg.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 const DATA_HOSTS = ['nominatim.openstreetmap.org', 'photon.komoot.io', 'overpass-api.de', 'overpass.private.coffee',
-  'routing.openstreetmap.de', 'wikipedia.org', 'wikidata.org', 'commons.wikimedia.org', 'upload.wikimedia.org'];
+  'routing.openstreetmap.de', 'api.open-meteo.com', 'wikipedia.org', 'wikidata.org', 'commons.wikimedia.org', 'upload.wikimedia.org'];
 const MAX_DATA_ENTRIES = 400;
 
 self.addEventListener('install', event => {
