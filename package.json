@@ -1,0 +1,35 @@
+{
+  "name": "mappin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mappin – plan trips day by day on a map. Website + iOS + Android (Capacitor).",
+  "scripts": {
+    "vendor": "node scripts/copy-vendor.mjs",
+    "serve": "npx --yes serve www -l 8080",
+    "android:init": "npm run vendor && npx cap add android && npx capacitor-assets generate --android --assetPath assets && node scripts/patch-native.mjs && npx cap sync android",
+    "android:open": "npx cap open android",
+    "ios:init": "npm run vendor && npx cap add ios && npx capacitor-assets generate --ios --assetPath assets && node scripts/patch-native.mjs && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "sync": "npm run vendor && npx cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/filesystem": "^7.0.0",
+    "@capacitor/geolocation": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/share": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0",
+    "@fontsource/inter": "^5.0.0",
+    "@fortawesome/fontawesome-free": "^6.4.0",
+    "leaflet": "1.9.4",
+    "papaparse": "5.4.1",
+    "sortablejs": "1.15.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.0",
+    "@capacitor/cli": "^7.0.0"
+  }
+}

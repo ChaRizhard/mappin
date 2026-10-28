@@ -1,0 +1,19 @@
+{
+  "appId": "com.mappin.travel",
+  "appName": "Mappin",
+  "webDir": "www",
+  "backgroundColor": "#0f172a",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "launchAutoHide": true,
+      "backgroundColor": "#0f172a",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0f172a",
+      "overlaysWebView": false
+    }
+  }
+}
