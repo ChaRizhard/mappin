@@ -21,7 +21,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Mappin">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -1844,11 +1844,26 @@
       <path d="M10 11v6M14 11v6"/>
     </svg>`;
 
+  // Map image resolution: 2x on sharp screens; 4x on very sharp phones (iPhone Pro Max etc.) if the tile server supports it
+  let TILE_SCALE = (window.devicePixelRatio || 1) > 1.3 ? 2 : 1;
+  if ((window.devicePixelRatio || 1) >= 2.5) { const s = parseInt(loadPref('mappin_tile_scale', '')); if (s) TILE_SCALE = s; }
+
+  function probeTileScale() {
+    if ((window.devicePixelRatio || 1) < 2.5 || loadPref('mappin_tile_scale', '')) return;
+    const img = new Image();
+    img.onload = () => {
+      const s = img.naturalWidth >= 1000 ? 4 : img.naturalWidth >= 700 ? 3 : 2;
+      savePref('mappin_tile_scale', String(s));
+      if (s !== TILE_SCALE) { TILE_SCALE = s; if (map) switchTileLayer(currentTileType); }
+    };
+    img.src = 'https://mt1.google.com/vt/lyrs=m&scale=4&x=3638&y=1612&z=12';
+  }
+
   function tileUrl(type) {
     const hl = (LANGUAGES.find(l => l.code === LANG) || LANGUAGES[0]).tiles;
     const lyrs = type === 'sat' ? 'y' : 'm';
     // High-resolution tiles on sharp screens (phones, Retina), so the map isn't blurry
-    const scale = (window.devicePixelRatio || 1) > 1.3 ? '&scale=2' : '';
+    const scale = TILE_SCALE > 1 ? `&scale=${TILE_SCALE}` : '';
     return `https://mt1.google.com/vt/lyrs=${lyrs}&hl=${hl}${scale}&x={x}&y={y}&z={z}`;
   }
 
@@ -1883,6 +1898,7 @@
     map.getContainer().addEventListener('wheel', () => { userMovedMap = true; }, { passive: true });
     window.addEventListener('resize', () => map.invalidateSize());
     initSheetDrag();
+    probeTileScale();
 
     updateRouteButtons();
     updateAutosaveSwitch();
@@ -2145,7 +2161,7 @@
     const b = $(`btn-${type}`); if (b) b.classList.add('active');
     if (currentTileLayer) map.removeLayer(currentTileLayer);
     currentTileLayer = L.tileLayer(tileUrl(type), {
-      maxZoom: 19, attribution: '&copy; Google Maps',
+      maxZoom: 20, maxNativeZoom: 20, tileSize: 256, detectRetina: false, attribution: '&copy; Google Maps',
       className: type === 'dark' ? 'dark-mode-tiles' : ''
     }).addTo(map);
   }
@@ -2153,6 +2169,7 @@
   /* ---------- Phone list sheet: drag the bar to resize, tap it to switch between half and full ---------- */
   const isPortraitPhone = () => window.matchMedia('(max-width: 820px) and (min-height: 521px)').matches;
   let sheetState = 'mid';
+  let sheetCustomRatio = 0.46; // height chosen by dragging, as a share of the screen
 
   function sheetHeights() {
     const total = document.querySelector('.main-content').getBoundingClientRect().height;
@@ -2163,7 +2180,8 @@
     const sb = $('sidebar');
     if (!isPortraitPhone()) { sb.style.height = ''; return; }
     sheetState = state;
-    sb.style.height = sheetHeights()[state] + 'px';
+    const h = sheetHeights();
+    sb.style.height = (state === 'custom' ? Math.round(Math.max(h.min, Math.min(h.max, h.total * sheetCustomRatio))) : h[state]) + 'px';
     sb.classList.toggle('expanded', state === 'max');
     setTimeout(() => map && map.invalidateSize(), 280);
   }
@@ -2194,9 +2212,11 @@
         active = false;
         sb.classList.remove('dragging');
         if (!moved) { if (el.id === 'sheet-handle') toggleSheet(); return; }
+        // Stays exactly where you let go (it only clicks into place when very close to small, half or full)
         const cur = sb.getBoundingClientRect().height, h = sheetHeights();
         const nearest = ['min', 'mid', 'max'].sort((a, b) => Math.abs(h[a] - cur) - Math.abs(h[b] - cur))[0];
-        setSheet(nearest);
+        if (Math.abs(h[nearest] - cur) < 20) setSheet(nearest);
+        else { sheetCustomRatio = cur / h.total; setSheet('custom'); }
       };
       el.addEventListener('pointerup', end);
       el.addEventListener('pointercancel', end);
@@ -4494,6 +4514,7 @@
   // Enter / magnifier: show every matching place in the area (like Google Maps) and move the map there
   async function executeSearch() {
     const query = $('search-input').value.trim();
+    $('search-input').blur();
     if (!query) return;
     clearTimeout(searchTimeout);
     const box = $('search-results');
@@ -4576,6 +4597,7 @@
 
   function previewPlaceObj(p) {
     $('search-results').style.display = 'none';
+    $('search-input').blur();
     showPreviewPin(p, relocateTargetId !== null ? 'relocate' : 'add', { fly: true });
   }
 
@@ -5429,7 +5451,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.0.1';
+  const APP_VERSION = '1.0.2';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -5467,8 +5489,35 @@
     setOnline();
 
     if (IS_NATIVE) initNative();
+    initZoomReset();
     cloudInit();
     scheduleHoursCheck(4000);
+  }
+
+  /* ---------- iPhone: zoom the page back out after typing ----------
+     iOS zooms in when you tap a text box; it never zooms back out by itself. */
+  function resetPageZoom() {
+    if (!isIos()) return;
+    const vp = document.querySelector('meta[name="viewport"]');
+    if (!vp) return;
+    const base = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
+    vp.setAttribute('content', base + ', maximum-scale=1.0');
+    setTimeout(() => vp.setAttribute('content', base), 400);
+  }
+
+  function initZoomReset() {
+    document.addEventListener('focusout', e => {
+      if (!e.target.matches || !e.target.matches('input, textarea, select')) return;
+      setTimeout(() => {
+        const a = document.activeElement;
+        if (!a || !a.matches || !a.matches('input, textarea, select')) resetPageZoom();
+      }, 60);
+    });
+    // iPhone doesn't close the keyboard when you tap somewhere else, so do it for the search box
+    document.addEventListener('pointerdown', e => {
+      const a = document.activeElement;
+      if (a && a.id === 'search-input' && !e.target.closest('.search-container')) a.blur();
+    }, true);
   }
 
   function isStandalone() { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
