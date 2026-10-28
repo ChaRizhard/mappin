@@ -2,11 +2,12 @@
    - The app itself (this folder) is cached and updated in the background.
    - Libraries from the online fallbacks (fonts, icons, map library) are cached the first time they load.
    - Place searches, routes and opening hours fall back to their last saved answer when offline.
-   Map images are not stored by Mappin; whatever your browser has cached may still show. */
-const VERSION = 'mappin-1.0.6';
+   - Map pieces saved with "Save map for offline" are shown when there's no connection. */
+const VERSION = 'mappin-1.0.7';
+const TILE_CACHE = 'mappin-tiles';
 const DATA_CACHE = 'mappin-data';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
+  './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png', './privacy.html'];
 const LIB_HOSTS = ['unpkg.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 const DATA_HOSTS = ['nominatim.openstreetmap.org', 'photon.komoot.io', 'overpass-api.de', 'overpass.private.coffee',
   'routing.openstreetmap.de', 'wikipedia.org', 'wikidata.org', 'commons.wikimedia.org', 'upload.wikimedia.org'];
@@ -30,7 +31,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k => k.startsWith('mappin-') && k !== VERSION && k !== DATA_CACHE).map(k => caches.delete(k)));
+    await Promise.all(keys.filter(k => k.startsWith('mappin-') && k !== VERSION && k !== DATA_CACHE && k !== TILE_CACHE).map(k => caches.delete(k)));
     await self.clients.claim();
   })());
 });
@@ -106,5 +107,23 @@ self.addEventListener('fetch', event => {
       }
     })());
   }
-  // Everything else (map images etc.) goes straight to the network
+  // Map pieces: use the network; with no connection (or a very slow one), use any saved for offline
+  if (/^mt\d\.google\.com$/.test(url.hostname) || url.hostname === 'tile.googleapis.com') {
+    event.respondWith((async () => {
+      const key = tileKey(req.url);
+      try {
+        return await Promise.race([fetch(req), new Promise((_, rej) => setTimeout(() => rej(new Error('slow')), 6000))]);
+      } catch (e) {
+        const cache = await caches.open(TILE_CACHE);
+        const cached = await cache.match(key);
+        if (cached) return cached;
+        return fetch(req);
+      }
+    })());
+  }
+  // Everything else goes straight to the network
 });
+
+function tileKey(u) {
+  return u.replace(/([?&])(session|key)=[^&]*/g, '$1').replace(/[?&]+$/, '').replace(/&&+/g, '&').replace(/\?&/, '?');
+}

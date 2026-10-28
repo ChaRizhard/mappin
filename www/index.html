@@ -746,17 +746,24 @@
     /* Phones: top bar moved into the list panel (out of the way of the status bar) */
     .header-in-sheet header {
       min-height: 0; background: var(--tint); border: 1px solid var(--panel-border); border-radius: 12px;
-      margin: 2px 12px 4px; padding: 8px 10px 8px 12px; flex-wrap: nowrap; z-index: 5;
+      margin: 2px 12px 4px; padding: 8px 10px 8px 12px; flex-wrap: nowrap; z-index: 5; flex-shrink: 0;
     }
     .header-in-sheet .sidebar-header { padding-top: 14px; }
     .header-in-sheet .brand-title .brand-sub { display: none; }
     .header-in-sheet .brand-title h1 { font-size: 19px; }
+    /* Top of the screen in the iPhone Home Screen app (Settings -> Top of screen).
+       iOS 26 blurs whatever busy content sits under the clock, so by default the map gets a soft
+       dark fade there instead of a hard bar: the clock stays sharp and the map still runs to the edge. */
     #status-shield { display: none; }
     .header-in-sheet #status-shield {
-      display: block; position: fixed; top: 0; left: 0; right: 0; height: var(--sa-t); z-index: 2500;
-      background: var(--header-bg); pointer-events: none;
+      display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 2500; pointer-events: none;
+      height: calc(var(--sa-t) * 1.45);
+      background: linear-gradient(to bottom, #0f172a 0, #0f172a calc(var(--sa-t) * 0.5), rgba(15,23,42,0.55) calc(var(--sa-t) * 0.95), rgba(15,23,42,0) 100%);
     }
-    .header-in-sheet #app-container { padding-top: var(--sa-t); }
+    :root.header-in-sheet[data-topbar="solid"] #status-shield { height: var(--sa-t); background: var(--header-bg); }
+    :root.header-in-sheet[data-topbar="solid"] #app-container { padding-top: var(--sa-t); }
+    :root.header-in-sheet[data-topbar="edge"] #status-shield { display: none; }
+    .header-in-sheet:not([data-topbar="solid"]) .map-controls-overlay { top: calc(var(--sa-t) + 8px) !important; }
     .dropdown-menu { max-height: calc(100vh - 16px); overflow-y: auto; }
 
     /* Filters row: sort + category chips */
@@ -917,7 +924,25 @@
       :root[data-side="right"] .locate-btn { left: max(10px, var(--sa-l)); right: auto; }
       .activity-card:hover { transform: none; }
       .modal-box { max-height: 92vh; }
+      .header-in-sheet header { margin: max(12px, calc(var(--sa-t) + 8px)) 12px 4px; }
+      .header-in-sheet .sidebar-header { padding-top: 12px; }
     }
+    /* 1.0.7 */
+    .header-in-sheet:not([data-topbar="solid"]) #offline-banner { padding-top: calc(var(--sa-t) + 7px); }
+    .tp-notes { font-size: 12px; color: var(--text-main); opacity: 0.85; margin-top: 6px; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .tp-photo { width: 76px; height: 76px; object-fit: cover; border-radius: 10px; flex-shrink: 0; border: 1px solid var(--panel-border); }
+    #view-banner { display: none; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 12px 0; padding: 8px 10px; border-radius: 10px;
+      background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.35); font-size: 12px; font-weight: 600; color: var(--text-main); }
+    #view-banner span { flex: 1 1 160px; }
+    #view-banner .btn { padding: 6px 10px; font-size: 12px; }
+    .view-only .card-action-btn, .view-only #undo-btn, .view-only #redo-btn, .view-only .empty-actions,
+    .view-only .header-actions .btn-success { display: none !important; }
+    .share-choice { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; padding: 12px; margin-bottom: 10px; border-radius: 12px;
+      border: 1px solid var(--panel-border); background: var(--tint); color: var(--text-main); cursor: pointer; font: inherit; }
+    .share-choice:hover { border-color: var(--accent-blue); }
+    .share-choice i { font-size: 18px; color: var(--accent-blue); margin-top: 2px; width: 22px; text-align: center; }
+    .share-choice b { display: block; font-size: 14px; margin-bottom: 2px; }
+    .share-choice small { color: var(--text-muted); font-size: 12px; }
   </style>
 </head>
 <body>
@@ -968,6 +993,7 @@
           <div class="context-menu-item" onclick="closeAppMenu(); printItinerary()"><i class="fa-solid fa-print"></i> <span data-i18n="printPdf">Print or save as PDF</span></div>
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); shareTrip()"><i class="fa-solid fa-link"></i> <span data-i18n="shareLink">Copy share link</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); saveViewOffline()"><i class="fa-solid fa-download"></i> <span data-i18n="saveOfflineArea">Save this map area offline</span></div>
           <div class="context-menu-item" id="install-menu-item" style="display:none" onclick="closeAppMenu(); installApp()"><i class="fa-solid fa-mobile-screen-button"></i> <span data-i18n="installApp">Install app</span></div>
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openSettings()"><i class="fa-solid fa-gear"></i> <span data-i18n="settings">Settings</span></div>
@@ -981,6 +1007,9 @@
   <div class="main-content">
     <sidebar id="sidebar">
       <div class="sheet-handle" id="sheet-handle" data-i18n-title="expandList"><span></span></div>
+      <div id="view-banner"><span><i class="fa-solid fa-eye"></i> <span data-i18n="viewOnlyBanner">Viewing a shared trip. Changes aren't saved.</span></span>
+        <button class="btn btn-primary" onclick="keepSharedCopy()" data-i18n="keepCopy">Keep a copy</button>
+        <button class="btn btn-secondary" onclick="backToMyTrip()" data-i18n="backToMine">Back to my trip</button></div>
       <div class="sidebar-header">
         <div class="sidebar-title-row">
           <span class="sidebar-title"><i class="fa-solid fa-route"></i> <span data-i18n="dayStops">Itinerary</span></span>
@@ -1113,6 +1142,17 @@
 </div>
 
 <!-- Settings -->
+<div class="modal-overlay" id="share-modal" onclick="handleOutsideModalClick(event, 'share-modal')">
+  <div class="modal-box" style="width: 420px;">
+    <div class="modal-title">
+      <span data-i18n="shareTitle">Share trip</span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="document.getElementById('share-modal').style.display='none'"></i>
+    </div>
+    <button class="share-choice" onclick="chooseShare(false)"><i class="fa-solid fa-pen-to-square"></i><span><b data-i18n="shareEditable">Editable copy</b><small data-i18n="shareEditableHint">They get their own copy to change.</small></span></button>
+    <button class="share-choice" onclick="chooseShare(true)"><i class="fa-solid fa-eye"></i><span><b data-i18n="shareView">View only</b><small data-i18n="shareViewHint">They can look around and use Today mode. Nothing is saved on their device.</small></span></button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="settings-modal" onclick="handleOutsideModalClick(event, 'settings-modal')">
   <div class="modal-box" style="width: 480px;">
     <div class="modal-title">
@@ -1831,6 +1871,102 @@
   };
   Object.keys(I18N_EXTRA2).forEach(l => Object.assign(I18N[l], I18N_EXTRA2[l]));
 
+  // Strings added in 1.0.7: top of screen, offline maps, view-only sharing, privacy
+  const I18N_EXTRA3 = {
+    en: {
+      topBar: 'Top of screen', topFade: 'Soft fade', topSolid: 'Solid bar', topEdge: 'Map to the top',
+      topBarHint: 'iPhone app only. iOS blurs a busy map under the clock. Soft fade keeps the map running to the top with a gentle shade behind the clock. Map to the top has no shade, but iOS will blur that area.',
+      saveOffline: 'Save map for offline', saveOfflineArea: 'Save this map area offline', offlineSaving: 'Saving map for offline… {n}%',
+      offlineSaved: 'Map saved for offline ({n} map pieces).', offlineFailed: "Couldn't save the map for offline.", offlineTooBig: 'That area is too big to save. Zoom in a little and try again.',
+      offlineNoStops: 'This day has no stops on the map yet.', offlineNeedsNet: 'Connect to the internet to save maps for offline.',
+      offlineSection: 'Offline maps', offlineHint: "Save a day's map before you go: tap ☰ on the day → Save map for offline. Saved maps also show when you have no signal.",
+      offlineCount: 'Saved map pieces: {n}', offlineClear: 'Delete saved maps', offlineCleared: 'Saved maps deleted',
+      shareTitle: 'Share trip', shareEditable: 'Editable copy', shareEditableHint: 'They get their own copy to change.',
+      shareView: 'View only', shareViewHint: 'They can look around and use Today mode. Nothing is saved on their device.',
+      viewOnlyBanner: "Viewing a shared trip. Changes aren't saved.", keepCopy: 'Keep a copy', backToMine: 'Back to my trip',
+      keepCopyConfirm: 'Replace the trip on this device with this shared trip?', copyKept: 'Saved to this device', privacy: 'Privacy policy'
+    },
+    ja: {
+      topBar: '画面上部', topFade: 'ぼかし', topSolid: '帯', topEdge: '端まで地図',
+      topBarHint: 'iPhone アプリのみ。iOS は時計の下にある地図をぼかします。「ぼかし」は時計の後ろを柔らかく暗くし、地図は上まで表示されます。「端まで地図」は影なしですが、iOS がその部分をぼかします。',
+      saveOffline: 'オフライン用に地図を保存', saveOfflineArea: 'この範囲の地図をオフライン保存', offlineSaving: 'オフライン用に保存中… {n}%',
+      offlineSaved: 'オフライン用に保存しました（{n} 枚）。', offlineFailed: 'オフライン用に保存できませんでした。', offlineTooBig: '範囲が広すぎます。少しズームインしてもう一度お試しください。',
+      offlineNoStops: 'この日には地図上のスポットがまだありません。', offlineNeedsNet: 'オフライン保存にはインターネット接続が必要です。',
+      offlineSection: 'オフライン地図', offlineHint: '出発前に日ごとの地図を保存：日の ☰ → オフライン用に地図を保存。電波がない時も保存した地図が表示されます。',
+      offlineCount: '保存済みの地図：{n} 枚', offlineClear: '保存した地図を削除', offlineCleared: '保存した地図を削除しました',
+      shareTitle: '旅程を共有', shareEditable: '編集できるコピー', shareEditableHint: '相手は自分用のコピーを編集できます。',
+      shareView: '閲覧のみ', shareViewHint: '見るだけで、今日モードも使えます。相手の端末には何も保存されません。',
+      viewOnlyBanner: '共有された旅程を表示中。変更は保存されません。', keepCopy: 'コピーを保存', backToMine: '自分の旅程に戻る',
+      keepCopyConfirm: 'この端末の旅程を共有された旅程に置き換えますか？', copyKept: 'この端末に保存しました', privacy: 'プライバシーポリシー'
+    },
+    zh: {
+      topBar: '屏幕顶部', topFade: '柔和渐变', topSolid: '纯色条', topEdge: '地图到顶',
+      topBarHint: '仅限 iPhone 应用。iOS 会模糊时钟下方的地图。“柔和渐变”在时钟后加一层淡淡的阴影，地图仍延伸到顶部。“地图到顶”没有阴影，但 iOS 会模糊该区域。',
+      saveOffline: '保存地图供离线使用', saveOfflineArea: '离线保存此区域地图', offlineSaving: '正在保存离线地图… {n}%',
+      offlineSaved: '已保存离线地图（{n} 块）。', offlineFailed: '无法保存离线地图。', offlineTooBig: '区域太大，请放大一点后重试。',
+      offlineNoStops: '这一天在地图上还没有地点。', offlineNeedsNet: '保存离线地图需要联网。',
+      offlineSection: '离线地图', offlineHint: '出发前保存当天的地图：点该天的 ☰ → 保存地图供离线使用。没有信号时也会显示已保存的地图。',
+      offlineCount: '已保存地图块：{n}', offlineClear: '删除已保存地图', offlineCleared: '已删除保存的地图',
+      shareTitle: '分享行程', shareEditable: '可编辑副本', shareEditableHint: '对方会得到自己的副本，可以修改。',
+      shareView: '仅查看', shareViewHint: '对方可以浏览并使用今日模式，不会在其设备上保存任何内容。',
+      viewOnlyBanner: '正在查看分享的行程，更改不会保存。', keepCopy: '保存副本', backToMine: '返回我的行程',
+      keepCopyConfirm: '用这个分享的行程替换此设备上的行程？', copyKept: '已保存到此设备', privacy: '隐私政策'
+    },
+    ko: {
+      topBar: '화면 상단', topFade: '부드러운 그늘', topSolid: '단색 막대', topEdge: '지도 끝까지',
+      topBarHint: 'iPhone 앱 전용. iOS는 시계 아래의 지도를 흐리게 합니다. "부드러운 그늘"은 시계 뒤에 옅은 그늘을 넣고 지도는 위까지 보여 줍니다. "지도 끝까지"는 그늘이 없지만 iOS가 그 부분을 흐리게 합니다.',
+      saveOffline: '오프라인용 지도 저장', saveOfflineArea: '이 지도 영역을 오프라인 저장', offlineSaving: '오프라인용 지도 저장 중… {n}%',
+      offlineSaved: '오프라인용 지도를 저장했어요({n}개).', offlineFailed: '오프라인용 지도를 저장하지 못했어요.', offlineTooBig: '영역이 너무 넓어요. 조금 확대한 뒤 다시 시도하세요.',
+      offlineNoStops: '이 날에는 아직 지도에 표시된 장소가 없어요.', offlineNeedsNet: '오프라인 지도를 저장하려면 인터넷에 연결하세요.',
+      offlineSection: '오프라인 지도', offlineHint: '떠나기 전에 하루의 지도를 저장하세요: 날짜의 ☰ → 오프라인용 지도 저장. 신호가 없을 때도 저장한 지도가 보여요.',
+      offlineCount: '저장된 지도 조각: {n}', offlineClear: '저장된 지도 삭제', offlineCleared: '저장된 지도를 삭제했어요',
+      shareTitle: '여행 공유', shareEditable: '편집 가능한 사본', shareEditableHint: '받는 사람이 직접 수정할 수 있는 사본을 받아요.',
+      shareView: '보기 전용', shareViewHint: '둘러보고 오늘 모드를 쓸 수 있어요. 받는 사람의 기기에는 아무것도 저장되지 않아요.',
+      viewOnlyBanner: '공유된 여행을 보는 중입니다. 변경 내용은 저장되지 않아요.', keepCopy: '사본 저장', backToMine: '내 여행으로 돌아가기',
+      keepCopyConfirm: '이 기기의 여행을 공유된 여행으로 바꿀까요?', copyKept: '이 기기에 저장했어요', privacy: '개인정보 처리방침'
+    },
+    es: {
+      topBar: 'Parte superior', topFade: 'Degradado', topSolid: 'Barra sólida', topEdge: 'Mapa hasta arriba',
+      topBarHint: 'Solo en la app del iPhone. iOS difumina el mapa bajo el reloj. Degradado deja el mapa hasta arriba con una sombra suave tras el reloj. Mapa hasta arriba no tiene sombra, pero iOS difuminará esa zona.',
+      saveOffline: 'Guardar mapa sin conexión', saveOfflineArea: 'Guardar esta zona sin conexión', offlineSaving: 'Guardando mapa sin conexión… {n} %',
+      offlineSaved: 'Mapa guardado sin conexión ({n} piezas).', offlineFailed: 'No se pudo guardar el mapa sin conexión.', offlineTooBig: 'La zona es demasiado grande. Acércate un poco y vuelve a intentarlo.',
+      offlineNoStops: 'Este día aún no tiene paradas en el mapa.', offlineNeedsNet: 'Conéctate a internet para guardar mapas sin conexión.',
+      offlineSection: 'Mapas sin conexión', offlineHint: 'Guarda el mapa de un día antes de salir: toca ☰ en el día → Guardar mapa sin conexión. Los mapas guardados también se ven sin cobertura.',
+      offlineCount: 'Piezas de mapa guardadas: {n}', offlineClear: 'Borrar mapas guardados', offlineCleared: 'Mapas guardados borrados',
+      shareTitle: 'Compartir viaje', shareEditable: 'Copia editable', shareEditableHint: 'Reciben su propia copia para modificarla.',
+      shareView: 'Solo ver', shareViewHint: 'Pueden mirarlo y usar el modo Hoy. No se guarda nada en su dispositivo.',
+      viewOnlyBanner: 'Estás viendo un viaje compartido. Los cambios no se guardan.', keepCopy: 'Guardar una copia', backToMine: 'Volver a mi viaje',
+      keepCopyConfirm: '¿Sustituir el viaje de este dispositivo por este viaje compartido?', copyKept: 'Guardado en este dispositivo', privacy: 'Política de privacidad'
+    },
+    fr: {
+      topBar: 'Haut de l’écran', topFade: 'Fondu', topSolid: 'Barre pleine', topEdge: 'Carte jusqu’en haut',
+      topBarHint: 'App iPhone uniquement. iOS floute la carte sous l’horloge. Fondu garde la carte jusqu’en haut avec une ombre douce derrière l’horloge. Carte jusqu’en haut n’a pas d’ombre, mais iOS floutera cette zone.',
+      saveOffline: 'Enregistrer la carte hors ligne', saveOfflineArea: 'Enregistrer cette zone hors ligne', offlineSaving: 'Enregistrement hors ligne… {n} %',
+      offlineSaved: 'Carte enregistrée hors ligne ({n} morceaux).', offlineFailed: 'Impossible d’enregistrer la carte hors ligne.', offlineTooBig: 'Zone trop grande. Zoomez un peu et réessayez.',
+      offlineNoStops: 'Ce jour n’a encore aucune étape sur la carte.', offlineNeedsNet: 'Connectez-vous à internet pour enregistrer des cartes hors ligne.',
+      offlineSection: 'Cartes hors ligne', offlineHint: 'Enregistrez la carte d’un jour avant de partir : touchez ☰ sur le jour → Enregistrer la carte hors ligne. Les cartes enregistrées s’affichent aussi sans réseau.',
+      offlineCount: 'Morceaux de carte enregistrés : {n}', offlineClear: 'Supprimer les cartes enregistrées', offlineCleared: 'Cartes enregistrées supprimées',
+      shareTitle: 'Partager le voyage', shareEditable: 'Copie modifiable', shareEditableHint: 'Ils reçoivent leur propre copie à modifier.',
+      shareView: 'Lecture seule', shareViewHint: 'Ils peuvent consulter et utiliser le mode Aujourd’hui. Rien n’est enregistré sur leur appareil.',
+      viewOnlyBanner: 'Vous consultez un voyage partagé. Les modifications ne sont pas enregistrées.', keepCopy: 'Garder une copie', backToMine: 'Revenir à mon voyage',
+      keepCopyConfirm: 'Remplacer le voyage de cet appareil par ce voyage partagé ?', copyKept: 'Enregistré sur cet appareil', privacy: 'Politique de confidentialité'
+    },
+    de: {
+      topBar: 'Oberer Bildschirmrand', topFade: 'Sanfter Verlauf', topSolid: 'Feste Leiste', topEdge: 'Karte bis oben',
+      topBarHint: 'Nur in der iPhone-App. iOS macht die Karte unter der Uhr unscharf. Sanfter Verlauf lässt die Karte bis oben laufen, mit einem leichten Schatten hinter der Uhr. Karte bis oben hat keinen Schatten, aber iOS macht den Bereich unscharf.',
+      saveOffline: 'Karte offline speichern', saveOfflineArea: 'Diesen Kartenbereich offline speichern', offlineSaving: 'Karte wird offline gespeichert… {n} %',
+      offlineSaved: 'Karte offline gespeichert ({n} Kartenteile).', offlineFailed: 'Die Karte konnte nicht offline gespeichert werden.', offlineTooBig: 'Der Bereich ist zu groß. Zoome etwas hinein und versuche es erneut.',
+      offlineNoStops: 'Dieser Tag hat noch keine Stopps auf der Karte.', offlineNeedsNet: 'Zum Offline-Speichern bitte mit dem Internet verbinden.',
+      offlineSection: 'Offline-Karten', offlineHint: 'Speichere die Karte eines Tages vor dem Losgehen: ☰ am Tag → Karte offline speichern. Gespeicherte Karten erscheinen auch ohne Empfang.',
+      offlineCount: 'Gespeicherte Kartenteile: {n}', offlineClear: 'Gespeicherte Karten löschen', offlineCleared: 'Gespeicherte Karten gelöscht',
+      shareTitle: 'Reise teilen', shareEditable: 'Bearbeitbare Kopie', shareEditableHint: 'Sie bekommen ihre eigene Kopie zum Ändern.',
+      shareView: 'Nur ansehen', shareViewHint: 'Sie können alles ansehen und den Heute-Modus nutzen. Auf ihrem Gerät wird nichts gespeichert.',
+      viewOnlyBanner: 'Du siehst eine geteilte Reise. Änderungen werden nicht gespeichert.', keepCopy: 'Kopie behalten', backToMine: 'Zurück zu meiner Reise',
+      keepCopyConfirm: 'Die Reise auf diesem Gerät durch diese geteilte Reise ersetzen?', copyKept: 'Auf diesem Gerät gespeichert', privacy: 'Datenschutzerklärung'
+    }
+  };
+  Object.keys(I18N_EXTRA3).forEach(l => Object.assign(I18N[l], I18N_EXTRA3[l]));
+
   /* =========================================================
      STATE
      ========================================================= */
@@ -1936,6 +2072,7 @@
   }
 
   function tileUrl(type) {
+    if (typeof gmpTileUrl === 'function') { const official = gmpTileUrl(type); if (official) return official; }
     const hl = (LANGUAGES.find(l => l.code === LANG) || LANGUAGES[0]).tiles;
     const lyrs = type === 'sat' ? 'y' : 'm';
     // High-resolution tiles on sharp screens (phones, Retina), so the map isn't blurry
@@ -2224,6 +2361,7 @@
   }
 
   function scheduleAutosave() {
+    if (VIEW_ONLY) return; // a view-only shared trip is never saved on this device
     scheduleCloudSync();
     if (!autosaveOn || singlePreviewBackup || masterPreviewBackup) return; // never persist an unsaved preview
     clearTimeout(autosaveTimer);
@@ -3100,6 +3238,7 @@
       ${inDayGroup ? `<div class="context-menu-item" onclick="removeDayFromDayGroup(${day})"><i class="fa-solid fa-arrow-right-from-bracket"></i> ${t('removeFromDayGroup')}</div>` : ''}
       <div class="menu-divider"></div>
       <div class="context-menu-item" onclick="autoFillTimes(${day})"><i class="fa-solid fa-wand-magic-sparkles"></i> ${t('autoTimes')}</div>
+      <div class="context-menu-item" onclick="saveDayOffline(${day})"><i class="fa-solid fa-download"></i> ${t('saveOffline')}</div>
       <div class="menu-divider"></div>
       <div class="context-menu-item" onclick="closeMenus(); insertDayAt(${day})"><i class="fa-solid fa-arrow-up"></i> ${t('addDayAbove')}</div>
       <div class="context-menu-item" onclick="closeMenus(); insertDayAt(${day + 1})"><i class="fa-solid fa-arrow-down"></i> ${t('addDayBelow')}</div>
@@ -3645,6 +3784,7 @@
     return {
       group: 'shared-days',
       animation: 150,
+      disabled: VIEW_ONLY,
       // On touch screens a press-and-hold picks a card up, so normal swipes scroll the list
       delay: 280,
       delayOnTouchOnly: true,
@@ -5229,25 +5369,7 @@
     if (!photoBox) return;
     let url = null, extract = '';
     try {
-      if (tg.image && /^https?:\/\/.+\.(jpe?g|png|webp)(\?|$)/i.test(tg.image)) url = tg.image;
-      if (!url && tg.wikimedia_commons && /^File:/i.test(tg.wikimedia_commons)) {
-        url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(tg.wikimedia_commons.replace(/^File:/i, ''))}?width=480`;
-      }
-      if (tg.wikipedia) {
-        const m = tg.wikipedia.match(/^([a-z-]+):(.+)$/i);
-        if (m) {
-          const d = await fetchJson(`https://${m[1]}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(m[2].replace(/ /g, '_'))}`, 5000).catch(() => null);
-          if (d) {
-            if (!url && d.thumbnail) url = d.thumbnail.source;
-            if (m[1] === LANG && d.extract) extract = d.extract;
-          }
-        }
-      }
-      if (!url && tg.wikidata) {
-        const d = await fetchJson(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${encodeURIComponent(tg.wikidata)}&property=P18&format=json&origin=*`, 5000).catch(() => null);
-        const file = d && d.claims && d.claims.P18 && d.claims.P18[0].mainsnak.datavalue && d.claims.P18[0].mainsnak.datavalue.value;
-        if (file) url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=480`;
-      }
+      ({ url, extract } = await photoUrlForTags(tg));
     } catch (e) {}
     if (!$(`${boxId}-photo`)) return; // popup closed meanwhile
     if (url) {
@@ -5575,20 +5697,21 @@
     return location.origin === 'null' || location.protocol === 'file:' ? location.href.split('#')[0] : location.origin + location.pathname;
   }
 
-  async function shareTrip() {
+  async function shareTripLink(viewOnly) {
     if (!rawData.length) { alert(t('nothingToSave')); return; }
+    const v = viewOnly ? '&v=1' : '';
     const base = publicBase();
     if (!base) { showToast(t('needPublicUrl'), { ms: 6000 }); exportMapCSV(); return; }
     let url = null, short = false;
     if (cloudReady() && CLOUD.session && navigator.onLine) {
-      try { url = `${base}#s=${encodeURIComponent(await cloudCreateShare(shareState()))}`; short = true; }
+      try { url = `${base}#s=${encodeURIComponent(await cloudCreateShare(shareState()))}${v}`; short = true; }
       catch (e) { showToast(t('cloudError', { msg: e.message }), { ms: 5000 }); }
     }
     if (!url) {
       if (typeof CompressionStream === 'undefined') { alert(t('shareUnsupported')); return; }
       const json = new TextEncoder().encode(JSON.stringify(shareState()));
       const compressed = new Uint8Array(await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
-      url = `${base}#trip=${b64urlEncode(compressed)}`;
+      url = `${base}#trip=${b64urlEncode(compressed)}${v}`;
       if (url.length > 60000) { alert(t('shareTooLarge')); return; }
     }
     try {
@@ -5603,6 +5726,7 @@
     const shortId = (location.hash.match(/[#&]s=([A-Za-z0-9_-]+)/) || [])[1];
     const m = location.hash.match(/trip=([A-Za-z0-9_-]+)/);
     if (!shortId && !m) return;
+    const viewOnly = /[#&]v=1(&|$)/.test(location.hash);
     try {
       let s;
       if (shortId) {
@@ -5615,7 +5739,8 @@
       }
       history.replaceState(null, '', location.href.split('#')[0]);
       if (!s) return;
-      if (rawData.length && !confirm(t('sharedTripOpen'))) return;
+      if (viewOnly) enterViewOnly();
+      else if (rawData.length && !confirm(t('sharedTripOpen'))) return;
       openTripState(s, { cloudId: null, title: (s.trip && s.trip.title) || '' });
     } catch (e) { /* not a valid link */ }
   }
@@ -5667,7 +5792,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.0.6';
+  const APP_VERSION = '1.0.7';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -6276,6 +6401,7 @@
             <button class="${loadPref('mappin_side', 'left') === 'right' ? 'active' : ''}" onclick="setSide('right')">${escapeHtml(t('sideRight'))} <i class="fa-solid fa-arrow-right"></i></button>
           </div></div>
         <p class="settings-note">${escapeHtml(t('listSideHint'))}</p>
+        ${topBarSettingHtml()}
         <div class="settings-row"><span>${escapeHtml(t('mapStyle'))}</span>
           <div class="segmented">
             <button class="${MAP_ENGINE !== 'vector' ? 'active' : ''}" onclick="setMapEngine('google')">${escapeHtml(t('mapGoogle'))}</button>
@@ -6290,6 +6416,7 @@
         <div class="settings-row"><span>${escapeHtml(t('checkHours'))}</span>${switchHtml(checkHoursOn, 'toggleCheckHours()', t('checkHours'))}</div>
         <p class="settings-note">${escapeHtml(t('checkHoursHint'))}</p>
       </div>
+      ${offlineSettingsHtml()}
       <div class="settings-section">
         <h3><i class="fa-solid fa-cloud"></i> ${escapeHtml(t('cloudSync'))}</h3>
         ${cloud}
@@ -6305,7 +6432,8 @@
       <div class="settings-section">
         <h3><i class="fa-solid fa-circle-info"></i> ${escapeHtml(t('about'))}</h3>
         <p class="settings-note">MapPin · ${escapeHtml(t('version', { v: APP_VERSION }))}${IS_NATIVE ? ' · app' : ''}<br>
-          Map data © OpenStreetMap contributors · Geocoding: Nominatim, Photon · Routes: FOSSGIS OSRM</p>
+          Map data © OpenStreetMap contributors · Geocoding: Nominatim, Photon · Routes: FOSSGIS OSRM${GMP.key ? ' · Map: Google Maps Platform' : ''}<br>
+          <a href="${escapeHtml((publicBase() || './').replace(/index\.html$/, '') + 'privacy.html')}" target="_blank" rel="noopener">${escapeHtml(t('privacy'))}</a></p>
         ${(!IS_NATIVE && !isStandalone() && (deferredInstall || isIos())) ? `<button class="btn btn-primary" onclick="installApp()"><i class="fa-solid fa-mobile-screen-button"></i> ${escapeHtml(t('installApp'))}</button>` : ''}
       </div>`;
   }
@@ -6707,6 +6835,7 @@
     const dirUrl = hasCoords(s)
       ? `https://www.google.com/maps/dir/?api=1${from && hasCoords(from) ? `&origin=${from.lat},${from.lng}` : ''}&destination=${s.lat},${s.lng}&travelmode=${directionsMode(from, s)}&hl=${LANG}`
       : googleSearchUrl({ name: s.cleanTitle || s.title, address: s.address });
+    loadTodayPhoto(s);
     panel.innerHTML = head + `
       <div class="tp-stop" onclick="focusTodayStop()">
         <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
@@ -6716,7 +6845,9 @@
           <div class="tp-meta">${s.time ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</span>` : ''}
             <span><i class="fa-solid ${categoryIcon(s.category)}"></i> ${escapeHtml(s.category)}</span>
             ${dist ? `<span><i class="fa-solid fa-route"></i> ${escapeHtml(dist)}</span>` : ''} ${hoursWarningHtml(s)}</div>
+          ${s.desc ? `<div class="tp-notes">${escapeHtml(s.desc)}</div>` : ''}
         </div>
+        ${todayPhotos[s.id] ? `<img class="tp-photo" src="${escapeHtml(todayPhotos[s.id])}" alt="" onerror="this.remove()">` : ''}
       </div>
       <div class="tp-actions">
         <button class="btn btn-secondary" onclick="todayStep(-1)" ${todayIdx === 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('previousStop'))}"><i class="fa-solid fa-chevron-left"></i></button>
@@ -6788,6 +6919,238 @@
     sel.value = [...sel.options].some(o => o.value === c) ? c : 'all';
     renderCategoryChips();
     renderItinerary();
+  }
+
+  /* =========================================================
+     1.0.7: top-of-screen style, offline maps, view-only sharing,
+     Today panel notes and photo, optional official Google map tiles
+     ========================================================= */
+  var VIEW_ONLY = false;
+
+  /* ---------- Top of the screen in the iPhone Home Screen app ---------- */
+  function applyTopBar() {
+    const v = loadPref('mappin_topbar', 'fade');
+    document.documentElement.setAttribute('data-topbar', ['fade', 'solid', 'edge'].includes(v) ? v : 'fade');
+  }
+  function setTopBar(v) {
+    savePref('mappin_topbar', v);
+    applyTopBar();
+    if (map) setTimeout(() => map.invalidateSize(), 80);
+    if ($('settings-modal').style.display === 'flex') renderSettings();
+  }
+  applyTopBar();
+
+  function topBarSettingHtml() {
+    if (!isIos()) return '';
+    const v = document.documentElement.getAttribute('data-topbar') || 'fade';
+    const b = (k, label) => `<button class="${v === k ? 'active' : ''}" onclick="setTopBar('${k}')">${escapeHtml(t(label))}</button>`;
+    return `<div class="settings-row"><span>${escapeHtml(t('topBar'))}</span>
+        <div class="segmented">${b('fade', 'topFade')}${b('solid', 'topSolid')}${b('edge', 'topEdge')}</div></div>
+      <p class="settings-note">${escapeHtml(t('topBarHint'))}</p>`;
+  }
+
+  /* ---------- Offline maps: save the map pieces for a day or the current view ---------- */
+  const TILE_CACHE = 'mappin-tiles';
+  const MAX_OFFLINE_TILES = 900;
+  let offlineSaving = false;
+
+  function tileKey(url) { return url.replace(/([?&])(session|key)=[^&]*/g, '$1').replace(/[?&]+$/, '').replace(/&&+/g, '&').replace(/\?&/, '?'); }
+  const lng2x = (lng, z) => Math.floor((lng + 180) / 360 * Math.pow(2, z));
+  const lat2y = (lat, z) => { const r = Math.max(-85, Math.min(85, lat)) * Math.PI / 180; return Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z)); };
+
+  function tilesForBounds(b, zmin, zmax) {
+    const out = [];
+    for (let z = zmin; z <= zmax; z++) {
+      const x0 = lng2x(b.getWest(), z), x1 = lng2x(b.getEast(), z), y0 = lat2y(b.getNorth(), z), y1 = lat2y(b.getSouth(), z);
+      for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) out.push({ x, y, z });
+    }
+    return out;
+  }
+
+  function progressToast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = `<span></span>`;
+    el.firstChild.textContent = msg;
+    $('toast-host').appendChild(el);
+    return { set: m => { el.firstChild.textContent = m; }, done: (m, ms = 4000) => { el.firstChild.textContent = m; setTimeout(() => el.remove(), ms); } };
+  }
+
+  function saveDayOffline(day) {
+    closeMenus();
+    const pts = rawData.filter(s => s.day === day && hasCoords(s)).map(s => [s.lat, s.lng]);
+    if (!pts.length) { showToast(t('offlineNoStops'), { ms: 3500 }); return; }
+    let b = L.latLngBounds(pts);
+    if (pts.length === 1) b = L.latLngBounds([pts[0][0] - 0.01, pts[0][1] - 0.012], [pts[0][0] + 0.01, pts[0][1] + 0.012]);
+    saveOfflineArea(b.pad(0.25));
+  }
+  function saveViewOffline() { saveOfflineArea(map.getBounds()); }
+
+  async function saveOfflineArea(bounds) {
+    if (offlineSaving) return;
+    if (!('caches' in window)) { showToast(t('offlineFailed'), { ms: 4000 }); return; }
+    if (!navigator.onLine) { showToast(t('offlineNeedsNet'), { ms: 4000 }); return; }
+    const zFit = Math.max(3, Math.min(16, map.getBoundsZoom(bounds)));
+    let zmin = Math.max(3, zFit - 2), zmax = 17;
+    let tiles = tilesForBounds(bounds, zmin, zmax);
+    while (tiles.length > MAX_OFFLINE_TILES && zmax > zFit) { zmax--; tiles = tilesForBounds(bounds, zmin, zmax); }
+    if (tiles.length > MAX_OFFLINE_TILES) { showToast(t('offlineTooBig'), { ms: 5000 }); return; }
+    const type = currentTileType === 'sat' ? 'sat' : 'light';
+    const tmpl = tileUrl(type);
+    offlineSaving = true;
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
+    const pt = progressToast(t('offlineSaving', { n: 0 }));
+    let cache;
+    try { cache = await caches.open(TILE_CACHE); } catch (e) { offlineSaving = false; pt.done(t('offlineFailed')); return; }
+    let done = 0, ok = 0, i = 0;
+    const worker = async () => {
+      while (i < tiles.length) {
+        const tl = tiles[i++];
+        const url = tmpl.replace('{x}', tl.x).replace('{y}', tl.y).replace('{z}', tl.z);
+        try {
+          let res = null;
+          try { res = await fetch(url, { mode: 'cors', credentials: 'omit' }); if (!res.ok) res = null; } catch (e) { res = null; }
+          if (!res) res = await fetch(url, { mode: 'no-cors', credentials: 'omit' });
+          if (res && (res.ok || res.type === 'opaque')) { await cache.put(tileKey(url), res); ok++; }
+        } catch (e) {}
+        done++;
+        if (done % 20 === 0) pt.set(t('offlineSaving', { n: Math.round(done / tiles.length * 100) }));
+      }
+    };
+    await Promise.all(Array.from({ length: 6 }, worker));
+    offlineSaving = false;
+    pt.done(ok ? t('offlineSaved', { n: ok }) : t('offlineFailed'), ok ? 4500 : 5000);
+    if ($('settings-modal').style.display === 'flex') refreshOfflineCount();
+  }
+
+  async function refreshOfflineCount() {
+    const el = $('offline-count');
+    if (!el) return;
+    try { const c = await caches.open(TILE_CACHE); el.textContent = t('offlineCount', { n: (await c.keys()).length }); }
+    catch (e) { el.textContent = ''; }
+  }
+  async function clearOfflineMaps() {
+    try { await caches.delete(TILE_CACHE); } catch (e) {}
+    showToast(t('offlineCleared'), { ms: 2500 });
+    refreshOfflineCount();
+  }
+  function offlineSettingsHtml() {
+    if (!('caches' in window)) return '';
+    setTimeout(refreshOfflineCount, 0);
+    return `<div class="settings-section">
+        <h3><i class="fa-solid fa-download"></i> ${escapeHtml(t('offlineSection'))}</h3>
+        <p class="settings-note">${escapeHtml(t('offlineHint'))}</p>
+        <div class="row-inline" style="margin-top:8px">
+          <button class="btn btn-primary" onclick="closeSettings(); saveViewOffline()"><i class="fa-solid fa-download"></i> ${escapeHtml(t('saveOfflineArea'))}</button>
+          <button class="btn btn-secondary" onclick="clearOfflineMaps()"><i class="fa-solid fa-trash"></i> ${escapeHtml(t('offlineClear'))}</button>
+        </div>
+        <p class="settings-note" id="offline-count" style="margin-top:6px"></p>
+      </div>`;
+  }
+
+  /* ---------- Sharing: editable copy or view only ---------- */
+  function shareTrip() {
+    if (!rawData.length) { alert(t('nothingToSave')); return; }
+    closeAppMenu();
+    $('share-modal').style.display = 'flex';
+  }
+  function chooseShare(viewOnly) {
+    $('share-modal').style.display = 'none';
+    shareTripLink(viewOnly);
+  }
+
+  function enterViewOnly() {
+    VIEW_ONLY = true;
+    clearTimeout(autosaveTimer);
+    document.documentElement.classList.add('view-only');
+    const b = $('view-banner');
+    if (b) b.style.display = 'flex';
+  }
+  function keepSharedCopy() {
+    if (!confirm(t('keepCopyConfirm'))) return;
+    VIEW_ONLY = false;
+    document.documentElement.classList.remove('view-only');
+    $('view-banner').style.display = 'none';
+    TRIP.cloudId = null;
+    renderItinerary();
+    scheduleAutosave();
+    showToast(t('copyKept'), { ms: 2500 });
+  }
+  function backToMyTrip() { location.reload(); }
+
+  /* ---------- Today panel: photo of the stop ---------- */
+  const todayPhotos = {}; // stop id -> url | '' (none) | null (loading)
+
+  async function photoUrlForTags(tg) {
+    let url = null, extract = '';
+    if (!tg) return { url, extract };
+    if (tg.image && /^https?:\/\/.+\.(jpe?g|png|webp)(\?|$)/i.test(tg.image)) url = tg.image;
+    if (!url && tg.wikimedia_commons && /^File:/i.test(tg.wikimedia_commons)) {
+      url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(tg.wikimedia_commons.replace(/^File:/i, ''))}?width=480`;
+    }
+    if (tg.wikipedia) {
+      const m = tg.wikipedia.match(/^([a-z-]+):(.+)$/i);
+      if (m) {
+        const d = await fetchJson(`https://${m[1]}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(m[2].replace(/ /g, '_'))}`, 5000).catch(() => null);
+        if (d) {
+          if (!url && d.thumbnail) url = d.thumbnail.source;
+          if (m[1] === LANG && d.extract) extract = d.extract;
+        }
+      }
+    }
+    if (!url && tg.wikidata) {
+      const d = await fetchJson(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${encodeURIComponent(tg.wikidata)}&property=P18&format=json&origin=*`, 5000).catch(() => null);
+      const file = d && d.claims && d.claims.P18 && d.claims.P18[0].mainsnak.datavalue && d.claims.P18[0].mainsnak.datavalue.value;
+      if (file) url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=480`;
+    }
+    return { url, extract };
+  }
+
+  async function loadTodayPhoto(s) {
+    if (!s || todayPhotos[s.id] !== undefined || !navigator.onLine) return;
+    todayPhotos[s.id] = null;
+    let url = '';
+    try {
+      const tags = s.osmTags || await findTagsForStop(s);
+      url = (await photoUrlForTags(tags || {})).url || '';
+    } catch (e) {}
+    todayPhotos[s.id] = url;
+    if (url && todayMode) renderTodayPanel();
+  }
+
+  /* ---------- Optional: official Google map tiles (Google Maps Platform, Map Tiles API) ----------
+     Add googleMapsKey to config.js to switch to the licensed map. Without a key nothing changes. */
+  const GMP = { key: ((window.MAPPIN_CONFIG || {}).googleMapsKey || '').trim(), loading: {} };
+  function gmpSessKey(type) { return `mappin_gmp_${type === 'sat' ? 'sat' : 'road'}_${LANG}_${TILE_SCALE}`; }
+  function gmpTileUrl(type) {
+    if (!GMP.key) return null;
+    let s = null;
+    try { s = JSON.parse(loadPref(gmpSessKey(type), 'null')); } catch (e) {}
+    if (s && s.session && Number(s.expiry) * 1000 > Date.now() + 3600e3) {
+      return `https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session=${encodeURIComponent(s.session)}&key=${encodeURIComponent(GMP.key)}`;
+    }
+    gmpCreateSession(type);
+    return null;
+  }
+  async function gmpCreateSession(type) {
+    const k = gmpSessKey(type);
+    if (GMP.loading[k] || !navigator.onLine) return;
+    GMP.loading[k] = true;
+    try {
+      const sat = type === 'sat';
+      const body = { mapType: sat ? 'satellite' : 'roadmap', language: LANG, region: 'US',
+        scale: TILE_SCALE >= 4 ? 'scaleFactor4x' : TILE_SCALE >= 2 ? 'scaleFactor2x' : 'scaleFactor1x', highDpi: TILE_SCALE >= 2 };
+      if (sat) body.layerTypes = ['layerRoadmap'];
+      const r = await fetch(`https://tile.googleapis.com/v1/createSession?key=${encodeURIComponent(GMP.key)}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!r.ok) throw new Error(r.status);
+      const j = await r.json();
+      if (j.session) {
+        savePref(k, JSON.stringify({ session: j.session, expiry: j.expiry }));
+        if (map && MAP_ENGINE !== 'vector') switchTileLayer(currentTileType);
+      }
+    } catch (e) { /* keep the standard map */ }
+    GMP.loading[k] = false;
   }
 
 </script>
