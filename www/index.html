@@ -745,13 +745,64 @@
 
     /* Phones: top bar moved into the list panel (out of the way of the status bar) */
     .header-in-sheet header {
-      min-height: 0; background: transparent; border-bottom: 1px solid var(--panel-border);
-      padding: 2px 14px 10px; flex-wrap: nowrap; z-index: 5;
+      min-height: 0; background: var(--tint); border: 1px solid var(--panel-border); border-radius: 12px;
+      margin: 2px 12px 4px; padding: 8px 10px 8px 12px; flex-wrap: nowrap; z-index: 5;
     }
+    .header-in-sheet .sidebar-header { padding-top: 14px; }
     .header-in-sheet .brand-title .brand-sub { display: none; }
     .header-in-sheet .brand-title h1 { font-size: 19px; }
-    .header-in-sheet #offline-banner { padding-top: calc(7px + var(--sa-t)); }
+    #status-shield { display: none; }
+    .header-in-sheet #status-shield {
+      display: block; position: fixed; top: 0; left: 0; right: 0; height: var(--sa-t); z-index: 2500;
+      background: var(--header-bg); pointer-events: none;
+    }
+    .header-in-sheet #app-container { padding-top: var(--sa-t); }
     .dropdown-menu { max-height: calc(100vh - 16px); overflow-y: auto; }
+
+    /* Filters row: sort + category chips */
+    .filters-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; min-width: 0; }
+    .sort-wrap { display: flex; align-items: center; gap: 6px; flex-shrink: 0; color: var(--text-muted); font-size: 12px; position: relative; }
+    .sort-wrap > i { position: absolute; left: 9px; pointer-events: none; font-size: 11px; }
+    .sort-select { width: auto; max-width: 120px; padding: 7px 8px 7px 26px !important; font-size: 12px; }
+    .cat-chips { display: flex; gap: 6px; overflow-x: auto; flex: 1; min-width: 0; padding-bottom: 2px; scrollbar-width: none; }
+    .cat-chips::-webkit-scrollbar { display: none; }
+    .cat-chip {
+      flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: 14px;
+      border: 1px solid var(--panel-border); background: var(--chip-bg); color: var(--text-main); font-size: 12px; cursor: pointer; white-space: nowrap;
+    }
+    .cat-chip i { color: var(--text-muted); font-size: 11px; }
+    .cat-chip small { color: var(--text-muted); font-size: 10px; font-weight: 600; }
+    .cat-chip.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .cat-chip.active i, .cat-chip.active small { color: rgba(255,255,255,0.85); }
+    .today-chip { gap: 6px; }
+    .today-chip .today-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
+
+    /* Done stops (Today mode) */
+    .activity-card.done { opacity: 0.55; }
+    .activity-card.done .card-title-editable { text-decoration: line-through; }
+
+    /* Today panel (floats over the map) */
+    #today-panel {
+      position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(12px + var(--sa-b)); width: min(440px, calc(100% - 20px));
+      z-index: 950; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 14px; box-shadow: 0 10px 30px var(--shadow);
+      padding: 10px 12px 12px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    .tp-head { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; }
+    .tp-progress { margin-left: auto; color: var(--text-muted); font-weight: 600; }
+    .tp-close { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; padding: 2px 4px; }
+    .tp-stop { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; margin-bottom: 10px; }
+    .tp-info { min-width: 0; flex: 1; }
+    .tp-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 700; }
+    .tp-title { font-size: 15px; font-weight: 700; margin: 2px 0 4px; }
+    .tp-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px; color: var(--text-muted); align-items: center; }
+    .tp-actions { display: flex; gap: 6px; }
+    .tp-actions .btn { padding: 9px 12px; justify-content: center; text-decoration: none; }
+    .tp-actions .btn:disabled { opacity: 0.4; cursor: default; }
+    .tp-grow { flex: 1; }
+    .tp-done { font-size: 14px; font-weight: 600; padding: 6px 0 12px; }
+    .today-on .locate-btn { bottom: calc(190px + var(--sa-b)); }
+    .empty-actions { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 18px; }
+    .empty-actions .btn { min-width: 220px; justify-content: center; }
 
     /* Offline banner */
     #offline-banner {
@@ -833,7 +884,7 @@
       .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: var(--group-dash); }
       .sidebar-header { padding: 0 14px 12px; }
       .timeline-container { padding: 12px 14px calc(16px + var(--sa-b)); }
-      .map-controls-overlay { top: calc(8px + var(--sa-t)); right: 8px; }
+      .map-controls-overlay { top: 8px; right: 8px; }
       .map-control-btn { padding: 6px 8px; }
       .map-control-btn .btn-label, .map-controls-row .ctl-label { display: none; }
       .activity-card:hover { transform: none; }
@@ -857,8 +908,7 @@
       .timeline-container { flex: none; overflow: visible; padding: 10px 14px calc(14px + var(--sa-b)); }
       .sidebar-header { padding: 10px 14px; }
       .sidebar-title-row { margin-bottom: 8px; }
-      .search-container, .filters-grid { margin-bottom: 8px; }
-      .filter-group label { display: none; }
+      .search-container, .filters-row { margin-bottom: 8px; }
       .select-input { padding: 6px 8px; }
       .map-controls-overlay { top: 8px; }
       .map-control-btn { padding: 6px 8px; }
@@ -872,11 +922,12 @@
 </head>
 <body>
 
+<div id="status-shield" aria-hidden="true"></div>
 <div id="app-container">
   <header>
     <div class="brand">
       <div class="brand-title">
-        <h1><span class="wordmark" aria-label="MapPin"><span>Map</span><svg class="wm-p" viewBox="0 0 60 104" aria-hidden="true"><defs><linearGradient id="wmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><ellipse cx="13" cy="100.5" rx="7" ry="1.8" fill="currentColor" opacity="0.28"/><path fill="url(#wmg)" fill-rule="evenodd" d="M6 8H32A24 24 0 0 1 32 56H20V74L13 98L6 74ZM45 32A10 10 0 1 0 25 32A10 10 0 1 0 45 32Z"/></svg><span>in</span></span></h1>
+        <h1><span class="wordmark" aria-label="MapPin"><span>Map</span><svg class="wm-p" viewBox="0 0 60 104" overflow="visible" aria-hidden="true"><defs><linearGradient id="wmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient><linearGradient id="wmr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b82f6" stop-opacity="0"/><stop offset="0.35" stop-color="#3b82f6" stop-opacity="0.9"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><path class="wm-route" d="M-178 101 C-120 112 -60 90 2 99" fill="none" stroke="url(#wmr)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 13"/><ellipse cx="13" cy="100.5" rx="7" ry="1.8" fill="currentColor" opacity="0.28"/><path fill="url(#wmg)" fill-rule="evenodd" d="M6 8H32A24 24 0 0 1 32 56H20V74L13 98L6 74ZM45 32A10 10 0 1 0 25 32A10 10 0 1 0 45 32Z"/><circle cx="35" cy="32" r="3.2" fill="#fff" opacity="0.9"/></svg><span>in</span></span></h1>
         <span class="brand-sub" data-i18n="subtitle">Directional Itinerary Mapper</span>
       </div>
     </div>
@@ -955,21 +1006,19 @@
           </div>
         </div>
 
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label data-i18n="sortBy">Sort by</label>
-            <select class="select-input" id="sort-select" onchange="sortItinerary()">
+        <div class="filters-row">
+          <label class="sort-wrap" data-i18n-title="sortBy">
+            <i class="fa-solid fa-arrow-down-wide-short"></i>
+            <select class="select-input sort-select" id="sort-select" onchange="sortItinerary()">
               <option value="address" data-i18n="sortAddress">Address</option>
               <option value="date" data-i18n="sortDate">Date</option>
               <option value="day" selected data-i18n="sortDay">Day</option>
               <option value="name" data-i18n="sortName">Name</option>
               <option value="time" data-i18n="sortTime">Time</option>
             </select>
-          </div>
-          <div class="filter-group">
-            <label data-i18n="category">Category</label>
-            <select class="select-input" id="category-select" onchange="renderItinerary()"><option value="all">All categories</option></select>
-          </div>
+          </label>
+          <div class="cat-chips" id="cat-chips"></div>
+          <select id="category-select" style="display:none"><option value="all">All categories</option></select>
         </div>
 
         <!-- Day Chips Row + Paint Brush (Master Editor) -->
@@ -988,6 +1037,8 @@
 
     <div class="map-wrap">
     <div id="map"></div>
+
+    <div id="today-panel" style="display:none"></div>
 
     <button class="locate-btn" id="locate-btn" onclick="locateMe()" data-i18n-title="locateMe"><i class="fa-solid fa-location-crosshairs"></i></button>
 
@@ -1612,7 +1663,8 @@
       shareItinerary: 'Share itinerary', fileReady: 'Itinerary file ready to share', needPublicUrl: 'Add your public web address in Settings to share links from the app. Sharing the CSV file instead.',
       about: 'About', version: 'Version {v}', minutesShort: '{m} min', on: 'On', off: 'Off',
       listSide: 'List position', sideLeft: 'Left', sideRight: 'Right', listSideHint: 'Puts the itinerary list on the other side, e.g. away from the camera when your phone is on its side.',
-      mapStyle: 'Map style', mapGoogle: 'Google', mapSharp: 'Sharp', mapStyleHint: 'Sharp draws the map itself (OpenStreetMap data), so it stays crisp on any screen. Google shows Google map images. Satellite always uses Google.', sharpFailed: "The sharp map couldn't load, so Google's map is shown instead.", startAtLocation: 'Start the map at my location'
+      mapStyle: 'Map style', mapGoogle: 'Google', mapSharp: 'Sharp', mapStyleHint: 'Sharp draws the map itself (OpenStreetMap data), so it stays crisp on any screen. Google shows Google map images. Satellite always uses Google.', sharpFailed: "The sharp map couldn't load, so Google's map is shown instead.", startAtLocation: 'Start the map at my location',
+      today: 'Today', todayTitle: 'Follow the day stop by stop', noTodayDay: "No day is dated today, so showing {name}.", progressN: '{n} of {m} done', nextStop: 'Next stop', doneLabel: 'Done', markDone: 'Done', notDone: 'Undo', previousStop: 'Previous stop', nextStopBtn: 'Next stop', allDoneToday: "You've finished today's stops. Enjoy your evening!", sampleTrip: 'Try a sample trip', startPlanning: 'Start planning', sampleLoaded: 'Sample trip loaded. Edit anything you like, or start fresh from Menu → New map.', sampleTitle: 'Weekend in Tokyo (sample)', sampleDay1: 'Asakusa & Ueno', sampleDay2: 'Harajuku & Shibuya', allCats: 'All'
     },
     ja: {
       timeLabel: '時間', stayLabel: '滞在 (分)', costLabel: '費用', fixedTime: '時間を固定', fixedTimeHint: '自動入力でもこの時間を保持します（予約など）。',
@@ -1638,7 +1690,8 @@
       shareItinerary: '旅程を共有', fileReady: '共有用の旅程ファイルを作成しました', needPublicUrl: 'アプリからリンクを共有するには設定で公開ウェブアドレスを追加してください。代わりにCSVファイルを共有します。',
       about: 'このアプリについて', version: 'バージョン {v}', minutesShort: '{m}分', on: 'オン', off: 'オフ',
       listSide: 'リストの位置', sideLeft: '左', sideRight: '右', listSideHint: '旅程リストを反対側に表示します（横向き時にカメラを避けるなど）。',
-      mapStyle: '地図のスタイル', mapGoogle: 'Google', mapSharp: '高精細', mapStyleHint: '高精細は地図をその場で描画するため（OpenStreetMapのデータ）、どの画面でもくっきり表示されます。GoogleはGoogleの地図画像を表示します。航空写真は常にGoogleです。', sharpFailed: '高精細の地図を読み込めなかったため、Googleの地図を表示しています。', startAtLocation: '起動時に現在地を表示'
+      mapStyle: '地図のスタイル', mapGoogle: 'Google', mapSharp: '高精細', mapStyleHint: '高精細は地図をその場で描画するため（OpenStreetMapのデータ）、どの画面でもくっきり表示されます。GoogleはGoogleの地図画像を表示します。航空写真は常にGoogleです。', sharpFailed: '高精細の地図を読み込めなかったため、Googleの地図を表示しています。', startAtLocation: '起動時に現在地を表示',
+      today: '今日', todayTitle: 'その日のスポットを順番にたどる', noTodayDay: '今日の日付の日がないため、{name}を表示します。', progressN: '{m}件中{n}件完了', nextStop: '次のスポット', doneLabel: '完了', markDone: '完了', notDone: '元に戻す', previousStop: '前のスポット', nextStopBtn: '次のスポット', allDoneToday: '今日のスポットはすべて完了しました。お疲れさまでした！', sampleTrip: 'サンプル旅程を試す', startPlanning: '計画を始める', sampleLoaded: 'サンプル旅程を読み込みました。自由に編集するか、メニュー → 新規マップで最初から始められます。', sampleTitle: '東京の週末（サンプル）', sampleDay1: '浅草・上野', sampleDay2: '原宿・渋谷', allCats: 'すべて'
     },
     zh: {
       timeLabel: '时间', stayLabel: '停留（分钟）', costLabel: '费用', fixedTime: '固定时间', fixedTimeHint: '自动填写时保留此时间（如预约）。',
@@ -1664,7 +1717,8 @@
       shareItinerary: '分享行程', fileReady: '行程文件已准备好分享', needPublicUrl: '要从应用分享链接，请在设置中添加公开网址。现改为分享 CSV 文件。',
       about: '关于', version: '版本 {v}', minutesShort: '{m} 分钟', on: '开', off: '关',
       listSide: '列表位置', sideLeft: '左侧', sideRight: '右侧', listSideHint: '将行程列表放到另一侧，例如横屏时避开摄像头。',
-      mapStyle: '地图样式', mapGoogle: 'Google', mapSharp: '高清', mapStyleHint: '高清模式直接绘制地图（OpenStreetMap 数据），在任何屏幕上都清晰。Google 模式显示 Google 地图图片。卫星图始终使用 Google。', sharpFailed: '高清地图无法加载，已改为显示 Google 地图。', startAtLocation: '启动时显示我的位置'
+      mapStyle: '地图样式', mapGoogle: 'Google', mapSharp: '高清', mapStyleHint: '高清模式直接绘制地图（OpenStreetMap 数据），在任何屏幕上都清晰。Google 模式显示 Google 地图图片。卫星图始终使用 Google。', sharpFailed: '高清地图无法加载，已改为显示 Google 地图。', startAtLocation: '启动时显示我的位置',
+      today: '今天', todayTitle: '按顺序逐站查看当天行程', noTodayDay: '没有日期为今天的一天，现显示{name}。', progressN: '已完成 {n}/{m}', nextStop: '下一站', doneLabel: '已完成', markDone: '完成', notDone: '撤销', previousStop: '上一站', nextStopBtn: '下一站', allDoneToday: '今天的站点都完成了，祝你晚上愉快！', sampleTrip: '试试示例行程', startPlanning: '开始规划', sampleLoaded: '已加载示例行程。可随意编辑，或通过菜单 → 新建地图重新开始。', sampleTitle: '东京周末（示例）', sampleDay1: '浅草和上野', sampleDay2: '原宿和涩谷', allCats: '全部'
     },
     ko: {
       timeLabel: '시간', stayLabel: '머무는 시간(분)', costLabel: '비용', fixedTime: '시간 고정', fixedTimeHint: '자동 입력 시에도 이 시간을 유지합니다(예약 등).',
@@ -1690,7 +1744,8 @@
       shareItinerary: '일정 공유', fileReady: '공유할 일정 파일이 준비되었습니다', needPublicUrl: '앱에서 링크를 공유하려면 설정에 공개 웹 주소를 추가하세요. 대신 CSV 파일을 공유합니다.',
       about: '정보', version: '버전 {v}', minutesShort: '{m}분', on: '켜짐', off: '꺼짐',
       listSide: '목록 위치', sideLeft: '왼쪽', sideRight: '오른쪽', listSideHint: '일정 목록을 반대쪽에 표시합니다(예: 가로 모드에서 카메라 피하기).',
-      mapStyle: '지도 스타일', mapGoogle: 'Google', mapSharp: '선명하게', mapStyleHint: '선명하게는 지도를 직접 그려서(OpenStreetMap 데이터) 어떤 화면에서도 또렷합니다. Google은 Google 지도 이미지를 보여 줍니다. 위성 지도는 항상 Google입니다.', sharpFailed: '선명한 지도를 불러오지 못해 Google 지도를 표시합니다.', startAtLocation: '시작할 때 내 위치 표시'
+      mapStyle: '지도 스타일', mapGoogle: 'Google', mapSharp: '선명하게', mapStyleHint: '선명하게는 지도를 직접 그려서(OpenStreetMap 데이터) 어떤 화면에서도 또렷합니다. Google은 Google 지도 이미지를 보여 줍니다. 위성 지도는 항상 Google입니다.', sharpFailed: '선명한 지도를 불러오지 못해 Google 지도를 표시합니다.', startAtLocation: '시작할 때 내 위치 표시',
+      today: '오늘', todayTitle: '하루 일정을 한 곳씩 따라가기', noTodayDay: '오늘 날짜인 일차가 없어 {name}을(를) 표시합니다.', progressN: '{m}곳 중 {n}곳 완료', nextStop: '다음 장소', doneLabel: '완료', markDone: '완료', notDone: '되돌리기', previousStop: '이전 장소', nextStopBtn: '다음 장소', allDoneToday: '오늘 일정을 모두 마쳤어요. 즐거운 저녁 보내세요!', sampleTrip: '샘플 여행 보기', startPlanning: '계획 시작하기', sampleLoaded: '샘플 여행을 불러왔습니다. 마음껏 편집하거나 메뉴 → 새 지도로 새로 시작하세요.', sampleTitle: '도쿄 주말(샘플)', sampleDay1: '아사쿠사·우에노', sampleDay2: '하라주쿠·시부야', allCats: '전체'
     },
     es: {
       timeLabel: 'Hora', stayLabel: 'Estancia (min)', costLabel: 'Coste', fixedTime: 'Hora fija', fixedTimeHint: 'El relleno automático conserva esta hora (p. ej., una reserva).',
@@ -1716,7 +1771,8 @@
       shareItinerary: 'Compartir itinerario', fileReady: 'Archivo del itinerario listo para compartir', needPublicUrl: 'Añade tu dirección web pública en Ajustes para compartir enlaces desde la app. Se comparte el CSV.',
       about: 'Acerca de', version: 'Versión {v}', minutesShort: '{m} min', on: 'Sí', off: 'No',
       listSide: 'Posición de la lista', sideLeft: 'Izquierda', sideRight: 'Derecha', listSideHint: 'Coloca el itinerario al otro lado, p. ej., lejos de la cámara con el móvil en horizontal.',
-      mapStyle: 'Estilo del mapa', mapGoogle: 'Google', mapSharp: 'Nítido', mapStyleHint: 'Nítido dibuja el mapa al momento (datos de OpenStreetMap), así se ve definido en cualquier pantalla. Google muestra imágenes de Google Maps. El satélite siempre usa Google.', sharpFailed: 'No se pudo cargar el mapa nítido; se muestra el de Google.', startAtLocation: 'Abrir el mapa en mi ubicación'
+      mapStyle: 'Estilo del mapa', mapGoogle: 'Google', mapSharp: 'Nítido', mapStyleHint: 'Nítido dibuja el mapa al momento (datos de OpenStreetMap), así se ve definido en cualquier pantalla. Google muestra imágenes de Google Maps. El satélite siempre usa Google.', sharpFailed: 'No se pudo cargar el mapa nítido; se muestra el de Google.', startAtLocation: 'Abrir el mapa en mi ubicación',
+      today: 'Hoy', todayTitle: 'Sigue el día parada a parada', noTodayDay: 'Ningún día tiene la fecha de hoy; se muestra {name}.', progressN: '{n} de {m} hechas', nextStop: 'Siguiente parada', doneLabel: 'Hecho', markDone: 'Hecho', notDone: 'Deshacer', previousStop: 'Parada anterior', nextStopBtn: 'Siguiente parada', allDoneToday: '¡Has terminado las paradas de hoy! Disfruta de la noche.', sampleTrip: 'Probar un viaje de ejemplo', startPlanning: 'Empezar a planificar', sampleLoaded: 'Viaje de ejemplo cargado. Edítalo a tu gusto o empieza de cero en Menú → Mapa nuevo.', sampleTitle: 'Fin de semana en Tokio (ejemplo)', sampleDay1: 'Asakusa y Ueno', sampleDay2: 'Harajuku y Shibuya', allCats: 'Todas'
     },
     fr: {
       timeLabel: 'Heure', stayLabel: 'Durée (min)', costLabel: 'Coût', fixedTime: 'Heure fixe', fixedTimeHint: 'Le remplissage automatique conserve cette heure (ex. une réservation).',
@@ -1742,7 +1798,8 @@
       shareItinerary: 'Partager l’itinéraire', fileReady: 'Fichier de l’itinéraire prêt à partager', needPublicUrl: 'Ajoutez votre adresse web publique dans Réglages pour partager des liens depuis l’app. Partage du CSV à la place.',
       about: 'À propos', version: 'Version {v}', minutesShort: '{m} min', on: 'Oui', off: 'Non',
       listSide: 'Position de la liste', sideLeft: 'Gauche', sideRight: 'Droite', listSideHint: 'Place l’itinéraire de l’autre côté, par ex. loin de la caméra en mode paysage.',
-      mapStyle: 'Style de carte', mapGoogle: 'Google', mapSharp: 'Net', mapStyleHint: 'Net dessine la carte directement (données OpenStreetMap), elle reste nette sur tout écran. Google affiche les images de Google Maps. Le satellite utilise toujours Google.', sharpFailed: 'La carte nette n’a pas pu se charger ; la carte Google est affichée.', startAtLocation: 'Ouvrir la carte sur ma position'
+      mapStyle: 'Style de carte', mapGoogle: 'Google', mapSharp: 'Net', mapStyleHint: 'Net dessine la carte directement (données OpenStreetMap), elle reste nette sur tout écran. Google affiche les images de Google Maps. Le satellite utilise toujours Google.', sharpFailed: 'La carte nette n’a pas pu se charger ; la carte Google est affichée.', startAtLocation: 'Ouvrir la carte sur ma position',
+      today: 'Aujourd’hui', todayTitle: 'Suivre la journée étape par étape', noTodayDay: 'Aucun jour n’est daté d’aujourd’hui : affichage de {name}.', progressN: '{n} sur {m} faites', nextStop: 'Prochaine étape', doneLabel: 'Faite', markDone: 'Faite', notDone: 'Annuler', previousStop: 'Étape précédente', nextStopBtn: 'Étape suivante', allDoneToday: 'Vous avez terminé les étapes du jour. Bonne soirée !', sampleTrip: 'Essayer un voyage exemple', startPlanning: 'Commencer à planifier', sampleLoaded: 'Voyage exemple chargé. Modifiez-le ou recommencez via Menu → Nouvelle carte.', sampleTitle: 'Week-end à Tokyo (exemple)', sampleDay1: 'Asakusa et Ueno', sampleDay2: 'Harajuku et Shibuya', allCats: 'Toutes'
     },
     de: {
       timeLabel: 'Uhrzeit', stayLabel: 'Aufenthalt (Min.)', costLabel: 'Kosten', fixedTime: 'Feste Uhrzeit', fixedTimeHint: 'Das automatische Ausfüllen behält diese Uhrzeit (z. B. eine Buchung).',
@@ -1768,7 +1825,8 @@
       shareItinerary: 'Reiseplan teilen', fileReady: 'Reiseplan-Datei bereit zum Teilen', needPublicUrl: 'Trage in den Einstellungen deine öffentliche Webadresse ein, um Links aus der App zu teilen. Stattdessen wird die CSV geteilt.',
       about: 'Über', version: 'Version {v}', minutesShort: '{m} Min.', on: 'An', off: 'Aus',
       listSide: 'Position der Liste', sideLeft: 'Links', sideRight: 'Rechts', listSideHint: 'Zeigt den Reiseplan auf der anderen Seite, z. B. weg von der Kamera im Querformat.',
-      mapStyle: 'Kartenstil', mapGoogle: 'Google', mapSharp: 'Scharf', mapStyleHint: 'Scharf zeichnet die Karte selbst (OpenStreetMap-Daten) und bleibt auf jedem Bildschirm gestochen scharf. Google zeigt Google-Kartenbilder. Satellit nutzt immer Google.', sharpFailed: 'Die scharfe Karte konnte nicht geladen werden, daher wird Google angezeigt.', startAtLocation: 'Karte an meinem Standort öffnen'
+      mapStyle: 'Kartenstil', mapGoogle: 'Google', mapSharp: 'Scharf', mapStyleHint: 'Scharf zeichnet die Karte selbst (OpenStreetMap-Daten) und bleibt auf jedem Bildschirm gestochen scharf. Google zeigt Google-Kartenbilder. Satellit nutzt immer Google.', sharpFailed: 'Die scharfe Karte konnte nicht geladen werden, daher wird Google angezeigt.', startAtLocation: 'Karte an meinem Standort öffnen',
+      today: 'Heute', todayTitle: 'Den Tag Stopp für Stopp abgehen', noTodayDay: 'Kein Tag hat das heutige Datum, daher wird {name} gezeigt.', progressN: '{n} von {m} erledigt', nextStop: 'Nächster Stopp', doneLabel: 'Erledigt', markDone: 'Erledigt', notDone: 'Rückgängig', previousStop: 'Vorheriger Stopp', nextStopBtn: 'Nächster Stopp', allDoneToday: 'Alle Stopps für heute erledigt. Schönen Abend!', sampleTrip: 'Beispielreise ansehen', startPlanning: 'Mit der Planung beginnen', sampleLoaded: 'Beispielreise geladen. Ändere alles nach Belieben oder starte neu über Menü → Neue Karte.', sampleTitle: 'Wochenende in Tokio (Beispiel)', sampleDay1: 'Asakusa & Ueno', sampleDay2: 'Harajuku & Shibuya', allCats: 'Alle'
     }
   };
   Object.keys(I18N_EXTRA2).forEach(l => Object.assign(I18N[l], I18N_EXTRA2[l]));
@@ -2302,7 +2360,11 @@
 
   function sheetHeights() {
     const total = document.querySelector('.main-content').getBoundingClientRect().height;
-    return { min: Math.min(132, total * 0.3), mid: Math.round(total * 0.46), max: Math.round(total * 0.9), total };
+    // Smallest size still shows the drag bar, the menu bar and the "Itinerary" title
+    const hh = el => (el ? el.getBoundingClientRect().height : 0);
+    const header = document.querySelector('header');
+    const need = hh($('sheet-handle')) + (header && header.parentElement === $('sidebar') ? hh(header) : 0) + hh(document.querySelector('.sidebar-title-row')) + 14;
+    return { min: Math.round(Math.min(Math.max(need, 96), total * 0.4)), mid: Math.round(total * 0.46), max: Math.round(total * 0.9), total };
   }
 
   function setSheet(state) {
@@ -3143,13 +3205,17 @@
     if (activeDay !== 'all' && !days.includes(activeDay)) activeDay = 'all';
 
     const chips = $('day-chips-container');
-    chips.innerHTML = `<div class="day-chip ${activeDay === 'all' ? 'active' : ''}" onclick="setDayChip('all')">${escapeHtml(t('allDays'))}</div>`;
+    const hasToday = rawData.length && todayDayNumber() !== null;
+    chips.innerHTML = (rawData.length ? `<div class="day-chip today-chip ${todayMode ? 'active' : ''}" onclick="toggleToday()" title="${escapeHtml(t('todayTitle'))}">${hasToday && !todayMode ? '<span class="today-dot"></span>' : '<i class="fa-solid fa-location-arrow"></i>'} ${escapeHtml(t('today'))}</div>` : '') +
+      `<div class="day-chip ${activeDay === 'all' && !todayMode ? 'active' : ''}" onclick="setDayChip('all')">${escapeHtml(t('allDays'))}</div>`;
     days.forEach(d => {
-      chips.innerHTML += `<div class="day-chip ${activeDay == d ? 'active' : ''}" onclick="setDayChip(${d})">${escapeHtml(getDayTitle(d))}</div>`;
+      chips.innerHTML += `<div class="day-chip ${activeDay == d && !todayMode ? 'active' : ''}" onclick="setDayChip(${d})">${escapeHtml(getDayTitle(d))}</div>`;
     });
+    renderCategoryChips();
   }
 
   function setDayChip(day) {
+    if (todayMode) exitToday();
     activeDay = day;
     populateFilters();
     renderItinerary();
@@ -3244,7 +3310,13 @@
           <i class="fa-solid fa-map-location-dot"></i>
           <h3>${escapeHtml(t('noItinerary'))}</h3>
           <p>${escapeHtml(t('emptyHint'))}</p>
+          <div class="empty-actions">
+            <button class="btn btn-primary" onclick="loadSampleTrip()"><i class="fa-solid fa-wand-magic-sparkles"></i> ${escapeHtml(t('sampleTrip'))}</button>
+            <button class="btn btn-ghost" onclick="startPlanning()"><i class="fa-solid fa-magnifying-glass-location"></i> ${escapeHtml(t('startPlanning'))}</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-file-import"></i> ${escapeHtml(t('importCsv'))}</button>
+          </div>
         </div>`;
+      renderTodayPanel();
       timeline.appendChild(makeAddDayButton());
       scheduleAutosave();
       recordHistory();
@@ -3349,7 +3421,7 @@
           const gId = seg.g;
 
           const card = document.createElement('div');
-          card.className = `activity-card ${selectedStopIds.has(item.id) ? 'selected-multi' : ''}`;
+          card.className = `activity-card ${selectedStopIds.has(item.id) ? 'selected-multi' : ''} ${item.done ? 'done' : ''}`;
           card.id = `card-${item.id}`;
           card.setAttribute('data-id', item.id);
           card.onmousedown = (e) => handleCardClick(e, item.id);
@@ -3421,6 +3493,7 @@
     }
     scheduleAutosave();
     recordHistory();
+    if (todayMode) renderTodayPanel();
   }
 
   /* ---------- Categories: an icon per kind of stop, editable inline ---------- */
@@ -5594,7 +5667,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.0.4';
+  const APP_VERSION = '1.0.6';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -6514,6 +6587,207 @@
     populateFilters();
     renderItinerary();
     scheduleHoursCheck(3000);
+  }
+
+  /* =========================================================
+     TODAY MODE: follow the day's stops one at a time while travelling
+     ========================================================= */
+  let todayMode = false, todayDay = null, todayIdx = 0;
+
+  function todayIso() { return isoFromDate(new Date()); }
+
+  // The day dated today (by the day's date or a stop's own date), if any
+  function todayDayNumber() {
+    const iso = todayIso();
+    return getAllDays().find(d => DAY_DATES[d] === iso || rawData.some(s => s.day === d && s.date === iso)) || null;
+  }
+
+  function todayStops() { return todayDay === null ? [] : dayDisplayOrder(todayDay); }
+
+  function firstOpenIndex() {
+    const list = todayStops();
+    const i = list.findIndex(s => !s.done);
+    return i === -1 ? list.length : i;
+  }
+
+  function toggleToday() { if (todayMode) exitToday(); else startToday(); }
+
+  function startToday() {
+    if (!rawData.length) { alert(t('noExport')); return; }
+    if (selectMode) exitSelectMode();
+    if (daySelectMode) exitDaySelectMode();
+    todayDay = todayDayNumber();
+    if (todayDay === null) {
+      todayDay = activeDay !== 'all' ? activeDay : getAllDays()[0];
+      showToast(t('noTodayDay', { name: getDayTitle(todayDay) }), { ms: 4500 });
+    }
+    todayMode = true;
+    document.documentElement.classList.add('today-on');
+    activeDay = todayDay;
+    revealDay(todayDay);
+    todayIdx = firstOpenIndex();
+    populateFilters();
+    renderItinerary();
+    if (isPortraitPhone()) setSheet('min');
+    focusTodayStop();
+  }
+
+  function exitToday() {
+    todayMode = false;
+    document.documentElement.classList.remove('today-on');
+    const p = $('today-panel');
+    if (p) p.style.display = 'none';
+    populateFilters();
+    if (isPortraitPhone()) setSheet('mid');
+  }
+
+  function todayStep(delta) {
+    const n = todayStops().length;
+    todayIdx = Math.max(0, Math.min(n, todayIdx + delta));
+    renderTodayPanel();
+    focusTodayStop();
+  }
+
+  function todayMarkDone() {
+    const list = todayStops();
+    const s = list[todayIdx];
+    if (!s) return;
+    s.done = !s.done;
+    if (s.done) {
+      const next = list.findIndex((x, i) => i > todayIdx && !x.done);
+      todayIdx = next === -1 ? list.length : next;
+    }
+    renderItinerary(); // also redraws the panel
+    focusTodayStop();
+  }
+
+  function focusTodayStop() {
+    const s = todayStops()[todayIdx];
+    if (!s || !hasCoords(s)) return;
+    map.flyTo([s.lat, s.lng], Math.max(map.getZoom(), 16), { duration: 0.7 });
+    map.once('moveend', () => {
+      const pin = $(`pin-wrapper-${s.id}`);
+      if (pin) { pin.classList.remove('pulse'); void pin.offsetWidth; pin.classList.add('pulse'); setTimeout(() => pin.classList.remove('pulse'), 1900); }
+    });
+  }
+
+  function directionsMode(from, to) {
+    if (routeMode === 'foot') return 'walking';
+    if (routeMode === 'car') return 'driving';
+    if (routeMode === 'transit') return 'transit';
+    return from && hasCoords(from) && distMeters([from.lat, from.lng], [to.lat, to.lng]) < 1500 ? 'walking' : 'transit';
+  }
+
+  function renderTodayPanel() {
+    const panel = $('today-panel');
+    if (!panel) return;
+    if (!todayMode) { panel.style.display = 'none'; return; }
+    const list = todayStops();
+    const doneCount = list.filter(s => s.done).length;
+    panel.style.display = 'block';
+    const head = `
+      <div class="tp-head">
+        <span><i class="fa-solid fa-location-arrow"></i> ${escapeHtml(t('today'))} · ${escapeHtml(getDayTitle(todayDay))}</span>
+        <span class="tp-progress">${escapeHtml(t('progressN', { n: doneCount, m: list.length }))}</span>
+        <button class="tp-close" onclick="exitToday()" aria-label="${escapeHtml(t('close'))}"><i class="fa-solid fa-xmark"></i></button>
+      </div>`;
+    const s = list[todayIdx];
+    if (!s) {
+      panel.innerHTML = head + `
+        <div class="tp-done"><i class="fa-solid fa-flag-checkered"></i> ${escapeHtml(t('allDoneToday'))}</div>
+        <div class="tp-actions">
+          <button class="btn btn-secondary" onclick="todayStep(-1)" ${list.length ? '' : 'disabled'}><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="btn btn-primary tp-grow" onclick="exitToday()">${escapeHtml(t('close'))}</button>
+        </div>`;
+      return;
+    }
+    const prev = list[todayIdx - 1];
+    const from = meMarker ? { lat: meMarker.getLatLng().lat, lng: meMarker.getLatLng().lng } : prev;
+    const dist = from && hasCoords(from) && hasCoords(s) ? formatDistance(distMeters([from.lat, from.lng], [s.lat, s.lng])) : '';
+    const dirUrl = hasCoords(s)
+      ? `https://www.google.com/maps/dir/?api=1${from && hasCoords(from) ? `&origin=${from.lat},${from.lng}` : ''}&destination=${s.lat},${s.lng}&travelmode=${directionsMode(from, s)}&hl=${LANG}`
+      : googleSearchUrl({ name: s.cleanTitle || s.title, address: s.address });
+    panel.innerHTML = head + `
+      <div class="tp-stop" onclick="focusTodayStop()">
+        <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
+        <div class="tp-info">
+          <div class="tp-label">${escapeHtml(s.done ? t('doneLabel') : todayIdx === firstOpenIndex() ? t('nextStop') : t('stopN', { n: todayIdx + 1 }))}</div>
+          <div class="tp-title">${escapeHtml(s.cleanTitle || s.title)}</div>
+          <div class="tp-meta">${s.time ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</span>` : ''}
+            <span><i class="fa-solid ${categoryIcon(s.category)}"></i> ${escapeHtml(s.category)}</span>
+            ${dist ? `<span><i class="fa-solid fa-route"></i> ${escapeHtml(dist)}</span>` : ''} ${hoursWarningHtml(s)}</div>
+        </div>
+      </div>
+      <div class="tp-actions">
+        <button class="btn btn-secondary" onclick="todayStep(-1)" ${todayIdx === 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('previousStop'))}"><i class="fa-solid fa-chevron-left"></i></button>
+        <a class="btn btn-primary tp-grow" href="${escapeHtml(dirUrl)}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right"></i> ${escapeHtml(t('directions'))}</a>
+        <button class="btn ${s.done ? 'btn-secondary' : 'btn-success'}" onclick="todayMarkDone()"><i class="fa-solid ${s.done ? 'fa-rotate-left' : 'fa-check'}"></i> ${escapeHtml(s.done ? t('notDone') : t('markDone'))}</button>
+        <button class="btn btn-secondary" onclick="todayStep(1)" aria-label="${escapeHtml(t('nextStopBtn'))}"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>`;
+  }
+
+  /* =========================================================
+     SAMPLE TRIP: lets new testers see everything without a CSV
+     ========================================================= */
+  function nextSaturdayIso(offset = 0) {
+    const d = new Date();
+    d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7) + offset);
+    return isoFromDate(d);
+  }
+
+  function loadSampleTrip() {
+    if (rawData.length && !confirm(t('sharedTripOpen'))) return;
+    const d1 = nextSaturdayIso(0), d2 = nextSaturdayIso(1);
+    const row = (day, date, time, name, cat, lat, lng, address, notes, cost, stay, fixed) =>
+      ({ Name: name, Day: `Day ${day}`, Date: date, Time: time, Category: cat, Latitude: lat, Longitude: lng, Address: address, Notes: notes, Cost: cost, 'Stay (min)': stay, 'Fixed time': fixed ? 'yes' : '' });
+    const rows = [
+      row(1, d1, '09:00', 'Senso-ji Temple', 'Sight', 35.7148, 139.7967, '2-3-1 Asakusa, Taito City, Tokyo', "Tokyo's oldest temple. Go early to beat the crowds.", '', 60),
+      row(1, d1, '10:15', 'Nakamise Shopping Street', 'Shopping', 35.7118, 139.7963, 'Asakusa, Taito City, Tokyo', 'Snacks and souvenirs on the way to the temple.', 20, 45),
+      row(1, d1, '12:00', 'Tokyo Skytree', 'Sight', 35.7101, 139.8107, '1-1-2 Oshiage, Sumida City, Tokyo', 'Booked observation deck slot.', 35, 90, true),
+      row(1, d1, '14:30', 'Ueno Park', 'Nature', 35.7148, 139.7731, 'Uenokoen, Taito City, Tokyo', 'Walk around Shinobazu Pond.', '', 75),
+      row(1, d1, '18:00', 'Ameya-Yokocho', 'Food', 35.7105, 139.7745, 'Ueno 4-chome, Taito City, Tokyo', 'Street food for dinner.', 25, 60),
+      row(2, d2, '09:30', 'Meiji Jingu', 'Sight', 35.6764, 139.6993, '1-1 Yoyogikamizonocho, Shibuya City, Tokyo', 'Forest shrine next to Harajuku.', '', 60),
+      row(2, d2, '11:00', 'Takeshita Street', 'Shopping', 35.6716, 139.7029, 'Jingumae, Shibuya City, Tokyo', 'Crepes and fashion.', 30, 60),
+      row(2, d2, '13:00', 'Shibuya Crossing', 'Sight', 35.6595, 139.7005, 'Shibuya City, Tokyo', "The world's busiest crossing.", '', 30),
+      row(2, d2, '16:30', 'Shibuya Sky', 'Sight', 35.6584, 139.7023, '2-24-12 Shibuya, Shibuya City, Tokyo', 'Sunset slot booked.', 30, 60, true),
+      row(2, d2, '19:00', 'Omoide Yokocho', 'Food', 35.6933, 139.6996, '1-2 Nishishinjuku, Shinjuku City, Tokyo', 'Tiny yakitori bars.', 30, 75)
+    ];
+    processParsedData(rows);
+    DAY_TITLES = { 1: t('sampleDay1'), 2: t('sampleDay2') };
+    TRIP = { cloudId: null, title: t('sampleTitle') };
+    populateFilters();
+    renderItinerary();
+    showToast(t('sampleLoaded'), { ms: 6000 });
+  }
+
+  function startPlanning() {
+    if (!getAllDays().length) addDayAtEnd();
+    const input = $('search-input');
+    if (isPortraitPhone()) setSheet('mid');
+    setTimeout(() => input.focus(), 250);
+  }
+
+  /* =========================================================
+     CATEGORY CHIPS (replace the category dropdown)
+     ========================================================= */
+  function renderCategoryChips() {
+    const box = $('cat-chips');
+    if (!box) return;
+    const sel = $('category-select');
+    const counts = {};
+    rawData.forEach(s => { counts[s.category] = (counts[s.category] || 0) + 1; });
+    const cats = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b, LANG));
+    const cur = sel.value;
+    box.innerHTML = `<button class="cat-chip ${cur === 'all' ? 'active' : ''}" onclick="setCategory('all')">${escapeHtml(t('allCats'))}</button>` +
+      cats.map(c => `<button class="cat-chip ${cur === c ? 'active' : ''}" data-cat="${escapeHtml(c)}" onclick="setCategory(this.dataset.cat)"><i class="fa-solid ${categoryIcon(c)}"></i> ${escapeHtml(c)} <small>${counts[c]}</small></button>`).join('');
+    box.parentElement.style.display = cats.length ? '' : 'none';
+  }
+
+  function setCategory(c) {
+    const sel = $('category-select');
+    sel.value = [...sel.options].some(o => o.value === c) ? c : 'all';
+    renderCategoryChips();
+    renderItinerary();
   }
 
 </script>
