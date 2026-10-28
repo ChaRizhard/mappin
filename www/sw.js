@@ -3,7 +3,7 @@
    - Libraries from the online fallbacks (fonts, icons, map library) are cached the first time they load.
    - Place searches, routes and opening hours fall back to their last saved answer when offline.
    Map images are not stored by Mappin; whatever your browser has cached may still show. */
-const VERSION = 'mappin-1.0.2';
+const VERSION = 'mappin-1.0.3';
 const DATA_CACHE = 'mappin-data';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
