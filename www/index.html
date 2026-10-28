@@ -1075,6 +1075,23 @@
         content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--group-dash); margin: -8px auto 12px;
       }
     }
+    /* 1.1.2: swipe cards, welcome tour */
+    .activity-card.swiping { transition: none !important; }
+    .activity-card[data-swipe="left"], .activity-card[data-swipe="delete"] { box-shadow: 8px 0 0 -2px rgba(239,68,68,0.5); }
+    .activity-card[data-swipe="delete"] { border-color: #ef4444 !important; background-image: linear-gradient(rgba(239,68,68,0.16), rgba(239,68,68,0.16)); }
+    .activity-card[data-swipe="right"], .activity-card[data-swipe="done"] { box-shadow: -8px 0 0 -2px rgba(16,185,129,0.5); }
+    .activity-card[data-swipe="done"] { border-color: #10b981 !important; background-image: linear-gradient(rgba(16,185,129,0.16), rgba(16,185,129,0.16)); }
+    .activity-card { touch-action: pan-y; }
+    #tour-body { text-align: center; padding: 6px 4px 2px; }
+    .tour-icon { width: 64px; height: 64px; margin: 4px auto 14px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 10px 24px rgba(59,130,246,0.35); }
+    .tour-title { font-size: 18px; margin: 0 0 8px; }
+    .tour-text { font-size: 14px; line-height: 1.5; color: var(--text-muted); margin: 0 auto 16px; max-width: 340px; }
+    .tour-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 16px; }
+    .tour-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--panel-border); transition: all 0.2s; }
+    .tour-dots span.on { width: 20px; border-radius: 4px; background: var(--accent-blue); }
+    .tour-actions { display: flex; justify-content: space-between; gap: 10px; }
+    .tour-actions .btn { flex: 1; justify-content: center; padding: 11px; }
   </style>
 </head>
 <body>
@@ -1110,7 +1127,6 @@
       </div>
       <span class="hdr-divider"></span>
       <button class="btn btn-ghost" onclick="shareTrip()"><i class="fa-solid fa-share-nodes"></i> <span class="btn-label" data-i18n="share">Share</span></button>
-      <button class="btn btn-success" onclick="openSaveModal()"><i class="fa-solid fa-floppy-disk"></i> <span class="btn-label" data-i18n="saveMap">Save map</span></button>
       <div class="menu-wrap">
         <button class="btn btn-ghost" id="app-menu-btn" onclick="toggleAppMenu(event)"><i class="fa-solid fa-bars"></i> <span class="btn-label" data-i18n="menu">Menu</span></button>
         <div class="dropdown-menu" id="app-menu">
@@ -1128,6 +1144,7 @@
           <div class="context-menu-item" onclick="closeAppMenu(); saveViewOffline()"><i class="fa-solid fa-download"></i> <span data-i18n="saveOfflineArea">Save this map area offline</span></div>
           <div class="context-menu-item" id="install-menu-item" style="display:none" onclick="closeAppMenu(); installApp()"><i class="fa-solid fa-mobile-screen-button"></i> <span data-i18n="installApp">Install app</span></div>
           <div class="menu-divider"></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openTour()"><i class="fa-solid fa-circle-question"></i> <span data-i18n="tour">Welcome tour</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openSettings()"><i class="fa-solid fa-gear"></i> <span data-i18n="settings">Settings</span></div>
         </div>
       </div>
@@ -1287,6 +1304,10 @@
     </div>
     <div id="checklist-body"></div>
   </div>
+</div>
+
+<div class="modal-overlay" id="tour-modal" onclick="if(event.target.id==='tour-modal')closeTour()">
+  <div class="modal-box" style="width: 400px;"><div id="tour-body"></div></div>
 </div>
 
 <div class="modal-overlay" id="share-modal" onclick="handleOutsideModalClick(event, 'share-modal')">
@@ -2238,6 +2259,46 @@
     de: { autoToday: 'Heute an Reisetagen automatisch öffnen', autoTodayStarted: 'Reisetag: {name} wird angezeigt', coloursTitles: 'Farben & Titel' }
   };
   Object.keys(I18N_EXTRA7).forEach(l => Object.assign(I18N[l], I18N_EXTRA7[l]));
+
+  // Strings added in 1.1.2
+  const I18N_EXTRA8 = {
+    en: { undoBtn: 'Undo', stopDeleted: 'Deleted “{name}”', markedDone: 'Marked as done', markedNotDone: 'Marked as not done', tourBack: 'Back', tourSkip: 'Skip', tourNextB: 'Next', tourDone: 'Start planning', tour: 'Welcome tour',
+      tour1Title: 'Plan your trip day by day', tour1Body: 'Search for places or import a CSV. Each day gets its own colour and route on the map. Press and hold a card to move it.',
+      tour2Title: 'Today mode', tour2Body: 'On the day, tap Today to go stop by stop: directions, when to leave, opening hours and weather.',
+      tour3Title: 'Map type and routes', tour3Body: 'The layers button switches between light, dark and satellite, and shows walking, driving or transit routes.',
+      tour4Title: 'Checklist and sharing', tour4Body: 'Keep packing, bookings and tickets in the checklist. Share a trip as an editable copy or view only. Swipe a card left to delete it, right to mark it done.' },
+    ja: { undoBtn: '元に戻す', stopDeleted: '「{name}」を削除しました', markedDone: '完了にしました', markedNotDone: '未完了に戻しました', tourBack: '戻る', tourSkip: 'スキップ', tourNextB: '次へ', tourDone: '計画を始める', tour: 'ようこそツアー',
+      tour1Title: '日ごとに旅を計画', tour1Body: '場所を検索するか CSV を読み込みます。日ごとに色とルートが地図に表示されます。カードを長押しすると移動できます。',
+      tour2Title: '今日モード', tour2Body: '当日は「今日」をタップして、スポットごとに道順・出発時刻・営業時間・天気を確認できます。',
+      tour3Title: '地図の種類とルート', tour3Body: 'レイヤーボタンでライト・ダーク・衛星を切り替え、徒歩・車・電車のルートを表示します。',
+      tour4Title: 'チェックリストと共有', tour4Body: '持ち物や予約、チケットはチェックリストに。旅程は編集可能なコピーか閲覧のみで共有できます。カードを左にスワイプで削除、右で完了。' },
+    zh: { undoBtn: '撤销', stopDeleted: '已删除“{name}”', markedDone: '已标记为完成', markedNotDone: '已标记为未完成', tourBack: '返回', tourSkip: '跳过', tourNextB: '下一步', tourDone: '开始规划', tour: '欢迎导览',
+      tour1Title: '按天规划行程', tour1Body: '搜索地点或导入 CSV。每一天在地图上都有自己的颜色和路线。长按卡片即可移动。',
+      tour2Title: '今日模式', tour2Body: '出行当天点“今天”，逐站查看路线、出发时间、营业时间和天气。',
+      tour3Title: '地图类型和路线', tour3Body: '图层按钮可切换浅色、深色和卫星地图，并显示步行、驾车或公共交通路线。',
+      tour4Title: '清单与分享', tour4Body: '用清单管理行李、预订和门票。行程可分享为可编辑副本或仅查看。向左滑动卡片删除，向右滑动标记完成。' },
+    ko: { undoBtn: '실행 취소', stopDeleted: '“{name}” 삭제됨', markedDone: '완료로 표시했어요', markedNotDone: '미완료로 표시했어요', tourBack: '뒤로', tourSkip: '건너뛰기', tourNextB: '다음', tourDone: '계획 시작', tour: '환영 투어',
+      tour1Title: '하루씩 여행 계획', tour1Body: '장소를 검색하거나 CSV를 가져오세요. 날마다 지도에 색상과 경로가 생겨요. 카드를 길게 눌러 옮길 수 있어요.',
+      tour2Title: '오늘 모드', tour2Body: '여행 당일에는 오늘을 눌러 장소마다 길찾기, 출발 시간, 영업시간, 날씨를 확인하세요.',
+      tour3Title: '지도 유형과 경로', tour3Body: '레이어 버튼으로 라이트, 다크, 위성 지도를 바꾸고 도보, 자동차, 대중교통 경로를 볼 수 있어요.',
+      tour4Title: '체크리스트와 공유', tour4Body: '짐, 예약, 티켓은 체크리스트에. 여행은 편집 가능한 사본이나 보기 전용으로 공유해요. 카드를 왼쪽으로 밀면 삭제, 오른쪽은 완료.' },
+    es: { undoBtn: 'Deshacer', stopDeleted: 'Se eliminó «{name}»', markedDone: 'Marcado como hecho', markedNotDone: 'Marcado como pendiente', tourBack: 'Atrás', tourSkip: 'Omitir', tourNextB: 'Siguiente', tourDone: 'Empezar a planear', tour: 'Recorrido de bienvenida',
+      tour1Title: 'Planea tu viaje día a día', tour1Body: 'Busca lugares o importa un CSV. Cada día tiene su color y su ruta en el mapa. Mantén pulsada una tarjeta para moverla.',
+      tour2Title: 'Modo Hoy', tour2Body: 'Ese día, toca Hoy para ir parada a parada: indicaciones, cuándo salir, horarios y tiempo.',
+      tour3Title: 'Tipo de mapa y rutas', tour3Body: 'El botón de capas cambia entre claro, oscuro y satélite, y muestra rutas a pie, en coche o en transporte.',
+      tour4Title: 'Lista y compartir', tour4Body: 'Guarda equipaje, reservas y entradas en la lista. Comparte el viaje como copia editable o solo para ver. Desliza una tarjeta a la izquierda para borrarla y a la derecha para marcarla.' },
+    fr: { undoBtn: 'Annuler', stopDeleted: '« {name} » supprimé', markedDone: 'Marqué comme fait', markedNotDone: 'Marqué comme non fait', tourBack: 'Retour', tourSkip: 'Passer', tourNextB: 'Suivant', tourDone: 'Commencer', tour: 'Visite de bienvenue',
+      tour1Title: 'Planifiez jour par jour', tour1Body: 'Cherchez des lieux ou importez un CSV. Chaque jour a sa couleur et son itinéraire sur la carte. Appui long sur une carte pour la déplacer.',
+      tour2Title: 'Mode Aujourd’hui', tour2Body: 'Le jour J, touchez Aujourd’hui pour avancer étape par étape : itinéraire, heure de départ, horaires et météo.',
+      tour3Title: 'Type de carte et itinéraires', tour3Body: 'Le bouton calques passe en clair, sombre ou satellite, et affiche les trajets à pied, en voiture ou en transports.',
+      tour4Title: 'Liste et partage', tour4Body: 'Notez bagages, réservations et billets dans la liste. Partagez en copie modifiable ou en lecture seule. Glissez une carte à gauche pour la supprimer, à droite pour la marquer faite.' },
+    de: { undoBtn: 'Rückgängig', stopDeleted: '„{name}“ gelöscht', markedDone: 'Als erledigt markiert', markedNotDone: 'Als offen markiert', tourBack: 'Zurück', tourSkip: 'Überspringen', tourNextB: 'Weiter', tourDone: 'Los geht’s', tour: 'Willkommenstour',
+      tour1Title: 'Tag für Tag planen', tour1Body: 'Suche Orte oder importiere eine CSV. Jeder Tag hat seine Farbe und Route auf der Karte. Halte eine Karte gedrückt, um sie zu verschieben.',
+      tour2Title: 'Heute-Modus', tour2Body: 'Tippe am Reisetag auf Heute: Stopp für Stopp mit Route, Abfahrtszeit, Öffnungszeiten und Wetter.',
+      tour3Title: 'Kartentyp und Routen', tour3Body: 'Die Ebenen-Taste wechselt zwischen hell, dunkel und Satellit und zeigt Fuß-, Auto- oder ÖPNV-Routen.',
+      tour4Title: 'Checkliste und Teilen', tour4Body: 'Packliste, Buchungen und Tickets in der Checkliste. Teile die Reise als bearbeitbare Kopie oder nur zum Ansehen. Karte nach links wischen zum Löschen, nach rechts zum Erledigen.' }
+  };
+  Object.keys(I18N_EXTRA8).forEach(l => Object.assign(I18N[l], I18N_EXTRA8[l]));
 
   /* =========================================================
      STATE
@@ -6003,7 +6064,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.1.1';
+  const APP_VERSION = '1.1.2';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -7649,7 +7710,7 @@
   function asSheet(menu) {
     const phone = isPhoneWidth();
     menu.classList.toggle('as-sheet', phone);
-    if (phone) { menu.style.left = ''; menu.style.top = ''; menu.style.right = ''; menuBackdrop(true); }
+    if (phone) { keepPageAtTop(); menu.style.left = ''; menu.style.top = ''; menu.style.right = ''; menuBackdrop(true); }
     return phone;
   }
   // Keep the app menu at the top level so it can sit above everything
@@ -7731,41 +7792,55 @@
     else if (id === 'checklist-modal') closeChecklist();
     else if (id === 'single-item-modal') closeSingleItemModal();
     else if (id === 'color-modal') closeMasterColorModal();
+    else if (id === 'tour-modal') closeTour();
     else { const el = $(id); if (el) el.style.display = 'none'; }
   }
-  (function initModalSwipe() {
+  (function initSheetSwipe() {
+    // Works for windows (.modal-box) and for menus shown as bottom sheets (.as-sheet)
     let sw = null;
     document.addEventListener('touchstart', e => {
-      const box = e.target.closest && e.target.closest('.modal-box');
-      if (!box || !isPhoneWidth() || e.touches.length !== 1) return;
-      const ov = box.closest('.modal-overlay');
-      if (!ov || ov.classList.contains('previewing') || !ov.id) return;
-      if (e.target.closest('input, textarea, select, .color-swatch, [contenteditable="true"]')) return;
+      if (!isPhoneWidth() || e.touches.length !== 1 || !e.target.closest) return;
+      const menu = e.target.closest('.as-sheet');
+      const box = menu || e.target.closest('.modal-box');
+      if (!box) return;
+      let ov = null;
+      if (!menu) {
+        ov = box.closest('.modal-overlay');
+        if (!ov || ov.classList.contains('previewing') || !ov.id) return;
+        if (e.target.closest('input, textarea, select, .color-swatch, [contenteditable="true"]')) return;
+      }
       if (box.scrollTop > 0) return;
-      sw = { box, ov, y0: e.touches[0].clientY, t0: Date.now(), dy: 0 };
+      sw = { box, ov, menu: !!menu, y0: e.touches[0].clientY, t0: Date.now(), dy: 0 };
     }, { passive: true });
     document.addEventListener('touchmove', e => {
       if (!sw) return;
       const dy = e.touches[0].clientY - sw.y0;
-      if (dy <= 0 || sw.box.scrollTop > 0) { if (!sw.dy) { sw = null; return; } }
+      if ((dy <= 0 || sw.box.scrollTop > 0) && !sw.dy) { sw = null; return; }
       sw.dy = Math.max(0, dy);
+      if (sw.dy < 6) return; // a tap, not a swipe
+      sw.box.style.animation = 'none';
       sw.box.style.transition = 'none';
       sw.box.style.transform = `translateY(${sw.dy}px)`;
-      sw.ov.style.background = `rgba(2,6,23,${Math.max(0.1, 0.55 - sw.dy / 600)})`;
+      const fade = Math.max(0.1, 0.55 - sw.dy / 600);
+      if (sw.ov) sw.ov.style.background = `rgba(2,6,23,${fade})`;
+      else { const b = $('menu-backdrop'); if (b) b.style.background = `rgba(2,6,23,${fade * 0.8})`; }
       if (e.cancelable) e.preventDefault();
     }, { passive: false });
     const end = () => {
       if (!sw) return;
-      const { box, ov, dy, t0 } = sw; sw = null;
-      const fast = dy > 60 && dy / Math.max(1, Date.now() - t0) > 0.55;
+      const { box, ov, menu, dy, t0 } = sw; sw = null;
+      if (dy < 6) return;
+      const fast = dy > 50 && dy / Math.max(1, Date.now() - t0) > 0.55;
+      const reset = () => { box.style.transform = ''; box.style.transition = ''; box.style.animation = ''; if (ov) ov.style.background = ''; const b = $('menu-backdrop'); if (b) b.style.background = ''; };
       box.style.transition = 'transform 0.2s ease';
-      if (dy > 130 || fast) {
+      if (dy > (menu ? 90 : 130) || fast) {
         box.style.transform = 'translateY(110%)';
-        setTimeout(() => { closeModalById(ov.id); box.style.transform = ''; box.style.transition = ''; ov.style.background = ''; }, 190);
+        setTimeout(() => { if (menu) { closeAppMenu(); closeMenus(); } else closeModalById(ov.id); reset(); }, 190);
       } else {
         box.style.transform = '';
-        ov.style.background = '';
-        setTimeout(() => { box.style.transition = ''; }, 220);
+        if (ov) ov.style.background = '';
+        const b = $('menu-backdrop'); if (b) b.style.background = '';
+        setTimeout(reset, 220);
       }
     };
     document.addEventListener('touchend', end, { passive: true });
@@ -7810,6 +7885,124 @@
     }
     return null;
   }
+
+  /* =========================================================
+     1.1.2: keep the page from drifting (iPhone), swipe cards, welcome tour
+     ========================================================= */
+
+  /* ---------- iPhone: after the keyboard or a rotation, iOS can leave the whole page scrolled by a few
+     dozen pixels even though it can't scroll. Things then draw in one place but react to taps in another
+     (e.g. tapping "Copy share link" hits the item below). Put the page back where it belongs. ---------- */
+  function keepPageAtTop() {
+    const ae = document.activeElement;
+    if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return; // the keyboard may need it while typing
+    if (window.scrollX || window.scrollY || document.documentElement.scrollTop || document.body.scrollTop) {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  }
+  ['resize', 'orientationchange', 'scroll'].forEach(ev => window.addEventListener(ev, () => setTimeout(keepPageAtTop, 60), { passive: true }));
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', () => setTimeout(keepPageAtTop, 120));
+  document.addEventListener('focusout', () => setTimeout(keepPageAtTop, 250));
+  window.addEventListener('orientationchange', () => setTimeout(() => { if (typeof resetPageZoom === 'function') resetPageZoom(); keepPageAtTop(); }, 350));
+
+  /* ---------- Swipe a card: left to delete (with undo), right to mark it done ---------- */
+  (function initCardSwipe() {
+    const tl = $('timeline');
+    if (!tl) return;
+    let sw = null;
+    const THRESH = 96;
+    tl.addEventListener('touchstart', e => {
+      if (VIEW_ONLY || selectMode || daySelectMode || e.touches.length !== 1) return;
+      const card = e.target.closest('.activity-card');
+      if (!card || e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+      const p = e.touches[0];
+      sw = { card, x0: p.clientX, y0: p.clientY, dx: 0, active: false, dead: false };
+    }, { passive: true });
+    tl.addEventListener('touchmove', e => {
+      if (!sw || sw.dead) return;
+      const p = e.touches[0], dx = p.clientX - sw.x0, dy = p.clientY - sw.y0;
+      if (!sw.active) {
+        if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { sw.dead = true; return; } // scrolling the list
+        if (Math.abs(dx) < 14 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+        if (document.querySelector('.sortable-chosen, .sortable-drag')) { sw.dead = true; return; } // a drag has started
+        sw.active = true;
+        sw.card.classList.add('swiping');
+      }
+      sw.dx = dx;
+      sw.card.style.transform = `translateX(${dx}px)`;
+      sw.card.dataset.swipe = dx < -THRESH ? 'delete' : dx > THRESH ? 'done' : dx < 0 ? 'left' : 'right';
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+    const end = () => {
+      if (!sw) return;
+      const { card, dx, active } = sw; sw = null;
+      if (!active) return;
+      const id = Number(card.getAttribute('data-id'));
+      card.classList.remove('swiping');
+      card.style.transition = 'transform 0.18s ease';
+      if (dx < -THRESH) {
+        card.style.transform = 'translateX(-110%)';
+        setTimeout(() => {
+          const item = rawData.find(s => s.id === id);
+          deleteCard(id);
+          showToast(t('stopDeleted', { name: item ? (item.cleanTitle || item.title) : '' }), { ms: 5000, actionLabel: t('undoBtn'), onAction: undo });
+        }, 170);
+        return;
+      }
+      if (dx > THRESH) {
+        const item = rawData.find(s => s.id === id);
+        if (item) { item.done = !item.done; renderItinerary(); showToast(item.done ? t('markedDone') : t('markedNotDone'), { ms: 1800 }); }
+        return;
+      }
+      card.style.transform = '';
+      delete card.dataset.swipe;
+      setTimeout(() => { card.style.transition = ''; }, 200);
+    };
+    tl.addEventListener('touchend', end, { passive: true });
+    tl.addEventListener('touchcancel', end, { passive: true });
+  })();
+
+  /* ---------- Welcome tour: shown once, the first time someone opens MapPin ---------- */
+  const TOUR = [
+    { icon: 'fa-map-location-dot', title: 'tour1Title', body: 'tour1Body' },
+    { icon: 'fa-location-arrow', title: 'tour2Title', body: 'tour2Body' },
+    { icon: 'fa-layer-group', title: 'tour3Title', body: 'tour3Body' },
+    { icon: 'fa-list-check', title: 'tour4Title', body: 'tour4Body' }
+  ];
+  let tourStep = 0;
+  function openTour() {
+    tourStep = 0;
+    renderTour();
+    $('tour-modal').style.display = 'flex';
+  }
+  function closeTour() {
+    $('tour-modal').style.display = 'none';
+    savePref('mappin_tour_done', '1');
+  }
+  function tourNext(d) {
+    tourStep = Math.max(0, Math.min(TOUR.length - 1, tourStep + d));
+    renderTour();
+  }
+  function renderTour() {
+    const st = TOUR[tourStep], last = tourStep === TOUR.length - 1;
+    $('tour-body').innerHTML = `
+      <div class="tour-icon"><i class="fa-solid ${st.icon}"></i></div>
+      <h3 class="tour-title">${escapeHtml(t(st.title))}</h3>
+      <p class="tour-text">${escapeHtml(t(st.body))}</p>
+      <div class="tour-dots">${TOUR.map((_, i) => `<span class="${i === tourStep ? 'on' : ''}"></span>`).join('')}</div>
+      <div class="tour-actions">
+        ${tourStep ? `<button class="btn btn-secondary" onclick="tourNext(-1)">${escapeHtml(t('tourBack'))}</button>` : `<button class="btn btn-ghost" onclick="closeTour()">${escapeHtml(t('tourSkip'))}</button>`}
+        ${last ? `<button class="btn btn-primary" onclick="closeTour()">${escapeHtml(t('tourDone'))}</button>`
+               : `<button class="btn btn-primary" onclick="tourNext(1)">${escapeHtml(t('tourNextB'))}</button>`}
+      </div>`;
+  }
+  window.addEventListener('load', () => setTimeout(() => {
+    if (loadPref('mappin_tour_done', '') === '1' || VIEW_ONLY || todayMode) return;
+    if (document.querySelector('.modal-overlay[style*="flex"]')) return;
+    openTour();
+  }, 900));
 
 </script>
 </body>
