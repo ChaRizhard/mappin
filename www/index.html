@@ -421,7 +421,7 @@
     .select-bar .select-count { flex: 1; color: var(--text-muted); font-weight: 600; }
     .select-bar .btn { padding: 6px 10px; font-size: 11px; }
 
-    #map { flex: 1; height: 100%; background: var(--bg-dark); }
+    #map { flex: 1; height: 100%; min-width: 0; background: var(--bg-dark); }
 
     .map-controls-overlay {
       position: absolute; top: 16px; right: 16px; z-index: 900; display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
@@ -706,9 +706,39 @@
       @page { margin: 12mm; }
     }
 
-    /* Safe areas (iPhone notch / home bar, Android gesture bar) */
-    header { padding-top: env(safe-area-inset-top); padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
-    .timeline-container { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+    /* Safe areas (Dynamic Island / notch, home bar, Android gesture bar) */
+    :root {
+      --sa-t: env(safe-area-inset-top, 0px); --sa-r: env(safe-area-inset-right, 0px);
+      --sa-b: env(safe-area-inset-bottom, 0px); --sa-l: env(safe-area-inset-left, 0px);
+      --sidebar-w: 420px;
+    }
+    header { padding-top: var(--sa-t); padding-left: max(20px, var(--sa-l)); padding-right: max(20px, var(--sa-r)); }
+    .timeline-container { padding-bottom: calc(16px + var(--sa-b)); }
+
+    /* Map area: controls are positioned inside it, so they stay on the map whichever side the list is on */
+    .map-wrap { flex: 1; position: relative; display: flex; min-width: 0; min-height: 0; }
+    .map-controls-overlay { right: max(16px, var(--sa-r)); }
+    .leaflet-right { margin-right: var(--sa-r); }
+    .leaflet-bottom { margin-bottom: var(--sa-b); }
+
+    /* List on the right (Settings → List position) */
+    :root[data-side="right"] .main-content { flex-direction: row-reverse; }
+    :root[data-side="right"] sidebar { border-right: none; border-left: 1px solid var(--panel-border); }
+    :root[data-side="right"] .map-controls-overlay { right: auto; left: max(16px, var(--sa-l)); align-items: flex-start; }
+    :root[data-side="right"] .locate-btn { right: auto; left: max(10px, var(--sa-l)); }
+    :root[data-side="right"] .leaflet-right { margin-right: 0; }
+    :root[data-side="right"] .leaflet-left { margin-left: var(--sa-l); }
+
+    /* Touch: no text selection or iOS callout while scrolling; drag cards with a press-and-hold */
+    .activity-card, .day-section-title, .group-banner, .daygroup-banner, .sheet-handle {
+      -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+    }
+    .activity-card input, .activity-card textarea { -webkit-user-select: text; user-select: text; }
+    .activity-card.sortable-chosen { box-shadow: 0 10px 28px var(--shadow); transform: scale(1.02); border-color: var(--accent-blue); }
+    .activity-card.sortable-ghost { opacity: 0.35; }
+    .segmented { display: inline-flex; border: 1px solid var(--panel-border); border-radius: 8px; overflow: hidden; }
+    .segmented button { background: var(--tint); border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 6px 12px; cursor: pointer; }
+    .segmented button.active { background: var(--accent-blue); color: #fff; }
 
     /* Offline banner */
     #offline-banner {
@@ -718,7 +748,7 @@
 
     /* Locate me */
     .locate-btn {
-      position: absolute; right: 10px; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 900; width: 34px; height: 34px; border-radius: 8px;
+      position: absolute; right: max(10px, var(--sa-r)); bottom: calc(96px + var(--sa-b)); z-index: 900; width: 34px; height: 34px; border-radius: 8px;
       background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-main); cursor: pointer;
       display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px var(--shadow); font-size: 14px;
     }
@@ -762,8 +792,8 @@
     .row-inline .btn { white-space: nowrap; }
 
     /* ---------- Phone layout ---------- */
-    @media (max-width: 820px) {
-      header { padding: 8px 12px; flex-wrap: wrap; row-gap: 8px; }
+    @media (max-width: 820px) and (min-height: 521px) {
+      header { padding: calc(6px + var(--sa-t)) max(12px, var(--sa-r)) 6px max(12px, var(--sa-l)); flex-wrap: wrap; row-gap: 8px; }
       .brand-title span { display: none; }
       .header-actions { flex: 1 1 100%; overflow-x: auto; padding-bottom: 2px; }
       .header-actions .btn .btn-label, .switch-label, .hdr-divider { display: none; }
@@ -771,22 +801,25 @@
       .header-actions { flex: 0 1 auto; justify-content: flex-end; overflow: visible; }
       header { flex-wrap: nowrap; }
       .brand-title h1 { font-size: 16px; }
-      .locate-btn { bottom: calc(10px + env(safe-area-inset-bottom)); right: 52px; }
+      .locate-btn { bottom: 10px; right: 52px; }
+      :root[data-side] .locate-btn { left: auto; right: 52px; }
       .header-actions .btn { padding: 8px 10px; }
       .lang-wrap .lang-label { display: none; }
-      .main-content { flex-direction: column; }
-      #map { order: 1; flex: 1; height: auto; min-height: 0; }
-      sidebar {
-        order: 2; width: 100%; height: 46vh; border-right: none; border-top: 1px solid var(--panel-border);
-        border-radius: 14px 14px 0 0; transition: height 0.25s ease; box-shadow: 0 -6px 20px var(--shadow);
+      :root[data-side] .main-content { flex-direction: column; }
+      .map-wrap { order: 1; flex: 1; min-height: 0; }
+      :root[data-side] sidebar {
+        order: 2; width: 100%; height: 46%; border-right: none; border-left: none; border-top: 1px solid var(--panel-border);
+        border-radius: 14px 14px 0 0; transition: height 0.25s ease; box-shadow: 0 -6px 20px var(--shadow); flex-shrink: 0;
       }
-      sidebar.expanded { height: 82vh; }
+      sidebar.dragging { transition: none !important; }
       .sheet-handle {
-        display: flex; justify-content: center; align-items: center; height: 22px; cursor: pointer; flex-shrink: 0;
+        display: flex; justify-content: center; align-items: center; height: 28px; cursor: grab; flex-shrink: 0; touch-action: none;
       }
+      .sidebar-title-row { touch-action: none; }
+      :root[data-side] .map-controls-overlay { left: auto; right: 8px; align-items: flex-end; }
       .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: var(--group-dash); }
-      .sidebar-header { padding: 4px 14px 12px; }
-      .timeline-container { padding: 12px 14px; }
+      .sidebar-header { padding: 0 14px 12px; }
+      .timeline-container { padding: 12px 14px calc(16px + var(--sa-b)); }
       .map-controls-overlay { top: 8px; right: 8px; }
       .map-control-btn { padding: 6px 8px; }
       .map-control-btn .btn-label, .map-controls-row .ctl-label { display: none; }
@@ -794,6 +827,34 @@
       .modal-overlay.previewing { padding: 8px; align-items: flex-start; justify-content: center; }
       .modal-overlay.previewing .modal-box { max-height: 40vh; }
       .title-date-row { flex-wrap: wrap; }
+    }
+
+    /* ---------- Phone on its side (landscape) ---------- */
+    @media (max-height: 520px) {
+      :root { --sidebar-w: 340px; }
+      header { min-height: 46px; padding: calc(4px + var(--sa-t)) max(12px, var(--sa-r)) 4px max(12px, var(--sa-l)); }
+      .brand-title span { display: none; }
+      .brand-icon { width: 30px; height: 30px; font-size: 15px; }
+      .brand-title h1 { font-size: 16px; }
+      .header-actions .btn .btn-label, .switch-label, .hdr-divider { display: none; }
+      .header-actions .lang-wrap, .header-actions #ui-theme-switch, .header-actions #autosave-switch { display: none; }
+      .header-actions .btn { padding: 7px 10px; }
+      .icon-btn { width: 32px; height: 32px; }
+      sidebar { width: calc(var(--sidebar-w) + var(--sa-l)); padding-left: var(--sa-l); overflow-y: auto; }
+      :root[data-side="right"] sidebar { width: calc(var(--sidebar-w) + var(--sa-r)); padding-left: 0; padding-right: var(--sa-r); }
+      .timeline-container { flex: none; overflow: visible; padding: 10px 14px calc(14px + var(--sa-b)); }
+      .sidebar-header { padding: 10px 14px; }
+      .sidebar-title-row { margin-bottom: 8px; }
+      .search-container, .filters-grid { margin-bottom: 8px; }
+      .filter-group label { display: none; }
+      .select-input { padding: 6px 8px; }
+      .map-controls-overlay { top: 8px; }
+      .map-control-btn { padding: 6px 8px; }
+      .map-control-btn .btn-label, .map-controls-row .ctl-label { display: none; }
+      .locate-btn { bottom: calc(10px + var(--sa-b)); right: max(52px, calc(var(--sa-r) + 42px)); }
+      :root[data-side="right"] .locate-btn { left: max(10px, var(--sa-l)); right: auto; }
+      .activity-card:hover { transform: none; }
+      .modal-box { max-height: 92vh; }
     }
   </style>
 </head>
@@ -857,7 +918,7 @@
 
   <div class="main-content">
     <sidebar id="sidebar">
-      <div class="sheet-handle" onclick="toggleSheet()" data-i18n-title="expandList"><span></span></div>
+      <div class="sheet-handle" id="sheet-handle" data-i18n-title="expandList"><span></span></div>
       <div class="sidebar-header">
         <div class="sidebar-title-row">
           <span class="sidebar-title"><i class="fa-solid fa-route"></i> <span data-i18n="dayStops">Itinerary</span></span>
@@ -914,6 +975,7 @@
       <div class="timeline-container" id="timeline"></div>
     </sidebar>
 
+    <div class="map-wrap">
     <div id="map"></div>
 
     <button class="locate-btn" id="locate-btn" onclick="locateMe()" data-i18n-title="locateMe"><i class="fa-solid fa-location-crosshairs"></i></button>
@@ -931,6 +993,7 @@
         <button class="map-control-btn" id="route-car" onclick="setRouteMode('car')" data-i18n-title="routeDrive"><i class="fa-solid fa-car"></i> <span class="btn-label" data-i18n="routeDrive">Drive</span></button>
         <button class="map-control-btn" id="route-transit" onclick="setRouteMode('transit')" data-i18n-title="routeTransitTitle"><i class="fa-solid fa-train-subway"></i> <span class="btn-label" data-i18n="routeTransit">Transit</span></button>
       </div>
+    </div>
     </div>
   </div>
 </div>
@@ -1536,7 +1599,8 @@
       offlineBanner: "You're offline. Your itinerary still works. Search, routes and new map areas need a connection.", backOnline: 'Back online',
       locateMe: 'Show my location', locationDenied: "Couldn't get your location. Check that location access is allowed for Mappin.", youAreHere: 'You are here',
       shareItinerary: 'Share itinerary', fileReady: 'Itinerary file ready to share', needPublicUrl: 'Add your public web address in Settings to share links from the app. Sharing the CSV file instead.',
-      about: 'About', version: 'Version {v}', minutesShort: '{m} min', on: 'On', off: 'Off'
+      about: 'About', version: 'Version {v}', minutesShort: '{m} min', on: 'On', off: 'Off',
+      listSide: 'List position', sideLeft: 'Left', sideRight: 'Right', listSideHint: 'Puts the itinerary list on the other side, e.g. away from the camera when your phone is on its side.'
     },
     ja: {
       timeLabel: '時間', stayLabel: '滞在 (分)', costLabel: '費用', fixedTime: '時間を固定', fixedTimeHint: '自動入力でもこの時間を保持します（予約など）。',
@@ -1560,7 +1624,8 @@
       offlineBanner: 'オフラインです。旅程はそのまま使えます。検索・ルート・新しい地図の表示には接続が必要です。', backOnline: 'オンラインに戻りました',
       locateMe: '現在地を表示', locationDenied: '現在地を取得できませんでした。位置情報の許可を確認してください。', youAreHere: '現在地',
       shareItinerary: '旅程を共有', fileReady: '共有用の旅程ファイルを作成しました', needPublicUrl: 'アプリからリンクを共有するには設定で公開ウェブアドレスを追加してください。代わりにCSVファイルを共有します。',
-      about: 'このアプリについて', version: 'バージョン {v}', minutesShort: '{m}分', on: 'オン', off: 'オフ'
+      about: 'このアプリについて', version: 'バージョン {v}', minutesShort: '{m}分', on: 'オン', off: 'オフ',
+      listSide: 'リストの位置', sideLeft: '左', sideRight: '右', listSideHint: '旅程リストを反対側に表示します（横向き時にカメラを避けるなど）。'
     },
     zh: {
       timeLabel: '时间', stayLabel: '停留（分钟）', costLabel: '费用', fixedTime: '固定时间', fixedTimeHint: '自动填写时保留此时间（如预约）。',
@@ -1584,7 +1649,8 @@
       offlineBanner: '你已离线。行程仍可使用；搜索、路线和新的地图区域需要网络。', backOnline: '已恢复网络',
       locateMe: '显示我的位置', locationDenied: '无法获取位置。请检查 Mappin 的定位权限。', youAreHere: '你在这里',
       shareItinerary: '分享行程', fileReady: '行程文件已准备好分享', needPublicUrl: '要从应用分享链接，请在设置中添加公开网址。现改为分享 CSV 文件。',
-      about: '关于', version: '版本 {v}', minutesShort: '{m} 分钟', on: '开', off: '关'
+      about: '关于', version: '版本 {v}', minutesShort: '{m} 分钟', on: '开', off: '关',
+      listSide: '列表位置', sideLeft: '左侧', sideRight: '右侧', listSideHint: '将行程列表放到另一侧，例如横屏时避开摄像头。'
     },
     ko: {
       timeLabel: '시간', stayLabel: '머무는 시간(분)', costLabel: '비용', fixedTime: '시간 고정', fixedTimeHint: '자동 입력 시에도 이 시간을 유지합니다(예약 등).',
@@ -1608,7 +1674,8 @@
       offlineBanner: '오프라인입니다. 일정은 계속 사용할 수 있습니다. 검색, 경로, 새 지도 영역에는 연결이 필요합니다.', backOnline: '다시 온라인',
       locateMe: '내 위치 보기', locationDenied: '위치를 가져올 수 없습니다. Mappin의 위치 권한을 확인하세요.', youAreHere: '현재 위치',
       shareItinerary: '일정 공유', fileReady: '공유할 일정 파일이 준비되었습니다', needPublicUrl: '앱에서 링크를 공유하려면 설정에 공개 웹 주소를 추가하세요. 대신 CSV 파일을 공유합니다.',
-      about: '정보', version: '버전 {v}', minutesShort: '{m}분', on: '켜짐', off: '꺼짐'
+      about: '정보', version: '버전 {v}', minutesShort: '{m}분', on: '켜짐', off: '꺼짐',
+      listSide: '목록 위치', sideLeft: '왼쪽', sideRight: '오른쪽', listSideHint: '일정 목록을 반대쪽에 표시합니다(예: 가로 모드에서 카메라 피하기).'
     },
     es: {
       timeLabel: 'Hora', stayLabel: 'Estancia (min)', costLabel: 'Coste', fixedTime: 'Hora fija', fixedTimeHint: 'El relleno automático conserva esta hora (p. ej., una reserva).',
@@ -1632,7 +1699,8 @@
       offlineBanner: 'Sin conexión. Tu itinerario sigue funcionando; la búsqueda, las rutas y las zonas nuevas del mapa necesitan conexión.', backOnline: 'Conexión recuperada',
       locateMe: 'Mostrar mi ubicación', locationDenied: 'No se pudo obtener tu ubicación. Revisa los permisos de ubicación de Mappin.', youAreHere: 'Estás aquí',
       shareItinerary: 'Compartir itinerario', fileReady: 'Archivo del itinerario listo para compartir', needPublicUrl: 'Añade tu dirección web pública en Ajustes para compartir enlaces desde la app. Se comparte el CSV.',
-      about: 'Acerca de', version: 'Versión {v}', minutesShort: '{m} min', on: 'Sí', off: 'No'
+      about: 'Acerca de', version: 'Versión {v}', minutesShort: '{m} min', on: 'Sí', off: 'No',
+      listSide: 'Posición de la lista', sideLeft: 'Izquierda', sideRight: 'Derecha', listSideHint: 'Coloca el itinerario al otro lado, p. ej., lejos de la cámara con el móvil en horizontal.'
     },
     fr: {
       timeLabel: 'Heure', stayLabel: 'Durée (min)', costLabel: 'Coût', fixedTime: 'Heure fixe', fixedTimeHint: 'Le remplissage automatique conserve cette heure (ex. une réservation).',
@@ -1656,7 +1724,8 @@
       offlineBanner: 'Hors ligne. Votre itinéraire reste utilisable ; la recherche, les trajets et les nouvelles zones de carte nécessitent une connexion.', backOnline: 'Connexion rétablie',
       locateMe: 'Afficher ma position', locationDenied: 'Position introuvable. Vérifiez l’accès à la localisation pour Mappin.', youAreHere: 'Vous êtes ici',
       shareItinerary: 'Partager l’itinéraire', fileReady: 'Fichier de l’itinéraire prêt à partager', needPublicUrl: 'Ajoutez votre adresse web publique dans Réglages pour partager des liens depuis l’app. Partage du CSV à la place.',
-      about: 'À propos', version: 'Version {v}', minutesShort: '{m} min', on: 'Oui', off: 'Non'
+      about: 'À propos', version: 'Version {v}', minutesShort: '{m} min', on: 'Oui', off: 'Non',
+      listSide: 'Position de la liste', sideLeft: 'Gauche', sideRight: 'Droite', listSideHint: 'Place l’itinéraire de l’autre côté, par ex. loin de la caméra en mode paysage.'
     },
     de: {
       timeLabel: 'Uhrzeit', stayLabel: 'Aufenthalt (Min.)', costLabel: 'Kosten', fixedTime: 'Feste Uhrzeit', fixedTimeHint: 'Das automatische Ausfüllen behält diese Uhrzeit (z. B. eine Buchung).',
@@ -1680,7 +1749,8 @@
       offlineBanner: 'Offline. Dein Reiseplan funktioniert weiter; Suche, Routen und neue Kartenbereiche brauchen eine Verbindung.', backOnline: 'Wieder online',
       locateMe: 'Meinen Standort zeigen', locationDenied: 'Standort nicht verfügbar. Prüfe die Standortberechtigung für Mappin.', youAreHere: 'Du bist hier',
       shareItinerary: 'Reiseplan teilen', fileReady: 'Reiseplan-Datei bereit zum Teilen', needPublicUrl: 'Trage in den Einstellungen deine öffentliche Webadresse ein, um Links aus der App zu teilen. Stattdessen wird die CSV geteilt.',
-      about: 'Über', version: 'Version {v}', minutesShort: '{m} Min.', on: 'An', off: 'Aus'
+      about: 'Über', version: 'Version {v}', minutesShort: '{m} Min.', on: 'An', off: 'Aus',
+      listSide: 'Position der Liste', sideLeft: 'Links', sideRight: 'Rechts', listSideHint: 'Zeigt den Reiseplan auf der anderen Seite, z. B. weg von der Kamera im Querformat.'
     }
   };
   Object.keys(I18N_EXTRA2).forEach(l => Object.assign(I18N[l], I18N_EXTRA2[l]));
@@ -1777,7 +1847,9 @@
   function tileUrl(type) {
     const hl = (LANGUAGES.find(l => l.code === LANG) || LANGUAGES[0]).tiles;
     const lyrs = type === 'sat' ? 'y' : 'm';
-    return `https://mt1.google.com/vt/lyrs=${lyrs}&hl=${hl}&x={x}&y={y}&z={z}`;
+    // High-resolution tiles on sharp screens (phones, Retina), so the map isn't blurry
+    const scale = (window.devicePixelRatio || 1) > 1.3 ? '&scale=2' : '';
+    return `https://mt1.google.com/vt/lyrs=${lyrs}&hl=${hl}${scale}&x={x}&y={y}&z={z}`;
   }
 
   const $ = id => document.getElementById(id);
@@ -1793,6 +1865,7 @@
   function initMap() {
     applyI18n();
     applyUiTheme(loadUiTheme());
+    applySide();
 
     map = L.map('map', { zoomControl: false }).setView([35.6762, 139.6503], 12);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -1809,6 +1882,7 @@
     map.on('zoomstart', () => Object.keys(fannedClusters).forEach(collapseCluster));
     map.getContainer().addEventListener('wheel', () => { userMovedMap = true; }, { passive: true });
     window.addEventListener('resize', () => map.invalidateSize());
+    initSheetDrag();
 
     updateRouteButtons();
     updateAutosaveSwitch();
@@ -2076,9 +2150,75 @@
     }).addTo(map);
   }
 
-  function toggleSheet() {
-    $('sidebar').classList.toggle('expanded');
-    setTimeout(() => map.invalidateSize(), 300);
+  /* ---------- Phone list sheet: drag the bar to resize, tap it to switch between half and full ---------- */
+  const isPortraitPhone = () => window.matchMedia('(max-width: 820px) and (min-height: 521px)').matches;
+  let sheetState = 'mid';
+
+  function sheetHeights() {
+    const total = document.querySelector('.main-content').getBoundingClientRect().height;
+    return { min: Math.min(132, total * 0.3), mid: Math.round(total * 0.46), max: Math.round(total * 0.9), total };
+  }
+
+  function setSheet(state) {
+    const sb = $('sidebar');
+    if (!isPortraitPhone()) { sb.style.height = ''; return; }
+    sheetState = state;
+    sb.style.height = sheetHeights()[state] + 'px';
+    sb.classList.toggle('expanded', state === 'max');
+    setTimeout(() => map && map.invalidateSize(), 280);
+  }
+
+  function toggleSheet() { setSheet(sheetState === 'max' ? 'mid' : 'max'); }
+
+  function initSheetDrag() {
+    const sb = $('sidebar');
+    const grips = [$('sheet-handle'), document.querySelector('.sidebar-title-row')].filter(Boolean);
+    let startY = 0, startH = 0, active = false, moved = false;
+    grips.forEach(el => {
+      el.addEventListener('pointerdown', e => {
+        if (!isPortraitPhone() || e.target.closest('button, a, input, select')) return;
+        active = true; moved = false; startY = e.clientY; startH = sb.getBoundingClientRect().height;
+        sb.classList.add('dragging');
+        try { el.setPointerCapture(e.pointerId); } catch (x) {}
+      });
+      el.addEventListener('pointermove', e => {
+        if (!active) return;
+        const dy = startY - e.clientY;
+        if (Math.abs(dy) > 5) moved = true;
+        if (!moved) return;
+        const h = sheetHeights();
+        sb.style.height = Math.max(h.min, Math.min(h.max, startH + dy)) + 'px';
+      });
+      const end = () => {
+        if (!active) return;
+        active = false;
+        sb.classList.remove('dragging');
+        if (!moved) { if (el.id === 'sheet-handle') toggleSheet(); return; }
+        const cur = sb.getBoundingClientRect().height, h = sheetHeights();
+        const nearest = ['min', 'mid', 'max'].sort((a, b) => Math.abs(h[a] - cur) - Math.abs(h[b] - cur))[0];
+        setSheet(nearest);
+      };
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+    });
+    let lastPortrait = isPortraitPhone();
+    window.addEventListener('resize', () => {
+      const now = isPortraitPhone();
+      if (now) setSheet(sheetState); else sb.style.height = '';
+      if (now !== lastPortrait) { lastPortrait = now; setTimeout(() => map && map.invalidateSize(), 300); }
+    });
+    if (isPortraitPhone()) setSheet('mid');
+  }
+
+  /* ---------- List position (left / right) ---------- */
+  function applySide() {
+    document.documentElement.setAttribute('data-side', loadPref('mappin_side', 'left') === 'right' ? 'right' : 'left');
+    setTimeout(() => map && map.invalidateSize(), 60);
+  }
+  function setSide(side) {
+    savePref('mappin_side', side);
+    applySide();
+    if ($('settings-modal').style.display === 'flex') renderSettings();
   }
 
   /* =========================================================
@@ -3283,6 +3423,12 @@
     return {
       group: 'shared-days',
       animation: 150,
+      // On touch screens a press-and-hold picks a card up, so normal swipes scroll the list
+      delay: 280,
+      delayOnTouchOnly: true,
+      touchStartThreshold: 6,
+      chosenClass: 'sortable-chosen',
+      onChoose: function() { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} },
       draggable: '.activity-card',
       ghostClass: 'sortable-ghost',
       filter: 'input, textarea, select',
@@ -3477,7 +3623,7 @@
     const card = $(`card-${id}`);
     if (!card) return;
     if (scroll) {
-      if (window.matchMedia('(max-width: 820px)').matches) $('sidebar').classList.add('expanded');
+      if (isPortraitPhone()) setSheet('max');
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
       setTimeout(() => card.classList.remove('flash'), 1900);
@@ -3866,7 +4012,7 @@
     list.innerHTML = html;
     masterSortables.forEach(s => { try { s.destroy(); } catch (e) {} });
     masterSortables = ['master-days', 'master-dgs', 'master-groups'].filter(id => $(id)).map(id =>
-      new Sortable($(id), { handle: '.drag-handle', animation: 150, ghostClass: 'sortable-ghost' }));
+      new Sortable($(id), { handle: '.drag-handle', animation: 150, ghostClass: 'sortable-ghost', delay: 150, delayOnTouchOnly: true }));
     $('color-modal').style.display = 'flex';
   }
 
@@ -5283,7 +5429,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.0.0';
+  const APP_VERSION = '1.0.1';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -5370,7 +5516,7 @@
     if (daySelectMode) { exitDaySelectMode(); return true; }
     if (document.querySelector('.leaflet-popup')) { map.closePopup(); return true; }
     if ($('search-results').style.display === 'block') { $('search-results').style.display = 'none'; return true; }
-    if ($('sidebar').classList.contains('expanded')) { toggleSheet(); return true; }
+    if (isPortraitPhone() && sheetState === 'max') { setSheet('mid'); return true; }
     return false;
   }
 
@@ -5387,7 +5533,7 @@
   }
 
   /* ---------- Sharing files and links (phone share sheet, or download/copy on a computer) ---------- */
-  const isPhoneWidth = () => window.matchMedia('(max-width: 820px)').matches;
+  const isPhoneWidth = () => window.matchMedia('(max-width: 820px), (max-height: 520px)').matches;
 
   async function shareFile(name, text, mime) {
     const FS = IS_NATIVE ? capPlugin('Filesystem') : null, Share = IS_NATIVE ? capPlugin('Share') : null;
@@ -5823,6 +5969,12 @@
           <div class="ui-switch ${dark ? 'is-dark' : ''}" role="switch" tabindex="0" aria-checked="${dark}" onclick="toggleUiTheme()">
             <i class="fa-solid fa-sun"></i><div class="ui-switch-track"><div class="ui-switch-knob"></div></div><i class="fa-solid fa-moon"></i></div></div>
         <div class="settings-row"><span>${escapeHtml(t('autosave'))}</span>${switchHtml(autosaveOn, 'toggleAutosave(); renderSettings();', t('autosave'))}</div>
+        <div class="settings-row"><span>${escapeHtml(t('listSide'))}</span>
+          <div class="segmented">
+            <button class="${loadPref('mappin_side', 'left') !== 'right' ? 'active' : ''}" onclick="setSide('left')"><i class="fa-solid fa-arrow-left"></i> ${escapeHtml(t('sideLeft'))}</button>
+            <button class="${loadPref('mappin_side', 'left') === 'right' ? 'active' : ''}" onclick="setSide('right')">${escapeHtml(t('sideRight'))} <i class="fa-solid fa-arrow-right"></i></button>
+          </div></div>
+        <p class="settings-note">${escapeHtml(t('listSideHint'))}</p>
       </div>
       <div class="settings-section">
         <h3><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('planning'))}</h3>

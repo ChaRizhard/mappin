@@ -3,7 +3,7 @@
    - Libraries from the online fallbacks (fonts, icons, map library) are cached the first time they load.
    - Place searches, routes and opening hours fall back to their last saved answer when offline.
    Map images are not stored by Mappin; whatever your browser has cached may still show. */
-const VERSION = 'mappin-1.0.0';
+const VERSION = 'mappin-1.0.1';
 const DATA_CACHE = 'mappin-data';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
@@ -46,7 +46,22 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // The app: serve the saved copy instantly, refresh it in the background
+  // Opening the app: use the newest version when online (wait up to 3 s), otherwise the saved copy
+  if (url.origin === self.location.origin && req.mode === 'navigate') {
+    event.respondWith((async () => {
+      const cache = await caches.open(VERSION);
+      try {
+        const res = await Promise.race([fetch(req), new Promise((_, rej) => setTimeout(() => rej(new Error('slow')), 3000))]);
+        if (res && res.ok) { cache.put('./index.html', res.clone()); return res; }
+        throw new Error('bad');
+      } catch (e) {
+        return (await cache.match('./index.html')) || fetch(req);
+      }
+    })());
+    return;
+  }
+
+  // The app's other files: serve the saved copy instantly, refresh it in the background
   if (url.origin === self.location.origin) {
     event.respondWith((async () => {
       const cache = await caches.open(VERSION);
