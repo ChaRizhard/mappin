@@ -21,7 +21,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MapPin">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -751,19 +751,18 @@
     .header-in-sheet .sidebar-header { padding-top: 14px; }
     .header-in-sheet .brand-title .brand-sub { display: none; }
     .header-in-sheet .brand-title h1 { font-size: 19px; }
-    /* Top of the screen in the iPhone Home Screen app (Settings -> Top of screen).
-       iOS 26 blurs whatever busy content sits under the clock, so by default the map gets a soft
-       dark fade there instead of a hard bar: the clock stays sharp and the map still runs to the edge. */
+    /* Top of the screen on phones (portrait): the status bar takes the map's own background colour
+       (set from script as --top-colour and theme-color), and the map fades softly into it. */
     #status-shield { display: none; }
-    .header-in-sheet #status-shield {
-      display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 2500; pointer-events: none;
-      height: calc(var(--sa-t) * 1.45);
-      background: linear-gradient(to bottom, #0f172a 0, #0f172a calc(var(--sa-t) * 0.5), rgba(15,23,42,0.55) calc(var(--sa-t) * 0.95), rgba(15,23,42,0) 100%);
+    .header-in-sheet .map-wrap::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 16px; z-index: 450; pointer-events: none;
+      background: linear-gradient(to bottom, var(--top-colour, transparent), transparent);
     }
-    :root.header-in-sheet[data-topbar="solid"] #status-shield { height: var(--sa-t); background: var(--header-bg); }
-    :root.header-in-sheet[data-topbar="solid"] #app-container { padding-top: var(--sa-t); }
-    :root.header-in-sheet[data-topbar="edge"] #status-shield { display: none; }
-    .header-in-sheet:not([data-topbar="solid"]) .map-controls-overlay { top: calc(var(--sa-t) + 8px) !important; }
+    /* Home Screen apps added before 1.0.8 still draw under the clock: keep it on a plain strip */
+    :root.top-under.header-in-sheet #status-shield {
+      display: block; position: fixed; top: 0; left: 0; right: 0; height: var(--sa-t); z-index: 2500; pointer-events: none; background: var(--top-colour);
+    }
+    :root.top-under.header-in-sheet #app-container { padding-top: var(--sa-t); }
     .dropdown-menu { max-height: calc(100vh - 16px); overflow-y: auto; }
 
     /* Filters row: sort + category chips */
@@ -928,7 +927,6 @@
       .header-in-sheet .sidebar-header { padding-top: 12px; }
     }
     /* 1.0.7 */
-    .header-in-sheet:not([data-topbar="solid"]) #offline-banner { padding-top: calc(var(--sa-t) + 7px); }
     .tp-notes { font-size: 12px; color: var(--text-main); opacity: 0.85; margin-top: 6px; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .tp-photo { width: 76px; height: 76px; object-fit: cover; border-radius: 10px; flex-shrink: 0; border: 1px solid var(--panel-border); }
     #view-banner { display: none; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 12px 0; padding: 8px 10px; border-radius: 10px;
@@ -943,6 +941,67 @@
     .share-choice i { font-size: 18px; color: var(--accent-blue); margin-top: 2px; width: 22px; text-align: center; }
     .share-choice b { display: block; font-size: 14px; margin-bottom: 2px; }
     .share-choice small { color: var(--text-muted); font-size: 12px; }
+    /* 1.0.8: map layers button */
+    #layers-btn { display: none; }
+    .layers-panel { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+    :root[data-side="right"] .layers-panel { align-items: flex-start; }
+    .lp-title { display: none; }
+    @media (max-width: 820px), (max-height: 520px) {
+      .map-controls-overlay { gap: 8px; }
+      #layers-btn {
+        display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; cursor: pointer;
+        background: var(--panel-bg); color: var(--text-main); border: 1px solid var(--panel-border); box-shadow: 0 4px 14px var(--shadow); font-size: 17px;
+      }
+      #layers-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+      .layers-panel { display: none; }
+      .layers-panel.open {
+        display: flex; flex-direction: column; align-items: stretch; gap: 6px; width: min(300px, calc(100vw - 32px)); padding: 12px; border-radius: 14px; text-align: left;
+        background: var(--panel-bg); border: 1px solid var(--panel-border); box-shadow: 0 12px 30px var(--shadow);
+        animation: lpIn 0.16s ease-out; transform-origin: top right;
+      }
+      :root[data-side="right"] .layers-panel.open { transform-origin: top left; }
+      .layers-panel .lp-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); margin: 2px 2px 0; }
+      .layers-panel .map-controls-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: none; border: none; box-shadow: none; padding: 0; }
+      .layers-panel .map-controls-row.routes-row { grid-template-columns: repeat(4, 1fr); }
+      .layers-panel .map-controls-row .ctl-label { display: none !important; }
+      .layers-panel .map-control-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px !important; border-radius: 10px; font-size: 11px; border: 1px solid var(--panel-border); }
+      .layers-panel .map-control-btn i { font-size: 16px; }
+      .layers-panel .map-control-btn .btn-label { display: inline !important; }
+    }
+    @keyframes lpIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+
+    /* 1.0.8: checklist */
+    .cl-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .cl-top select { flex: 1; min-width: 0; }
+    .cl-progress { font-size: 12px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+    .cl-bar { height: 6px; border-radius: 3px; background: var(--tint); overflow: hidden; margin-bottom: 12px; }
+    .cl-bar span { display: block; height: 100%; background: #10b981; border-radius: 3px; transition: width 0.25s; }
+    .cl-add { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .cl-add .edit-form-input { margin-bottom: 0; }
+    .cl-add .row-inline select { flex: 1; min-width: 0; }
+    .cl-section { margin-bottom: 12px; }
+    .cl-section-title { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 6px; }
+    .cl-section-title span { color: var(--text-muted); }
+    .cl-item { display: flex; align-items: center; gap: 10px; padding: 8px 6px 8px 4px; border-bottom: 1px solid var(--panel-border); }
+    .cl-item .cl-text { flex: 1; min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
+    .cl-item.done .cl-text { text-decoration: line-through; color: var(--text-muted); }
+    .cl-check, .cl-del { background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-muted); font-size: 18px; line-height: 1; }
+    .cl-item.done .cl-check { color: #10b981; }
+    .cl-del { font-size: 14px; opacity: 0.7; }
+    .cl-kind { color: var(--text-muted); width: 16px; text-align: center; font-size: 13px; }
+    .cl-list { max-height: 50vh; overflow-y: auto; }
+    .checklist-pill { display: none; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; cursor: pointer;
+      background: rgba(16,185,129,0.14); color: #10b981; border: none; }
+    .view-only .cl-add, .view-only .cl-del { display: none; }
+
+    /* 1.0.8: Today panel extras */
+    .tp-leave { margin-top: 6px; font-size: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .tp-leave span { color: var(--text-muted); }
+    .tp-leave.lb-ok b { color: var(--accent-blue); }
+    .tp-leave.lb-soon b { color: #f59e0b; }
+    .tp-leave.lb-late b { color: #ef4444; }
+    .tp-check { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 5px 10px; font-size: 12px; font-weight: 600; border-radius: 999px; cursor: pointer;
+      background: rgba(16,185,129,0.14); color: #10b981; border: none; }
   </style>
 </head>
 <body>
@@ -990,6 +1049,7 @@
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-import"></i> <span data-i18n="importCsv">Import CSV</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); exportMapCSV()"><i class="fa-solid fa-file-export"></i> <span data-i18n="exportCsv">Export CSV</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openChecklist()"><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); printItinerary()"><i class="fa-solid fa-print"></i> <span data-i18n="printPdf">Print or save as PDF</span></div>
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); shareTrip()"><i class="fa-solid fa-link"></i> <span data-i18n="shareLink">Copy share link</span></div>
@@ -1014,6 +1074,7 @@
         <div class="sidebar-title-row">
           <span class="sidebar-title"><i class="fa-solid fa-route"></i> <span data-i18n="dayStops">Itinerary</span></span>
           <div class="header-right-tools">
+            <button class="checklist-pill" id="checklist-pill" onclick="openChecklist()"></button>
             <span class="sync-pill" id="sync-pill"></span>
             <span class="geo-pill" id="geo-status"><i class="fa-solid fa-spinner fa-spin"></i> <span></span></span>
             <span class="budget-pill" id="budget-pill"></span>
@@ -1072,17 +1133,22 @@
     <button class="locate-btn" id="locate-btn" onclick="locateMe()" data-i18n-title="locateMe"><i class="fa-solid fa-location-crosshairs"></i></button>
 
     <div class="map-controls-overlay">
+      <button id="layers-btn" onclick="toggleLayers(event)" data-i18n-title="mapLayers" aria-label="Map type and routes"><i class="fa-solid fa-layer-group"></i></button>
+      <div class="layers-panel" id="layers-panel">
+      <div class="lp-title" data-i18n="mapTypeTitle">Map type</div>
       <div class="map-controls-row">
         <button class="map-control-btn active" id="btn-light" onclick="switchTileLayer('light')"><i class="fa-solid fa-sun"></i> <span class="btn-label" data-i18n="mapLight">Light</span></button>
         <button class="map-control-btn" id="btn-dark" onclick="switchTileLayer('dark')"><i class="fa-solid fa-moon"></i> <span class="btn-label" data-i18n="mapDark">Dark</span></button>
         <button class="map-control-btn" id="btn-sat" onclick="switchTileLayer('sat')"><i class="fa-solid fa-globe"></i> <span class="btn-label" data-i18n="mapSat">Satellite</span></button>
       </div>
-      <div class="map-controls-row">
+      <div class="lp-title" data-i18n="routes">Routes</div>
+      <div class="map-controls-row routes-row">
         <span class="ctl-label" data-i18n="routes">Routes</span>
         <button class="map-control-btn active" id="route-straight" onclick="setRouteMode('straight')" data-i18n-title="routeStraight"><i class="fa-solid fa-slash"></i> <span class="btn-label" data-i18n="routeStraight">Straight</span></button>
         <button class="map-control-btn" id="route-foot" onclick="setRouteMode('foot')" data-i18n-title="routeWalk"><i class="fa-solid fa-person-walking"></i> <span class="btn-label" data-i18n="routeWalk">Walk</span></button>
         <button class="map-control-btn" id="route-car" onclick="setRouteMode('car')" data-i18n-title="routeDrive"><i class="fa-solid fa-car"></i> <span class="btn-label" data-i18n="routeDrive">Drive</span></button>
         <button class="map-control-btn" id="route-transit" onclick="setRouteMode('transit')" data-i18n-title="routeTransitTitle"><i class="fa-solid fa-train-subway"></i> <span class="btn-label" data-i18n="routeTransit">Transit</span></button>
+      </div>
       </div>
     </div>
     </div>
@@ -1142,6 +1208,16 @@
 </div>
 
 <!-- Settings -->
+<div class="modal-overlay" id="checklist-modal" onclick="if(event.target.id==='checklist-modal')closeChecklist()">
+  <div class="modal-box" style="width: 460px;">
+    <div class="modal-title">
+      <span><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeChecklist()"></i>
+    </div>
+    <div id="checklist-body"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="share-modal" onclick="handleOutsideModalClick(event, 'share-modal')">
   <div class="modal-box" style="width: 420px;">
     <div class="modal-title">
@@ -1967,6 +2043,95 @@
   };
   Object.keys(I18N_EXTRA3).forEach(l => Object.assign(I18N[l], I18N_EXTRA3[l]));
 
+  // Strings added in 1.0.8: seamless top tip, map layers, checklist, leave-by times
+  const I18N_EXTRA4 = {
+    en: {
+      reinstallTip: 'For a seamless top of the screen, export your trip, remove MapPin from your Home Screen and add it again from Safari. Then import the trip.',
+      mapLayers: 'Map type and routes', mapTypeTitle: 'Map type',
+      checklist: 'Checklist', dayChecklist: 'Checklist for this day', wholeTrip: 'Whole trip', allChecklist: 'Everything',
+      ck_pack: 'Packing', ck_book: 'Booking', ck_ticket: 'Ticket', ck_todo: 'To do',
+      checklistPlaceholder: 'Add an item, e.g. Passport or Skytree tickets', add: 'Add',
+      checklistEmpty: 'Nothing here yet. Add packing, bookings and tickets, for the whole trip or for a day.', checklistEmptyDay: 'Nothing for this day yet.',
+      checklistOpenN: '{n} checklist items left', checklistTodayN: '{n} on today’s checklist',
+      leaveBy: 'Leave by {time}', leaveNow: 'Leave now', leaveInN: 'Leave in {m} min', runningLate: 'Running {m} min late',
+      byWalk: '~{m} min walk', byCar: '~{m} min drive', byTransit: '~{m} min by transit',
+      sampleCk1: 'Passport', sampleCk2: 'Suica card for trains', sampleCk3: 'Skytree tickets', sampleCk4: 'Book Shibuya Sky sunset slot'
+    },
+    ja: {
+      reinstallTip: '画面上部をきれいにするには、旅程をエクスポートし、ホーム画面から MapPin を削除して Safari から追加し直してください。その後、旅程をインポートします。',
+      mapLayers: '地図の種類とルート', mapTypeTitle: '地図の種類',
+      checklist: 'チェックリスト', dayChecklist: 'この日のチェックリスト', wholeTrip: '旅行全体', allChecklist: 'すべて',
+      ck_pack: '持ち物', ck_book: '予約', ck_ticket: 'チケット', ck_todo: 'やること',
+      checklistPlaceholder: '項目を追加（例：パスポート、スカイツリーのチケット）', add: '追加',
+      checklistEmpty: 'まだ何もありません。旅行全体や日ごとに、持ち物・予約・チケットを追加しましょう。', checklistEmptyDay: 'この日の項目はまだありません。',
+      checklistOpenN: '残り {n} 項目', checklistTodayN: '今日のチェックリスト {n} 件',
+      leaveBy: '{time} までに出発', leaveNow: '今すぐ出発', leaveInN: 'あと {m} 分で出発', runningLate: '{m} 分遅れ',
+      byWalk: '徒歩 約{m}分', byCar: '車 約{m}分', byTransit: '電車 約{m}分',
+      sampleCk1: 'パスポート', sampleCk2: '電車用の Suica', sampleCk3: 'スカイツリーのチケット', sampleCk4: '渋谷スカイの夕日枠を予約'
+    },
+    zh: {
+      reinstallTip: '要让屏幕顶部无缝，请先导出行程，从主屏幕删除 MapPin，再从 Safari 重新添加，然后导入行程。',
+      mapLayers: '地图类型和路线', mapTypeTitle: '地图类型',
+      checklist: '清单', dayChecklist: '这一天的清单', wholeTrip: '整个行程', allChecklist: '全部',
+      ck_pack: '行李', ck_book: '预订', ck_ticket: '门票', ck_todo: '待办',
+      checklistPlaceholder: '添加项目，例如护照或晴空塔门票', add: '添加',
+      checklistEmpty: '还没有内容。为整个行程或某一天添加行李、预订和门票。', checklistEmptyDay: '这一天还没有项目。',
+      checklistOpenN: '清单还剩 {n} 项', checklistTodayN: '今日清单 {n} 项',
+      leaveBy: '{time} 前出发', leaveNow: '现在出发', leaveInN: '{m} 分钟后出发', runningLate: '晚了 {m} 分钟',
+      byWalk: '步行约 {m} 分钟', byCar: '驾车约 {m} 分钟', byTransit: '公共交通约 {m} 分钟',
+      sampleCk1: '护照', sampleCk2: '乘车用 Suica 卡', sampleCk3: '晴空塔门票', sampleCk4: '预订涩谷 Sky 日落时段'
+    },
+    ko: {
+      reinstallTip: '화면 상단을 매끄럽게 하려면 여행을 내보낸 뒤 홈 화면에서 MapPin을 삭제하고 Safari에서 다시 추가하세요. 그런 다음 여행을 가져오세요.',
+      mapLayers: '지도 유형과 경로', mapTypeTitle: '지도 유형',
+      checklist: '체크리스트', dayChecklist: '이 날의 체크리스트', wholeTrip: '여행 전체', allChecklist: '전체',
+      ck_pack: '짐', ck_book: '예약', ck_ticket: '티켓', ck_todo: '할 일',
+      checklistPlaceholder: '항목 추가 (예: 여권, 스카이트리 티켓)', add: '추가',
+      checklistEmpty: '아직 아무것도 없어요. 여행 전체나 하루 단위로 짐, 예약, 티켓을 추가하세요.', checklistEmptyDay: '이 날의 항목이 아직 없어요.',
+      checklistOpenN: '체크리스트 {n}개 남음', checklistTodayN: '오늘 체크리스트 {n}개',
+      leaveBy: '{time}까지 출발', leaveNow: '지금 출발', leaveInN: '{m}분 후 출발', runningLate: '{m}분 늦음',
+      byWalk: '도보 약 {m}분', byCar: '차로 약 {m}분', byTransit: '대중교통 약 {m}분',
+      sampleCk1: '여권', sampleCk2: '전철용 Suica 카드', sampleCk3: '스카이트리 티켓', sampleCk4: '시부야 스카이 일몰 시간 예약'
+    },
+    es: {
+      reinstallTip: 'Para una parte superior sin cortes, exporta tu viaje, quita MapPin de la pantalla de inicio y vuelve a añadirlo desde Safari. Después importa el viaje.',
+      mapLayers: 'Tipo de mapa y rutas', mapTypeTitle: 'Tipo de mapa',
+      checklist: 'Lista', dayChecklist: 'Lista de este día', wholeTrip: 'Todo el viaje', allChecklist: 'Todo',
+      ck_pack: 'Equipaje', ck_book: 'Reserva', ck_ticket: 'Entrada', ck_todo: 'Pendiente',
+      checklistPlaceholder: 'Añade algo, p. ej. pasaporte o entradas', add: 'Añadir',
+      checklistEmpty: 'Aún no hay nada. Añade equipaje, reservas y entradas para todo el viaje o para un día.', checklistEmptyDay: 'Aún no hay nada para este día.',
+      checklistOpenN: 'Quedan {n} elementos', checklistTodayN: '{n} en la lista de hoy',
+      leaveBy: 'Sal antes de las {time}', leaveNow: 'Sal ahora', leaveInN: 'Sal en {m} min', runningLate: 'Vas {m} min tarde',
+      byWalk: '~{m} min a pie', byCar: '~{m} min en coche', byTransit: '~{m} min en transporte',
+      sampleCk1: 'Pasaporte', sampleCk2: 'Tarjeta Suica para el tren', sampleCk3: 'Entradas de la Skytree', sampleCk4: 'Reservar el atardecer en Shibuya Sky'
+    },
+    fr: {
+      reinstallTip: 'Pour un haut d’écran sans coupure, exportez votre voyage, retirez MapPin de l’écran d’accueil et ajoutez-le de nouveau depuis Safari. Puis importez le voyage.',
+      mapLayers: 'Type de carte et itinéraires', mapTypeTitle: 'Type de carte',
+      checklist: 'Liste', dayChecklist: 'Liste de ce jour', wholeTrip: 'Tout le voyage', allChecklist: 'Tout',
+      ck_pack: 'Bagages', ck_book: 'Réservation', ck_ticket: 'Billet', ck_todo: 'À faire',
+      checklistPlaceholder: 'Ajouter un élément, ex. passeport ou billets', add: 'Ajouter',
+      checklistEmpty: 'Rien pour l’instant. Ajoutez bagages, réservations et billets, pour tout le voyage ou pour un jour.', checklistEmptyDay: 'Rien pour ce jour.',
+      checklistOpenN: 'Encore {n} éléments', checklistTodayN: '{n} sur la liste du jour',
+      leaveBy: 'Partir avant {time}', leaveNow: 'Partez maintenant', leaveInN: 'Départ dans {m} min', runningLate: '{m} min de retard',
+      byWalk: '~{m} min à pied', byCar: '~{m} min en voiture', byTransit: '~{m} min en transports',
+      sampleCk1: 'Passeport', sampleCk2: 'Carte Suica pour le train', sampleCk3: 'Billets pour la Skytree', sampleCk4: 'Réserver le coucher de soleil à Shibuya Sky'
+    },
+    de: {
+      reinstallTip: 'Für einen nahtlosen oberen Rand: Reise exportieren, MapPin vom Home-Bildschirm entfernen und über Safari neu hinzufügen. Danach die Reise importieren.',
+      mapLayers: 'Kartentyp und Routen', mapTypeTitle: 'Kartentyp',
+      checklist: 'Checkliste', dayChecklist: 'Checkliste für diesen Tag', wholeTrip: 'Ganze Reise', allChecklist: 'Alles',
+      ck_pack: 'Packen', ck_book: 'Buchung', ck_ticket: 'Ticket', ck_todo: 'Aufgabe',
+      checklistPlaceholder: 'Eintrag hinzufügen, z. B. Reisepass oder Tickets', add: 'Hinzufügen',
+      checklistEmpty: 'Noch nichts hier. Füge Packliste, Buchungen und Tickets hinzu, für die ganze Reise oder einen Tag.', checklistEmptyDay: 'Für diesen Tag noch nichts.',
+      checklistOpenN: 'Noch {n} Einträge offen', checklistTodayN: '{n} auf der heutigen Checkliste',
+      leaveBy: 'Losgehen bis {time}', leaveNow: 'Jetzt losgehen', leaveInN: 'In {m} Min. losgehen', runningLate: '{m} Min. zu spät',
+      byWalk: '~{m} Min. zu Fuß', byCar: '~{m} Min. mit dem Auto', byTransit: '~{m} Min. mit Bahn/Bus',
+      sampleCk1: 'Reisepass', sampleCk2: 'Suica-Karte für die Bahn', sampleCk3: 'Skytree-Tickets', sampleCk4: 'Sonnenuntergang im Shibuya Sky buchen'
+    }
+  };
+  Object.keys(I18N_EXTRA4).forEach(l => Object.assign(I18N[l], I18N_EXTRA4[l]));
+
   /* =========================================================
      STATE
      ========================================================= */
@@ -2180,6 +2345,7 @@
       if (header.parentElement !== app) app.insertBefore(header, app.firstChild);
       document.documentElement.classList.remove('header-in-sheet');
     }
+    updateTopColour();
     setTimeout(() => map && map.invalidateSize(), 60);
   }
   function closeAppMenu() { const m = $('app-menu'); if (m) m.classList.remove('show'); }
@@ -2294,7 +2460,6 @@
     applyI18n();
     switchTileLayer(currentTileType);
     updateGeoStatus();
-    if (glLayer && glLayer.getMaplibreMap) { try { localiseVectorLabels(glLayer.getMaplibreMap()); } catch (e) {} }
     updateSelectBar();
     populateFilters();
     renderItinerary();
@@ -2327,7 +2492,7 @@
       EXTRA_DAYS: [...EXTRA_DAYS], collapsedDays: [...collapsedDays],
       GROUPS, stopToGroup, groupCounter,
       DAY_GROUPS, dayToGroup, dayGroupCounter, collapsedDayGroups: [...collapsedDayGroups],
-      trip: TRIP
+      trip: TRIP, CHECKLIST
     };
   }
   function cloneState() { return JSON.parse(JSON.stringify(serializeState())); }
@@ -2358,6 +2523,7 @@
     dayGroupCounter = s.dayGroupCounter || Object.keys(DAY_GROUPS).length + 1;
     collapsedDayGroups = new Set(s.collapsedDayGroups || []);
     TRIP = Object.assign({ cloudId: null, title: '' }, s.trip || {});
+    CHECKLIST = Array.isArray(s.CHECKLIST) ? s.CHECKLIST : [];
   }
 
   function scheduleAutosave() {
@@ -2399,96 +2565,20 @@
     $('day-menu').style.display = 'none';
   }
 
-  /* ---------- Map style: Google map images, or a sharp vector map (OpenFreeMap / OpenStreetMap) ---------- */
-  let MAP_ENGINE = loadPref('mappin_map_engine', 'google');
-  let glLayer = null;
+  /* ---------- Map images (Google) ---------- */
   let mapSwitchToken = 0;
-
-  function loadAsset(tag, local, online) {
-    return new Promise((resolve, reject) => {
-      const add = (src, fallback) => {
-        const el = document.createElement(tag);
-        if (tag === 'link') { el.rel = 'stylesheet'; el.href = src; } else { el.src = src; }
-        el.onload = () => resolve();
-        el.onerror = () => { el.remove(); fallback ? add(fallback, null) : reject(new Error('load failed: ' + src)); };
-        document.head.appendChild(el);
-      };
-      add(local, online);
-    });
-  }
-
-  let vectorLibsPromise = null;
-  function loadVectorLibs() {
-    if (window.maplibregl && L.maplibreGL) return Promise.resolve();
-    if (!vectorLibsPromise) {
-      vectorLibsPromise = (async () => {
-        await loadAsset('link', 'vendor/maplibre/maplibre-gl.css', 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css');
-        if (!window.maplibregl) await loadAsset('script', 'vendor/maplibre/maplibre-gl.js', 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js');
-        if (!L.maplibreGL) await loadAsset('script', 'vendor/maplibre/leaflet-maplibre-gl.js', 'https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.2/leaflet-maplibre-gl.js');
-        if (!window.maplibregl || !L.maplibreGL) throw new Error('vector map unavailable');
-      })().catch(e => { vectorLibsPromise = null; throw e; });
-    }
-    return vectorLibsPromise;
-  }
-
-  // Show place names in the app's language where the map has them
-  function localiseVectorLabels(gl) {
-    const field = LANG === 'zh'
-      ? ['coalesce', ['get', 'name:zh'], ['get', 'name'], ['get', 'name:latin']]
-      : ['coalesce', ['get', `name:${LANG}`], ['get', 'name:latin'], ['get', 'name']];
-    (gl.getStyle().layers || []).forEach(l => {
-      if (l.type !== 'symbol' || !l.layout || !l.layout['text-field']) return;
-      try { gl.setLayoutProperty(l.id, 'text-field', field); } catch (e) {}
-    });
-  }
-
-  async function showVectorMap(type, token) {
-    await loadVectorLibs();
-    if (token !== mapSwitchToken) return;
-    glLayer = L.maplibreGL({
-      style: 'https://tiles.openfreemap.org/styles/liberty',
-      attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
-    }).addTo(map);
-    const container = glLayer.getContainer ? glLayer.getContainer() : null;
-    if (container) container.classList.toggle('dark-mode-tiles', type === 'dark');
-    const gl = glLayer.getMaplibreMap ? glLayer.getMaplibreMap() : null;
-    if (gl) {
-      if (gl.loaded && gl.loaded()) localiseVectorLabels(gl);
-      gl.on('load', () => localiseVectorLabels(gl));
-      gl.on('error', ev => { if (ev && ev.error && /style/i.test(String(ev.error.message || ''))) fallbackToGoogle(); });
-    }
-  }
-
-  function fallbackToGoogle() {
-    if (MAP_ENGINE !== 'vector') return;
-    MAP_ENGINE = 'google';
-    showToast(t('sharpFailed'), { ms: 5000 });
-    switchTileLayer(currentTileType);
-    MAP_ENGINE = loadPref('mappin_map_engine', 'google'); // try again next time
-  }
-
-  function setMapEngine(engine) {
-    MAP_ENGINE = engine;
-    savePref('mappin_map_engine', engine);
-    switchTileLayer(currentTileType);
-    if ($('settings-modal').style.display === 'flex') renderSettings();
-  }
 
   function switchTileLayer(type) {
     currentTileType = type;
-    const token = ++mapSwitchToken;
+    ++mapSwitchToken;
     document.querySelectorAll('[id^="btn-"]').forEach(btn => btn.classList.remove('active'));
     const b = $(`btn-${type}`); if (b) b.classList.add('active');
     if (currentTileLayer) { map.removeLayer(currentTileLayer); currentTileLayer = null; }
-    if (glLayer) { try { map.removeLayer(glLayer); } catch (e) {} glLayer = null; }
-    if (MAP_ENGINE === 'vector' && type !== 'sat') {
-      showVectorMap(type, token).catch(() => { if (token === mapSwitchToken) fallbackToGoogle(); });
-      return;
-    }
     currentTileLayer = L.tileLayer(tileUrl(type), {
       maxZoom: 20, maxNativeZoom: 20, tileSize: 256, detectRetina: false, attribution: '&copy; Google Maps',
       className: type === 'dark' ? 'dark-mode-tiles' : ''
     }).addTo(map);
+    updateTopColour();
   }
 
   /* ---------- Phone list sheet: drag the bar to resize, tap it to switch between half and full ---------- */
@@ -3238,6 +3328,7 @@
       ${inDayGroup ? `<div class="context-menu-item" onclick="removeDayFromDayGroup(${day})"><i class="fa-solid fa-arrow-right-from-bracket"></i> ${t('removeFromDayGroup')}</div>` : ''}
       <div class="menu-divider"></div>
       <div class="context-menu-item" onclick="autoFillTimes(${day})"><i class="fa-solid fa-wand-magic-sparkles"></i> ${t('autoTimes')}</div>
+      <div class="context-menu-item" onclick="openChecklist(${day})"><i class="fa-solid fa-list-check"></i> ${t('dayChecklist')}</div>
       <div class="context-menu-item" onclick="saveDayOffline(${day})"><i class="fa-solid fa-download"></i> ${t('saveOffline')}</div>
       <div class="menu-divider"></div>
       <div class="context-menu-item" onclick="closeMenus(); insertDayAt(${day})"><i class="fa-solid fa-arrow-up"></i> ${t('addDayAbove')}</div>
@@ -5792,7 +5883,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.0.7';
+  const APP_VERSION = '1.0.8';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -5834,6 +5925,7 @@
     cloudInit();
     scheduleHoursCheck(4000);
     fixIosInsets();
+    maybeShowReinstallTip();
     window.addEventListener('resize', () => setTimeout(fixIosInsets, 120));
     if (loadPref('mappin_start_at_location', 'true') === 'true') locateMe({ silent: true, startup: true });
   }
@@ -5853,20 +5945,26 @@
   function fixIosInsets() {
     const root = document.documentElement.style;
     ['--sa-t', '--sa-b', '--sa-l', '--sa-r'].forEach(v => root.removeProperty(v));
-    if (!isIos() || !isStandalone() || IS_NATIVE) return;
+    document.documentElement.classList.remove('top-under');
+    if (!isIos() || !isStandalone() || IS_NATIVE) { updateTopColour(); return; }
     const sh = Math.max(screen.width, screen.height);
     const portrait = window.innerHeight >= window.innerWidth;
     const modern = sh >= 812;              // Face ID iPhones
     const island = sh >= 852;              // Dynamic Island iPhones (14 Pro and later)
     const top = island ? 62 : modern ? 47 : 20;
+    // Added to the Home Screen with 1.0.8 or later, iOS starts the app below the status bar (nothing to do).
+    // Older installs draw underneath it, so reserve the space ourselves.
+    const under = window.innerHeight >= screen.height - 4;
+    document.documentElement.classList.toggle('top-under', portrait && under);
     if (portrait) {
-      if (measureEnv('top') < 10) root.setProperty('--sa-t', top + 'px');
+      if (under && measureEnv('top') < 10) root.setProperty('--sa-t', top + 'px');
       if (modern && measureEnv('bottom') < 10) root.setProperty('--sa-b', '34px');
     } else if (modern) {
       if (measureEnv('left') < 10) root.setProperty('--sa-l', top + 'px');
       if (measureEnv('right') < 10) root.setProperty('--sa-r', top + 'px');
       if (measureEnv('bottom') < 10) root.setProperty('--sa-b', '21px');
     }
+    updateTopColour();
     if (map) setTimeout(() => map.invalidateSize(), 50);
   }
 
@@ -5945,17 +6043,7 @@
     return false;
   }
 
-  function applyNativeTheme() {
-    const light = document.documentElement.getAttribute('data-ui') === 'light';
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', light ? '#ffffff' : '#0f172a');
-    const SB = IS_NATIVE ? capPlugin('StatusBar') : null;
-    if (!SB) return;
-    try {
-      Promise.resolve(SB.setStyle({ style: light ? 'LIGHT' : 'DARK' })).catch(() => {});
-      if (SB.setBackgroundColor) Promise.resolve(SB.setBackgroundColor({ color: light ? '#ffffff' : '#0f172a' })).catch(() => {});
-    } catch (e) {}
-  }
+  function applyNativeTheme() { updateTopColour(); }
 
   /* ---------- Sharing files and links (phone share sheet, or download/copy on a computer) ---------- */
   const isPhoneWidth = () => window.matchMedia('(max-width: 820px), (max-height: 520px)').matches;
@@ -6401,13 +6489,6 @@
             <button class="${loadPref('mappin_side', 'left') === 'right' ? 'active' : ''}" onclick="setSide('right')">${escapeHtml(t('sideRight'))} <i class="fa-solid fa-arrow-right"></i></button>
           </div></div>
         <p class="settings-note">${escapeHtml(t('listSideHint'))}</p>
-        ${topBarSettingHtml()}
-        <div class="settings-row"><span>${escapeHtml(t('mapStyle'))}</span>
-          <div class="segmented">
-            <button class="${MAP_ENGINE !== 'vector' ? 'active' : ''}" onclick="setMapEngine('google')">${escapeHtml(t('mapGoogle'))}</button>
-            <button class="${MAP_ENGINE === 'vector' ? 'active' : ''}" onclick="setMapEngine('vector')">${escapeHtml(t('mapSharp'))}</button>
-          </div></div>
-        <p class="settings-note">${escapeHtml(t('mapStyleHint'))}</p>
         <div class="settings-row"><span>${escapeHtml(t('startAtLocation'))}</span>${switchHtml(loadPref('mappin_start_at_location', 'true') === 'true', 'toggleStartAtLocation()', t('startAtLocation'))}</div>
       </div>
       <div class="settings-section">
@@ -6808,6 +6889,7 @@
 
   function renderTodayPanel() {
     const panel = $('today-panel');
+    updateChecklistPill();
     if (!panel) return;
     if (!todayMode) { panel.style.display = 'none'; return; }
     const list = todayStops();
@@ -6845,10 +6927,12 @@
           <div class="tp-meta">${s.time ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</span>` : ''}
             <span><i class="fa-solid ${categoryIcon(s.category)}"></i> ${escapeHtml(s.category)}</span>
             ${dist ? `<span><i class="fa-solid fa-route"></i> ${escapeHtml(dist)}</span>` : ''} ${hoursWarningHtml(s)}</div>
+          ${leaveByHtml(from, s)}
           ${s.desc ? `<div class="tp-notes">${escapeHtml(s.desc)}</div>` : ''}
         </div>
         ${todayPhotos[s.id] ? `<img class="tp-photo" src="${escapeHtml(todayPhotos[s.id])}" alt="" onerror="this.remove()">` : ''}
       </div>
+      ${todayChecklistHtml()}
       <div class="tp-actions">
         <button class="btn btn-secondary" onclick="todayStep(-1)" ${todayIdx === 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('previousStop'))}"><i class="fa-solid fa-chevron-left"></i></button>
         <a class="btn btn-primary tp-grow" href="${escapeHtml(dirUrl)}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right"></i> ${escapeHtml(t('directions'))}</a>
@@ -6886,6 +6970,11 @@
     processParsedData(rows);
     DAY_TITLES = { 1: t('sampleDay1'), 2: t('sampleDay2') };
     TRIP = { cloudId: null, title: t('sampleTitle') };
+    if (!CHECKLIST.length) CHECKLIST = [
+      { id: 'cs1', text: t('sampleCk1'), kind: 'pack', day: null, done: false },
+      { id: 'cs2', text: t('sampleCk2'), kind: 'ticket', day: null, done: false },
+      { id: 'cs3', text: t('sampleCk3'), kind: 'ticket', day: 1, done: true },
+      { id: 'cs4', text: t('sampleCk4'), kind: 'book', day: 2, done: false }];
     populateFilters();
     renderItinerary();
     showToast(t('sampleLoaded'), { ms: 6000 });
@@ -6926,28 +7015,6 @@
      Today panel notes and photo, optional official Google map tiles
      ========================================================= */
   var VIEW_ONLY = false;
-
-  /* ---------- Top of the screen in the iPhone Home Screen app ---------- */
-  function applyTopBar() {
-    const v = loadPref('mappin_topbar', 'fade');
-    document.documentElement.setAttribute('data-topbar', ['fade', 'solid', 'edge'].includes(v) ? v : 'fade');
-  }
-  function setTopBar(v) {
-    savePref('mappin_topbar', v);
-    applyTopBar();
-    if (map) setTimeout(() => map.invalidateSize(), 80);
-    if ($('settings-modal').style.display === 'flex') renderSettings();
-  }
-  applyTopBar();
-
-  function topBarSettingHtml() {
-    if (!isIos()) return '';
-    const v = document.documentElement.getAttribute('data-topbar') || 'fade';
-    const b = (k, label) => `<button class="${v === k ? 'active' : ''}" onclick="setTopBar('${k}')">${escapeHtml(t(label))}</button>`;
-    return `<div class="settings-row"><span>${escapeHtml(t('topBar'))}</span>
-        <div class="segmented">${b('fade', 'topFade')}${b('solid', 'topSolid')}${b('edge', 'topEdge')}</div></div>
-      <p class="settings-note">${escapeHtml(t('topBarHint'))}</p>`;
-  }
 
   /* ---------- Offline maps: save the map pieces for a day or the current view ---------- */
   const TILE_CACHE = 'mappin-tiles';
@@ -7147,11 +7214,193 @@
       const j = await r.json();
       if (j.session) {
         savePref(k, JSON.stringify({ session: j.session, expiry: j.expiry }));
-        if (map && MAP_ENGINE !== 'vector') switchTileLayer(currentTileType);
+        if (map) switchTileLayer(currentTileType);
       }
     } catch (e) { /* keep the standard map */ }
     GMP.loading[k] = false;
   }
+
+  /* =========================================================
+     1.0.8: seamless top, map layers button, trip checklist, "leave by" times
+     ========================================================= */
+
+  /* ---------- Seamless top: the status bar takes the colour of the map underneath it ----------
+     iOS 26 blurs busy content under the clock, or paints it one flat colour. Matching that colour to the
+     map's own background makes the top of the screen read as one continuous map. */
+  const MAP_TOP_COLOURS = { light: '#f7f7f7', dark: '#131313', sat: '#15191e' };
+  const isLightColour = hex => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 150; };
+
+  function updateTopColour() {
+    const root = document.documentElement;
+    const uiLight = root.getAttribute('data-ui') === 'light';
+    const uiColour = uiLight ? '#ffffff' : '#0f172a';
+    const mapOnTop = root.classList.contains('header-in-sheet') && window.matchMedia('(max-width: 820px) and (min-height: 521px)').matches;
+    let c = mapOnTop ? (MAP_TOP_COLOURS[typeof currentTileType === 'string' ? currentTileType : 'light'] || MAP_TOP_COLOURS.light) : uiColour;
+    // Home Screen apps added before 1.0.8 draw under a white clock, so they keep a dark strip
+    if (root.classList.contains('top-under')) c = '#0f172a';
+    root.style.setProperty('--top-colour', c);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', c);
+    const SB = IS_NATIVE ? capPlugin('StatusBar') : null;
+    if (!SB) return;
+    try {
+      Promise.resolve(SB.setStyle({ style: isLightColour(c) ? 'LIGHT' : 'DARK' })).catch(() => {});
+      if (SB.setBackgroundColor) Promise.resolve(SB.setBackgroundColor({ color: c })).catch(() => {});
+    } catch (e) {}
+  }
+
+  // One-time tip for Home Screen apps added before 1.0.8
+  function maybeShowReinstallTip() {
+    if (!document.documentElement.classList.contains('top-under')) return;
+    if (loadPref('mappin_tip_reinstall', '') === '1') return;
+    savePref('mappin_tip_reinstall', '1');
+    setTimeout(() => showToast(t('reinstallTip'), { ms: 12000, actionLabel: t('exportCsv'), onAction: exportMapCSV }), 2500);
+  }
+
+  /* ---------- Map layers button (phones): map type and route style in one place ---------- */
+  function toggleLayers(e) {
+    if (e) e.stopPropagation();
+    const p = $('layers-panel');
+    p.classList.toggle('open');
+    $('layers-btn').classList.toggle('active', p.classList.contains('open'));
+  }
+  function closeLayers() {
+    const p = $('layers-panel');
+    if (p && p.classList.contains('open')) { p.classList.remove('open'); $('layers-btn').classList.remove('active'); }
+  }
+  document.addEventListener('click', e => {
+    const o = document.querySelector('.map-controls-overlay');
+    if (o && !o.contains(e.target)) closeLayers();
+  }, true);
+
+  /* ---------- Trip checklist: packing, bookings and tickets, for the whole trip or a day ---------- */
+  var CHECKLIST = [];
+  const CHECK_KINDS = { pack: 'fa-suitcase', book: 'fa-calendar-check', ticket: 'fa-ticket', todo: 'fa-square-check' };
+  let checklistDay = 'all'; // filter in the checklist window
+
+  function checklistFor(day) { return CHECKLIST.filter(c => day === 'all' ? true : day === 'trip' ? !c.day : c.day === day); }
+  function openChecklistCount(day) { return CHECKLIST.filter(c => !c.done && (c.day === day || (!c.day && day === undefined))).length; }
+
+  function openChecklist(day) {
+    closeMenus(); closeAppMenu();
+    checklistDay = day === undefined ? 'all' : day;
+    renderChecklist();
+    $('checklist-modal').style.display = 'flex';
+    setTimeout(() => { const i = $('cl-text'); if (i && !isPhoneWidth()) i.focus(); }, 60);
+  }
+  function closeChecklist() { $('checklist-modal').style.display = 'none'; renderTodayPanel(); }
+
+  function checklistChanged() {
+    scheduleAutosave();
+    recordHistory();
+    renderChecklist();
+    updateChecklistPill();
+  }
+
+  function addChecklistItem() {
+    const input = $('cl-text');
+    const text = (input.value || '').trim();
+    if (!text) { input.focus(); return; }
+    const dayVal = $('cl-day').value;
+    CHECKLIST.push({ id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text, kind: $('cl-kind').value, day: dayVal === 'trip' ? null : Number(dayVal), done: false });
+    input.value = '';
+    checklistChanged();
+    setTimeout(() => { const i = $('cl-text'); if (i) i.focus(); }, 30);
+  }
+  function toggleChecklistItem(id) { const c = CHECKLIST.find(x => x.id === id); if (c) { c.done = !c.done; checklistChanged(); } }
+  function deleteChecklistItem(id) { CHECKLIST = CHECKLIST.filter(x => x.id !== id); checklistChanged(); }
+  function setChecklistFilter(v) { checklistDay = v === 'all' || v === 'trip' ? v : Number(v); renderChecklist(); }
+
+  function renderChecklist() {
+    const body = $('checklist-body');
+    if (!body) return;
+    const days = getAllDays();
+    const dayOpts = sel => `<option value="trip" ${sel === 'trip' ? 'selected' : ''}>${escapeHtml(t('wholeTrip'))}</option>` +
+      days.map(d => `<option value="${d}" ${sel === d ? 'selected' : ''}>${escapeHtml(getDayTitle(d))}</option>`).join('');
+    const kindOpts = Object.keys(CHECK_KINDS).map(k => `<option value="${k}">${escapeHtml(t('ck_' + k))}</option>`).join('');
+    const sections = [{ key: 'trip', title: t('wholeTrip') }].concat(days.map(d => ({ key: d, title: getDayTitle(d) })))
+      .filter(sec => checklistDay === 'all' || checklistDay === sec.key);
+    const total = CHECKLIST.length, done = CHECKLIST.filter(c => c.done).length;
+    let list = '';
+    sections.forEach(sec => {
+      const items = checklistFor(sec.key);
+      if (!items.length && checklistDay === 'all') return;
+      list += `<div class="cl-section"><div class="cl-section-title">${escapeHtml(sec.title)}<span>${items.filter(c => c.done).length}/${items.length}</span></div>`;
+      list += items.length ? items.map(c => `
+        <div class="cl-item ${c.done ? 'done' : ''}">
+          <button class="cl-check" onclick="toggleChecklistItem('${c.id}')" aria-label="${escapeHtml(c.done ? t('notDone') : t('markDone'))}"><i class="fa-${c.done ? 'solid' : 'regular'} fa-${c.done ? 'circle-check' : 'circle'}"></i></button>
+          <i class="fa-solid ${CHECK_KINDS[c.kind] || CHECK_KINDS.todo} cl-kind" title="${escapeHtml(t('ck_' + (c.kind || 'todo')))}"></i>
+          <span class="cl-text">${escapeHtml(c.text)}</span>
+          <button class="cl-del" onclick="deleteChecklistItem('${c.id}')" aria-label="${escapeHtml(t('deleteT'))}"><i class="fa-solid fa-xmark"></i></button>
+        </div>`).join('') : `<p class="settings-note">${escapeHtml(t('checklistEmptyDay'))}</p>`;
+      list += `</div>`;
+    });
+    if (!list) list = `<p class="settings-note cl-empty">${escapeHtml(t('checklistEmpty'))}</p>`;
+    const defDay = checklistDay === 'all' ? 'trip' : checklistDay;
+    body.innerHTML = `
+      <div class="cl-top">
+        <select class="lang-select" onchange="setChecklistFilter(this.value)">
+          <option value="all" ${checklistDay === 'all' ? 'selected' : ''}>${escapeHtml(t('allChecklist'))}</option>${dayOpts(checklistDay)}</select>
+        <span class="cl-progress">${escapeHtml(t('progressN', { n: done, m: total }))}</span>
+      </div>
+      ${total ? `<div class="cl-bar"><span style="width:${total ? Math.round(done / total * 100) : 0}%"></span></div>` : ''}
+      <div class="cl-add">
+        <input class="edit-form-input" id="cl-text" placeholder="${escapeHtml(t('checklistPlaceholder'))}" onkeydown="if(event.key==='Enter'){event.preventDefault();addChecklistItem();}">
+        <div class="row-inline">
+          <select class="lang-select" id="cl-kind">${kindOpts}</select>
+          <select class="lang-select" id="cl-day">${dayOpts(defDay)}</select>
+          <button class="btn btn-primary" onclick="addChecklistItem()"><i class="fa-solid fa-plus"></i> ${escapeHtml(t('add'))}</button>
+        </div>
+      </div>
+      <div class="cl-list">${list}</div>`;
+  }
+
+  function updateChecklistPill() {
+    const b = $('checklist-pill');
+    if (!b) return;
+    const open = CHECKLIST.filter(c => !c.done).length;
+    b.style.display = CHECKLIST.length ? 'inline-flex' : 'none';
+    b.innerHTML = `<i class="fa-solid fa-list-check"></i> ${open}`;
+    b.title = t('checklistOpenN', { n: open });
+  }
+
+  /* ---------- "Leave by": when to set off for the next stop's planned time ---------- */
+  const TRAVEL = { walking: { kmh: 4.5, detour: 1.3, extra: 0 }, transit: { kmh: 20, detour: 1.3, extra: 8 }, driving: { kmh: 28, detour: 1.35, extra: 5 } };
+
+  function travelMinutes(from, to) {
+    if (!from || !to || !hasCoords(from) || !hasCoords(to)) return null;
+    const mode = directionsMode(from, to);
+    const p = TRAVEL[mode] || TRAVEL.walking;
+    const km = distMeters([from.lat, from.lng], [to.lat, to.lng]) / 1000 * p.detour;
+    return { mins: Math.max(1, Math.round(km / p.kmh * 60 + p.extra)), mode };
+  }
+
+  function leaveByHtml(from, s) {
+    if (!s || s.done || !s.time || !/^\d{1,2}:\d{2}$/.test(s.time)) return '';
+    const tr = travelMinutes(from, s);
+    if (!tr) return '';
+    const [h, m] = s.time.split(':').map(Number);
+    const arrive = h * 60 + m, leave = arrive - tr.mins;
+    const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes();
+    const pad = n => String(((n % 1440) + 1440) % 1440 / 60 | 0).padStart(2, '0') + ':' + String(((n % 60) + 60) % 60).padStart(2, '0');
+    const modeLabel = t(tr.mode === 'walking' ? 'byWalk' : tr.mode === 'driving' ? 'byCar' : 'byTransit', { m: tr.mins });
+    const isToday = effectiveDayIsToday();
+    let cls = 'lb-ok', label = t('leaveBy', { time: pad(leave) });
+    if (isToday && nowMin > arrive) { cls = 'lb-late'; label = t('runningLate', { m: nowMin - leave }); }
+    else if (isToday && nowMin >= leave - 10) { cls = 'lb-soon'; label = nowMin >= leave ? t('leaveNow') : t('leaveInN', { m: leave - nowMin }); }
+    return `<div class="tp-leave ${cls}"><i class="fa-solid fa-person-walking-arrow-right"></i> <b>${escapeHtml(label)}</b> <span>· ${escapeHtml(modeLabel)}</span></div>`;
+  }
+  function effectiveDayIsToday() {
+    const d = new Date(), iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return DAY_DATES[todayDay] === iso;
+  }
+
+  function todayChecklistHtml() {
+    const items = CHECKLIST.filter(c => !c.done && (c.day === todayDay));
+    if (!items.length) return '';
+    return `<button class="tp-check" onclick="openChecklist(${todayDay})"><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('checklistTodayN', { n: items.length }))}</button>`;
+  }
+  setInterval(() => { if (todayMode && !document.hidden) renderTodayPanel(); }, 60000);
 
 </script>
 </body>
