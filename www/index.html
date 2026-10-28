@@ -1073,8 +1073,10 @@
     .tour-title { font-size: 18px; margin: 0 0 8px; }
     .tour-text { font-size: 14px; line-height: 1.5; color: var(--text-muted); margin: 0 auto 16px; max-width: 340px; }
     .tour-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 16px; }
-    .tour-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--panel-border); transition: all 0.2s; }
-    .tour-dots span.on { width: 20px; border-radius: 4px; background: var(--accent-blue); }
+    .tour-dots { gap: 10px !important; }
+    .tour-dots button { width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%; background: var(--panel-border); transition: all 0.2s; cursor: pointer; position: relative; }
+    .tour-dots button::after { content: ''; position: absolute; inset: -9px -5px; }
+    .tour-dots button.on { width: 20px; border-radius: 4px; background: var(--accent-blue); }
     .tour-actions { display: flex; justify-content: space-between; gap: 10px; }
     .tour-actions .btn { flex: 1; justify-content: center; padding: 11px; }
     /* Start options, roomier sheets, centred tour */
@@ -1127,6 +1129,57 @@
 
     /* Easier-to-read grey text in dark mode */
     :root:not([data-ui="light"]) { --text-muted: #a3b1c6; }
+
+    /* Search bar: clear button */
+    .search-field { position: relative; flex: 1; min-width: 0; display: flex; }
+    .search-field .search-input { padding-right: 34px; -webkit-appearance: none; appearance: none; }
+    .search-input::-webkit-search-cancel-button, .search-input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+    .search-clear { display: none; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border: none; background: transparent;
+      color: var(--text-muted); font-size: 15px; cursor: pointer; align-items: center; justify-content: center; }
+    .search-clear.show { display: flex; }
+
+    /* iPhone: 16px text in boxes stops iOS zooming in when you type; the page can't be pinch-zoomed (the map can) */
+    .ios input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .ios textarea, .ios select, .ios [contenteditable="true"] { font-size: 16px !important; }
+    html, body { touch-action: pan-x pan-y; }
+
+    /* The card copy that follows your finger while moving it */
+    .sortable-fallback { opacity: 0.96 !important; transform: rotate(1.5deg) scale(1.03); box-shadow: 0 16px 36px rgba(0,0,0,0.45) !important;
+      border-color: var(--accent-blue) !important; pointer-events: none; z-index: 5000 !important; }
+    .activity-card.sortable-ghost { opacity: 0.25; border-style: dashed; }
+
+    /* Add to calendar window */
+    .cal-all { width: 100%; justify-content: center; padding: 12px; margin: 6px 0 4px; }
+    .cal-or { margin: 12px 0 6px; }
+    .cal-list { display: flex; flex-direction: column; }
+    .cal-row { display: flex; align-items: center; gap: 10px; padding: 11px 4px; border-bottom: 1px solid var(--panel-border); color: var(--text-main); text-decoration: none; }
+    .cal-time { font-size: 12px; color: var(--text-muted); width: 54px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .cal-name { flex: 1; min-width: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cal-add { font-size: 12px; font-weight: 600; color: var(--accent-blue); white-space: nowrap; }
+
+    /* Day headers: the whole row is a big target for folding a day away */
+    .day-section-title { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    @media (pointer: coarse) {
+      .day-section-title { min-height: 40px; margin: 10px 0 6px; padding: 2px 0; }
+      .day-line { height: 40px; }
+      .day-chevron { width: 28px; height: 28px; display: inline-flex !important; align-items: center; justify-content: center; border-radius: 8px; background: var(--tint); font-size: 12px; }
+    }
+
+    /* Today card in the list (phones): room around it, a day picker on the day name, dots for each stop */
+    sidebar #today-panel { margin: 4px 12px 14px !important; padding: 12px 12px 12px; }
+    @media (max-height: 520px) {
+      sidebar #today-panel { margin: max(12px, calc(var(--sa-t) + 8px)) 12px 12px !important; }
+      .today-on.header-in-sheet header { margin-top: 0; }
+    }
+    .tp-dayname { position: relative; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; min-width: 0; max-width: 55%; }
+    .tp-dayname span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tp-dd { font-size: 9px; opacity: 0.7; }
+    .tp-day-select { position: absolute; inset: -6px; opacity: 0; width: auto; cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
+    .tp-dots { display: flex; justify-content: center; gap: 9px; margin: -2px 0 10px; flex-wrap: wrap; }
+    .tp-dots button { width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%; background: var(--panel-border); cursor: pointer; position: relative; transition: all 0.2s; }
+    .tp-dots button::after { content: ''; position: absolute; inset: -8px -4px; }
+    .tp-dots button.done { background: #10b981; opacity: 0.6; }
+    .tp-dots button.on { width: 18px; border-radius: 4px; background: var(--accent-blue); opacity: 1; }
+    .tp-stop { touch-action: pan-y; will-change: transform; }
   </style>
 </head>
 <body>
@@ -1210,8 +1263,11 @@
         <!-- Search Location Input -->
         <div class="search-container">
           <div class="search-input-wrapper">
-            <input type="text" id="search-input" class="search-input" data-i18n-ph="searchPlaceholder" placeholder="Search places or addresses…"
-                   oninput="handleSearchInput(event)" onkeyup="handleSearchKey(event)" onfocus="handleSearchFocus()">
+            <div class="search-field">
+              <input type="search" id="search-input" class="search-input" data-i18n-ph="searchPlaceholder" placeholder="Search places or addresses…" enterkeyhint="search" autocomplete="off"
+                     oninput="handleSearchInput(event); updateSearchClear()" onkeyup="handleSearchKey(event)" onfocus="handleSearchFocus()">
+              <button class="search-clear" id="search-clear" type="button" onclick="clearSearch()" data-i18n-title="clearSearch" aria-label="Clear search"><i class="fa-solid fa-circle-xmark"></i></button>
+            </div>
             <button class="btn btn-primary" style="padding: 6px 12px;" onclick="executeSearch()" data-i18n-title="searchArea"><i class="fa-solid fa-magnifying-glass"></i></button>
           </div>
           <div class="search-results-list" id="search-results"></div>
@@ -1342,7 +1398,14 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="tour-modal" onclick="if(event.target.id==='tour-modal')closeTour()">
+<div class="modal-overlay" id="calendar-modal" onclick="if(event.target.id==='calendar-modal')closeModalById('calendar-modal')">
+  <div class="modal-box" style="width: 440px;">
+    <div class="modal-title"><span id="calendar-title">Add to calendar</span><i class="fa-solid fa-xmark modal-close-x" onclick="closeModalById('calendar-modal')"></i></div>
+    <div id="calendar-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="tour-modal">
   <div class="modal-box" style="width: 400px;"><div id="tour-body"></div></div>
 </div>
 
@@ -1698,8 +1761,8 @@
       saveOffline: "Save map for offline",
       saveOfflineArea: "Save this map area offline",
       offlineSaving: "Saving map for offline… {n}%",
-      offlineSaved: "Map saved for offline ({n} map pieces).",
-      offlineFailed: "Couldn't save the map for offline.",
+      offlineSaved: "Map saved for offline ({n} map pieces). It will show here when you have no signal.",
+      offlineFailed: "Couldn't save the map for offline. Check your connection and try again. Nothing else is affected.",
       offlineTooBig: "That area is too big to save. Zoom in a little and try again.",
       offlineNoStops: "This day has no stops on the map yet.",
       offlineNeedsNet: "Connect to the internet to save maps for offline.",
@@ -1804,7 +1867,16 @@
       addToCalendar: "Add to calendar",
       feedbackPrompt: "What happened, or what would you like changed?",
       feedbackDevice: "Device details (helps fix bugs)",
-      sendFeedback: "Send feedback"
+      sendFeedback: "Send feedback",
+      clearSearch: "Clear search",
+      setDate: "Set date",
+      calIntro: "Add the stops for {date} to your calendar.",
+      calAddAll: "Add all {n} stops",
+      calOneByOne: "Or add them one at a time to Google Calendar:",
+      allDay: "All day",
+      calIosHint: "If iPhone asks, tap \"Add All\" to put the stops in Calendar.",
+      calFailed: "Couldn't create the calendar file.",
+      chooseDay: "Choose a day"
     },
     ja: {
       language: "言語",
@@ -2075,8 +2147,8 @@
       saveOffline: "オフライン用に地図を保存",
       saveOfflineArea: "この範囲の地図をオフライン保存",
       offlineSaving: "オフライン用に保存中… {n}%",
-      offlineSaved: "オフライン用に保存しました（{n} 枚）。",
-      offlineFailed: "オフライン用に保存できませんでした。",
+      offlineSaved: "オフライン用に地図を保存しました（{n} 枚）。電波がない時もここに表示されます。",
+      offlineFailed: "オフライン用に保存できませんでした。接続を確認してもう一度お試しください。他には影響ありません。",
       offlineTooBig: "範囲が広すぎます。少しズームインしてもう一度お試しください。",
       offlineNoStops: "この日には地図上のスポットがまだありません。",
       offlineNeedsNet: "オフライン保存にはインターネット接続が必要です。",
@@ -2181,7 +2253,16 @@
       addToCalendar: "カレンダーに追加",
       feedbackPrompt: "何が起きましたか？変えてほしい点は？",
       feedbackDevice: "端末情報（不具合の修正に役立ちます）",
-      sendFeedback: "フィードバックを送る"
+      sendFeedback: "フィードバックを送る",
+      clearSearch: "検索をクリア",
+      setDate: "日付を設定",
+      calIntro: "{date} のスポットをカレンダーに追加します。",
+      calAddAll: "{n} 件をまとめて追加",
+      calOneByOne: "または Google カレンダーに 1 件ずつ追加：",
+      allDay: "終日",
+      calIosHint: "iPhone で確認が出たら「すべて追加」をタップしてください。",
+      calFailed: "カレンダーファイルを作成できませんでした。",
+      chooseDay: "日を選ぶ"
     },
     zh: {
       language: "语言",
@@ -2452,8 +2533,8 @@
       saveOffline: "保存地图供离线使用",
       saveOfflineArea: "离线保存此区域地图",
       offlineSaving: "正在保存离线地图… {n}%",
-      offlineSaved: "已保存离线地图（{n} 块）。",
-      offlineFailed: "无法保存离线地图。",
+      offlineSaved: "已保存离线地图（{n} 块），没有信号时也会显示。",
+      offlineFailed: "无法保存离线地图。请检查网络后重试，其他功能不受影响。",
       offlineTooBig: "区域太大，请放大一点后重试。",
       offlineNoStops: "这一天在地图上还没有地点。",
       offlineNeedsNet: "保存离线地图需要联网。",
@@ -2558,7 +2639,16 @@
       addToCalendar: "添加到日历",
       feedbackPrompt: "发生了什么？或者你希望改什么？",
       feedbackDevice: "设备信息（有助于修复问题）",
-      sendFeedback: "发送反馈"
+      sendFeedback: "发送反馈",
+      clearSearch: "清除搜索",
+      setDate: "设定日期",
+      calIntro: "把 {date} 的地点添加到日历。",
+      calAddAll: "添加全部 {n} 个地点",
+      calOneByOne: "或逐个添加到 Google 日历：",
+      allDay: "全天",
+      calIosHint: "如果 iPhone 询问，请点“全部添加”。",
+      calFailed: "无法创建日历文件。",
+      chooseDay: "选择日期"
     },
     ko: {
       language: "언어",
@@ -2829,8 +2919,8 @@
       saveOffline: "오프라인용 지도 저장",
       saveOfflineArea: "이 지도 영역을 오프라인 저장",
       offlineSaving: "오프라인용 지도 저장 중… {n}%",
-      offlineSaved: "오프라인용 지도를 저장했어요({n}개).",
-      offlineFailed: "오프라인용 지도를 저장하지 못했어요.",
+      offlineSaved: "오프라인용 지도를 저장했어요({n}개). 신호가 없을 때도 여기에 보여요.",
+      offlineFailed: "오프라인용 지도를 저장하지 못했어요. 연결을 확인하고 다시 시도하세요. 다른 기능에는 영향이 없어요.",
       offlineTooBig: "영역이 너무 넓어요. 조금 확대한 뒤 다시 시도하세요.",
       offlineNoStops: "이 날에는 아직 지도에 표시된 장소가 없어요.",
       offlineNeedsNet: "오프라인 지도를 저장하려면 인터넷에 연결하세요.",
@@ -2935,7 +3025,16 @@
       addToCalendar: "캘린더에 추가",
       feedbackPrompt: "어떤 일이 있었나요? 바꾸고 싶은 점은?",
       feedbackDevice: "기기 정보 (버그 수정에 도움)",
-      sendFeedback: "피드백 보내기"
+      sendFeedback: "피드백 보내기",
+      clearSearch: "검색 지우기",
+      setDate: "날짜 설정",
+      calIntro: "{date}의 장소를 캘린더에 추가해요.",
+      calAddAll: "{n}곳 모두 추가",
+      calOneByOne: "또는 Google 캘린더에 하나씩 추가:",
+      allDay: "종일",
+      calIosHint: "iPhone에서 물어보면 \"모두 추가\"를 탭하세요.",
+      calFailed: "캘린더 파일을 만들지 못했어요.",
+      chooseDay: "날 선택"
     },
     es: {
       language: "Idioma",
@@ -3211,8 +3310,8 @@
       saveOffline: "Guardar mapa sin conexión",
       saveOfflineArea: "Guardar esta zona sin conexión",
       offlineSaving: "Guardando mapa sin conexión… {n} %",
-      offlineSaved: "Mapa guardado sin conexión ({n} piezas).",
-      offlineFailed: "No se pudo guardar el mapa sin conexión.",
+      offlineSaved: "Mapa guardado sin conexión ({n} piezas). Se verá aquí cuando no tengas cobertura.",
+      offlineFailed: "No se pudo guardar el mapa sin conexión. Revisa la conexión e inténtalo de nuevo; nada más se ve afectado.",
       offlineTooBig: "La zona es demasiado grande. Acércate un poco y vuelve a intentarlo.",
       offlineNoStops: "Este día aún no tiene paradas en el mapa.",
       offlineNeedsNet: "Conéctate a internet para guardar mapas sin conexión.",
@@ -3317,7 +3416,16 @@
       addToCalendar: "Añadir al calendario",
       feedbackPrompt: "¿Qué pasó o qué te gustaría cambiar?",
       feedbackDevice: "Datos del dispositivo (ayudan a corregir errores)",
-      sendFeedback: "Enviar comentarios"
+      sendFeedback: "Enviar comentarios",
+      clearSearch: "Borrar búsqueda",
+      setDate: "Poner fecha",
+      calIntro: "Añade las paradas del {date} a tu calendario.",
+      calAddAll: "Añadir las {n} paradas",
+      calOneByOne: "O añádelas una a una a Google Calendar:",
+      allDay: "Todo el día",
+      calIosHint: "Si el iPhone pregunta, toca «Añadir todo».",
+      calFailed: "No se pudo crear el archivo de calendario.",
+      chooseDay: "Elegir día"
     },
     fr: {
       language: "Langue",
@@ -3593,8 +3701,8 @@
       saveOffline: "Enregistrer la carte hors ligne",
       saveOfflineArea: "Enregistrer cette zone hors ligne",
       offlineSaving: "Enregistrement hors ligne… {n} %",
-      offlineSaved: "Carte enregistrée hors ligne ({n} morceaux).",
-      offlineFailed: "Impossible d’enregistrer la carte hors ligne.",
+      offlineSaved: "Carte enregistrée hors ligne ({n} morceaux). Elle s’affichera ici sans réseau.",
+      offlineFailed: "Impossible d’enregistrer la carte hors ligne. Vérifiez la connexion et réessayez ; rien d’autre n’est touché.",
       offlineTooBig: "Zone trop grande. Zoomez un peu et réessayez.",
       offlineNoStops: "Ce jour n’a encore aucune étape sur la carte.",
       offlineNeedsNet: "Connectez-vous à internet pour enregistrer des cartes hors ligne.",
@@ -3699,7 +3807,16 @@
       addToCalendar: "Ajouter au calendrier",
       feedbackPrompt: "Que s’est-il passé, ou que voudriez-vous changer ?",
       feedbackDevice: "Infos appareil (aident à corriger les bugs)",
-      sendFeedback: "Envoyer un avis"
+      sendFeedback: "Envoyer un avis",
+      clearSearch: "Effacer la recherche",
+      setDate: "Choisir la date",
+      calIntro: "Ajoutez les étapes du {date} à votre calendrier.",
+      calAddAll: "Ajouter les {n} étapes",
+      calOneByOne: "Ou ajoutez-les une par une dans Google Agenda :",
+      allDay: "Toute la journée",
+      calIosHint: "Si l’iPhone le demande, touchez « Tout ajouter ».",
+      calFailed: "Impossible de créer le fichier calendrier.",
+      chooseDay: "Choisir un jour"
     },
     de: {
       language: "Sprache",
@@ -3975,8 +4092,8 @@
       saveOffline: "Karte offline speichern",
       saveOfflineArea: "Diesen Kartenbereich offline speichern",
       offlineSaving: "Karte wird offline gespeichert… {n} %",
-      offlineSaved: "Karte offline gespeichert ({n} Kartenteile).",
-      offlineFailed: "Die Karte konnte nicht offline gespeichert werden.",
+      offlineSaved: "Karte offline gespeichert ({n} Kartenteile). Sie erscheint hier auch ohne Empfang.",
+      offlineFailed: "Die Karte konnte nicht offline gespeichert werden. Prüfe die Verbindung und versuche es erneut; sonst ändert sich nichts.",
       offlineTooBig: "Der Bereich ist zu groß. Zoome etwas hinein und versuche es erneut.",
       offlineNoStops: "Dieser Tag hat noch keine Stopps auf der Karte.",
       offlineNeedsNet: "Zum Offline-Speichern bitte mit dem Internet verbinden.",
@@ -4081,7 +4198,16 @@
       addToCalendar: "Zum Kalender hinzufügen",
       feedbackPrompt: "Was ist passiert, oder was würdest du ändern?",
       feedbackDevice: "Geräteinfos (helfen beim Beheben von Fehlern)",
-      sendFeedback: "Feedback senden"
+      sendFeedback: "Feedback senden",
+      clearSearch: "Suche löschen",
+      setDate: "Datum festlegen",
+      calIntro: "Füge die Stopps vom {date} deinem Kalender hinzu.",
+      calAddAll: "Alle {n} Stopps hinzufügen",
+      calOneByOne: "Oder einzeln zu Google Kalender hinzufügen:",
+      allDay: "Ganztägig",
+      calIosHint: "Wenn das iPhone fragt, tippe auf „Alle hinzufügen“.",
+      calFailed: "Die Kalenderdatei konnte nicht erstellt werden.",
+      chooseDay: "Tag wählen"
     }
   };
 
@@ -4587,7 +4713,7 @@
     const tp = $('today-panel');
     if (todayMode && tp && tp.parentElement === $('sidebar') && tp.style.display !== 'none') {
       // Today mode: the smallest size shows the drag bar and the Today card
-      const needT = hh($('sheet-handle')) + hh(tp) + 16;
+      const needT = hh($('sheet-handle')) + hh(tp) + 10 + 28; // card margins + room above the home bar
       return { min: Math.round(Math.min(Math.max(needT, 120), total * 0.62)), mid: Math.round(Math.max(total * 0.46, needT)), max: Math.round(total * 0.9), total };
     }
     const need = hh($('sheet-handle')) + (header && header.parentElement === $('sidebar') ? hh(header) : 0) + hh(document.querySelector('.sidebar-title-row')) + 14;
@@ -5358,6 +5484,7 @@
     if (daySelectMode) exitDaySelectMode();
     selectMode = true;
     $('timeline').classList.add('select-mode');
+    syncSortables();
     updateSelectBar();
     if (day !== undefined) revealDay(day);
   }
@@ -5365,6 +5492,7 @@
   function exitSelectMode() {
     selectMode = false;
     $('timeline').classList.remove('select-mode');
+    syncSortables();
     clearSelection();
     updateSelectBar();
   }
@@ -5419,6 +5547,14 @@
     selectedStopIds.clear();
     document.querySelectorAll('.activity-card.selected-multi').forEach(c => c.classList.remove('selected-multi'));
     updateSelectBar();
+  }
+
+  // Cards can't be dragged while you're picking them (so a press-and-hold doesn't pick one up by mistake)
+  function syncSortables() {
+    document.querySelectorAll('#timeline *').forEach(el => {
+      const s = window.Sortable && Sortable.get ? Sortable.get(el) : null;
+      if (s && s.options && s.options.group && s.options.group.name === 'shared-days') s.option('disabled', VIEW_ONLY || selectMode);
+    });
   }
 
   function toggleCardSelected(id) {
@@ -5621,7 +5757,12 @@
         </div>`;
       // In "select days" mode a click anywhere on the header toggles the day instead
       daySection.querySelector('.day-section-title').addEventListener('click', e => {
-        if (!daySelectMode || e.target.closest('.day-menu-btn, .day-line')) return; // the collapse bar still works
+        // Tapping an empty part of the day header folds the day away or opens it again
+        if (!daySelectMode) {
+          if (!e.target.closest('.day-menu-btn, .day-line, .color-dot-picker, .day-title-text, .day-check')) toggleDayCollapse(dayNum);
+          return;
+        }
+        if (e.target.closest('.day-menu-btn, .day-line')) return; // the collapse bar still works
         e.stopPropagation(); e.preventDefault();
         toggleDaySelected(dayNum);
       }, true);
@@ -5893,11 +6034,20 @@
     return {
       group: 'shared-days',
       animation: 150,
-      disabled: VIEW_ONLY,
-      // On touch screens a press-and-hold picks a card up, so normal swipes scroll the list
+      disabled: VIEW_ONLY || selectMode,
+      // On touch screens a press-and-hold picks a card up, so normal swipes scroll the list.
+      // The card copy follows your finger (instead of iPhone's own drag preview), and the list scrolls near the edges.
       delay: 280,
       delayOnTouchOnly: true,
       touchStartThreshold: 6,
+      forceFallback: true,
+      fallbackOnBody: true,
+      fallbackClass: 'sortable-fallback',
+      fallbackTolerance: 4,
+      scroll: true,
+      scrollSensitivity: 90,
+      scrollSpeed: 14,
+      bubbleScroll: true,
       chosenClass: 'sortable-chosen',
       onChoose: function() { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} },
       draggable: '.activity-card',
@@ -6165,7 +6315,7 @@
 
   function groupSelectedStops() {
     closeMenus();
-    if (selectedStopIds.size < 2) { alert(t('selectAtLeast2')); return; }
+    if (selectedStopIds.size < 2) { showToast(t('selectAtLeast2'), { ms: 3000 }); return; }
     const members = rawData.filter(s => selectedStopIds.has(s.id)).sort((a, b) => a.day - b.day || a.order - b.order);
     const firstDay = members[0].day;
     const gId = 'group_' + Date.now();
@@ -7008,11 +7158,14 @@
       try {
         const list = await fetchSuggestions(query);
         if (list.length) { showToast(t('closestMatch')); previewPlaceObj(list[0]); }
-        else { box.style.display = 'none'; alert(t('noResults')); }
-      } catch (e) { box.style.display = 'none'; alert(t('searchUnavailable')); }
+        else { box.style.display = 'none'; showToast(t('noResults'), { ms: 3500 }); }
+      } catch (e) { box.style.display = 'none'; showToast(t('searchUnavailable'), { ms: 3500 }); }
       return;
     }
     showAreaResults(results.slice(0, 80));
+    // The places are on the map now, so close the list (tap the search bar to see it again)
+    box.style.display = 'none';
+    showToast(t('areaResultsN', { n: Math.min(results.length, 80) }), { ms: 2500 });
     // Move the map to what was found
     const b = L.latLngBounds(results.slice(0, 80).map(p => [p.lat, p.lng]));
     if (results.length === 1) map.flyTo([results[0].lat, results[0].lng], Math.max(map.getZoom(), 16), { duration: 0.8 });
@@ -7034,6 +7187,7 @@
       areaMarkers.push({ marker, key });
     });
     showAreaList(list);
+    updateSearchClear();
   }
 
   function showAreaList(list) {
@@ -7056,6 +7210,7 @@
     areaMarkers.forEach(a => map.removeLayer(a.marker));
     areaMarkers = [];
     lastAreaResults = [];
+    if (typeof updateSearchClear === 'function') updateSearchClear();
   }
 
   function previewPlaceObj(p) {
@@ -7543,6 +7698,23 @@
     delete fannedClusters[key];
   }
 
+  /* ---------- Clear the search: empties the bar and removes the found places from the map ---------- */
+  function updateSearchClear() {
+    const b = $('search-clear');
+    if (b) b.classList.toggle('show', !!$('search-input').value || lastAreaResults.length > 0);
+  }
+  function clearSearch() {
+    const input = $('search-input');
+    input.value = '';
+    clearTimeout(searchTimeout);
+    lastSearchResults = [];
+    clearAreaResults();
+    clearPreviewPin();
+    $('search-results').style.display = 'none';
+    updateSearchClear();
+    input.blur();
+  }
+
   /* ===== 09-routes.js ===== */
   /* =========================================================
      ROUTES: real walking / driving paths with travel times
@@ -7917,7 +8089,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.2.0';
+  const APP_VERSION = '1.2.1';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -7961,30 +8133,24 @@
     if (loadPref('mappin_start_at_location', 'true') === 'true') locateMe({ silent: true, startup: true });
   }
 
-  /* ---------- iPhone: zoom the page back out after typing ----------
-     iOS zooms in when you tap a text box; it never zooms back out by itself. */
-  function resetPageZoom() {
-    if (!isIos()) return;
-    const vp = document.querySelector('meta[name="viewport"]');
-    if (!vp) return;
-    const base = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
-    vp.setAttribute('content', base + ', maximum-scale=1.0');
-    setTimeout(() => vp.setAttribute('content', base), 400);
-  }
-
+  /* ---------- Typing on phones ----------
+     Text boxes use 16px text on iPhone, so iOS never zooms in (see the CSS); the page itself can't be pinch-zoomed
+     (only the map can). iPhone also doesn't close the keyboard when you tap elsewhere, so close it ourselves. */
   function initZoomReset() {
-    document.addEventListener('focusout', e => {
-      if (!e.target.matches || !e.target.matches('input, textarea, select')) return;
-      setTimeout(() => {
-        const a = document.activeElement;
-        if (!a || !a.matches || !a.matches('input, textarea, select')) resetPageZoom();
-      }, 60);
-    });
-    // iPhone doesn't close the keyboard when you tap somewhere else, so do it for the search box
+    if (isIos()) document.documentElement.classList.add('ios');
     document.addEventListener('pointerdown', e => {
       const a = document.activeElement;
-      if (a && a.id === 'search-input' && !e.target.closest('.search-container')) a.blur();
+      if (!a || a === document.body) return;
+      const editing = a.matches && a.matches('input, textarea, select, [contenteditable="true"]');
+      if (!editing) return;
+      if (e.target === a || a.contains(e.target)) return;
+      if (e.target.closest('input, textarea, select, [contenteditable="true"], label, .search-container, .date-popover, #date-popover')) return;
+      a.blur();
     }, true);
+    // No page zoom outside the map (iPhone pinch and double-tap zoom)
+    ['gesturestart', 'gesturechange'].forEach(ev => document.addEventListener(ev, e => {
+      if (!(e.target.closest && e.target.closest('#map'))) e.preventDefault();
+    }, { passive: false }));
   }
 
   function isStandalone() { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
@@ -8024,7 +8190,7 @@
   function handleBack() {
     if (dpState) { closeDatePopover(); return true; }
     if ($('app-menu').classList.contains('show')) { closeAppMenu(); return true; }
-    const openModal = [...document.querySelectorAll('.modal-overlay')].reverse().find(o => o.id && o.style.display === 'flex');
+    const openModal = [...document.querySelectorAll('.modal-overlay')].reverse().find(o => o.id && o.id !== 'tour-modal' && o.style.display === 'flex');
     if (openModal) { closeModalById(openModal.id); return true; }
     if ($('day-menu').style.display === 'block' || $('context-menu').style.display === 'block') { closeMenus(); return true; }
     if (selectMode) { exitSelectMode(); return true; }
@@ -8839,6 +9005,7 @@
     populateFilters();
     renderItinerary();
     if (isPortraitPhone()) setSheet('min');
+    else if (phoneLayoutMQ.matches) $('sidebar').scrollTop = 0;
     focusTodayStop();
   }
 
@@ -8899,7 +9066,7 @@
     const head = `
       <div class="tp-head">
         <button class="tp-day" onclick="todaySwitchDay(-1)" ${getAllDays().indexOf(todayDay) <= 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('prevDay'))}"><i class="fa-solid fa-chevron-left"></i></button>
-        <span class="tp-dayname"><i class="fa-solid fa-location-arrow"></i> ${escapeHtml(getDayTitle(todayDay))}</span>
+        <label class="tp-dayname"><i class="fa-solid fa-location-arrow"></i> <span>${escapeHtml(getDayTitle(todayDay))}</span> <i class="fa-solid fa-chevron-down tp-dd"></i>${todayDayPickerHtml()}</label>
         <button class="tp-day" onclick="todaySwitchDay(1)" ${getAllDays().indexOf(todayDay) >= getAllDays().length - 1 ? 'disabled' : ''} aria-label="${escapeHtml(t('nextDayL'))}"><i class="fa-solid fa-chevron-right"></i></button>
         ${todayWeatherHtml()}
         <span class="tp-progress">${escapeHtml(t('progressN', { n: doneCount, m: list.length }))}</span>
@@ -8926,7 +9093,7 @@
       ? `https://www.google.com/maps/dir/?api=1${from && hasCoords(from) ? `&origin=${from.lat},${from.lng}` : ''}&destination=${s.lat},${s.lng}&travelmode=${directionsMode(from, s)}&hl=${LANG}`
       : googleSearchUrl({ name: s.cleanTitle || s.title, address: s.address });
     loadTodayPhoto(s);
-    panel.innerHTML = head + `
+    panel.innerHTML = head + todayDotsHtml(list) + `
       <div class="tp-stop" onclick="focusTodayStop()">
         <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
         <div class="tp-info">
@@ -9053,17 +9220,76 @@
     focusTodayStop();
   }
 
+  // Swipe the Today card sideways for the next / previous stop; the card follows your finger
   function initTodaySwipe() {
     const panel = $('today-panel');
     if (!panel) return;
-    let x0 = null, y0 = 0;
-    panel.addEventListener('touchstart', e => { const p = e.touches[0]; x0 = p.clientX; y0 = p.clientY; }, { passive: true });
-    panel.addEventListener('touchend', e => {
-      if (x0 === null) return;
-      const p = e.changedTouches[0], dx = p.clientX - x0, dy = p.clientY - y0;
-      x0 = null;
-      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) todaySwitchDay(dx < 0 ? 1 : -1);
+    let sw = null;
+    panel.addEventListener('touchstart', e => {
+      if (e.target.closest('button, a, select, input')) return;
+      const p = e.touches[0];
+      sw = { x0: p.clientX, y0: p.clientY, dx: 0, on: false, el: panel.querySelector('.tp-stop') };
     }, { passive: true });
+    panel.addEventListener('touchmove', e => {
+      if (!sw || !sw.el) return;
+      const p = e.touches[0], dx = p.clientX - sw.x0, dy = p.clientY - sw.y0;
+      if (!sw.on) {
+        if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { sw = null; return; }
+        if (Math.abs(dx) < 10) return;
+        sw.on = true;
+      }
+      const n = todayStops().length;
+      const atEdge = (dx > 0 && todayIdx === 0) || (dx < 0 && todayIdx >= n);
+      sw.dx = atEdge ? dx / 3 : dx;
+      sw.el.style.transition = 'none';
+      sw.el.style.transform = `translateX(${sw.dx}px)`;
+      sw.el.style.opacity = String(Math.max(0.3, 1 - Math.abs(sw.dx) / 400));
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+    const end = () => {
+      if (!sw) return;
+      const { el, dx, on } = sw; sw = null;
+      if (!on || !el) return;
+      const dir = dx < -60 ? 1 : dx > 60 ? -1 : 0;
+      const n = todayStops().length;
+      const can = (dir === 1 && todayIdx < n) || (dir === -1 && todayIdx > 0);
+      el.style.transition = 'transform 0.16s ease, opacity 0.16s ease';
+      if (!can) { el.style.transform = ''; el.style.opacity = ''; return; }
+      el.style.transform = `translateX(${dir * -50}%)`;
+      el.style.opacity = '0';
+      setTimeout(() => {
+        todayStep(dir);
+        const nel = panel.querySelector('.tp-stop');
+        if (!nel) return;
+        nel.style.transition = 'none';
+        nel.style.transform = `translateX(${dir * 40}%)`;
+        nel.style.opacity = '0';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          nel.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+          nel.style.transform = ''; nel.style.opacity = '';
+        }));
+      }, 150);
+    };
+    panel.addEventListener('touchend', end, { passive: true });
+    panel.addEventListener('touchcancel', end, { passive: true });
+  }
+
+  function todayGoDay(day) {
+    const d = Number(day);
+    const days = getAllDays();
+    const i = days.indexOf(todayDay), j = days.indexOf(d);
+    if (j === -1 || i === j) return;
+    todaySwitchDay(j - i);
+  }
+  function todayGoStop(i) { todayIdx = i; renderTodayPanel(); focusTodayStop(); }
+
+  function todayDayPickerHtml() {
+    return `<select class="tp-day-select" onchange="todayGoDay(this.value)" aria-label="${escapeHtml(t('chooseDay'))}">
+      ${getAllDays().map(d => `<option value="${d}" ${d === todayDay ? 'selected' : ''}>${escapeHtml(getDayTitle(d))}${DAY_DATES[d] ? ' · ' + escapeHtml(formatDateShort(DAY_DATES[d])) : ''}</option>`).join('')}</select>`;
+  }
+  function todayDotsHtml(list) {
+    if (list.length < 2) return '';
+    return `<div class="tp-dots">${list.map((s, i) => `<button class="${i === todayIdx ? 'on' : ''} ${s.done ? 'done' : ''}" onclick="todayGoStop(${i})" aria-label="${escapeHtml(s.cleanTitle || s.title)}"></button>`).join('')}</div>`;
   }
 
   /* ---------- Opening hours right now (Today mode) ---------- */
@@ -9089,7 +9315,8 @@
     const panel = $('today-panel');
     if (!panel) return;
     const sb = $('sidebar'), handle = $('sheet-handle'), mapWrap = document.querySelector('.map-wrap');
-    if (isPortraitPhone()) {
+    if (phoneLayoutMQ.matches) {
+      // Phones (upright or on their side): the Today card sits at the top of the list, clear of the map
       if (panel.parentElement !== sb) handle.after(panel);
     } else if (panel.parentElement !== mapWrap) {
       mapWrap.appendChild(panel);
@@ -9724,7 +9951,7 @@
       let ov = null;
       if (!menu) {
         ov = box.closest('.modal-overlay');
-        if (!ov || ov.classList.contains('previewing') || !ov.id) return;
+        if (!ov || ov.classList.contains('previewing') || !ov.id || ov.id === 'tour-modal') return;
         if (e.target.closest('input, textarea, select, .color-swatch, [contenteditable="true"]')) return;
       }
       if (box.scrollTop > 0) return;
@@ -9781,7 +10008,7 @@
     ['resize', 'orientationchange', 'scroll'].forEach(ev => window.addEventListener(ev, () => setTimeout(keepPageAtTop, 60), { passive: true }));
     if (window.visualViewport) window.visualViewport.addEventListener('resize', () => setTimeout(keepPageAtTop, 120));
     document.addEventListener('focusout', () => setTimeout(keepPageAtTop, 250));
-    window.addEventListener('orientationchange', () => setTimeout(() => { if (typeof resetPageZoom === 'function') resetPageZoom(); keepPageAtTop(); }, 350));
+    window.addEventListener('orientationchange', () => setTimeout(keepPageAtTop, 350));
   }
 
   /* ---------- Swipe a card: left to delete (with undo), right to mark it done ---------- */
@@ -9862,7 +10089,7 @@
   const edgeSwipeHere = () => IS_NATIVE || isStandalone();
   function openLayers() {
     const ids = [];
-    document.querySelectorAll('.modal-overlay').forEach(o => { if (o.id && o.style.display === 'flex') ids.push('#' + o.id); });
+    document.querySelectorAll('.modal-overlay').forEach(o => { if (o.id && o.id !== 'tour-modal' && o.style.display === 'flex') ids.push('#' + o.id); });
     if ($('app-menu') && $('app-menu').classList.contains('show')) ids.push('app-menu');
     if ($('day-menu') && $('day-menu').style.display === 'block') ids.push('day-menu');
     return ids;
@@ -9947,6 +10174,46 @@
     document.addEventListener('touchcancel', end, { passive: true });
   }
 
+  /* ---------- No rubber-band bounce: on iPhone, dragging somewhere that can't scroll would pull the whole
+     app around (and can leave it shifted). Only real scrolling areas move; the map handles its own gestures. ---------- */
+  function initScrollLock() {
+    let last = null;
+    const canScroll = (el, dx, dy) => {
+      for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+        const cs = getComputedStyle(el);
+        if (Math.abs(dy) >= Math.abs(dx)) {
+          if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1) {
+            if ((dy > 0 && el.scrollTop > 0) || (dy < 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1)) return true;
+          }
+        } else if (/(auto|scroll)/.test(cs.overflowX) && el.scrollWidth > el.clientWidth + 1) {
+          if ((dx > 0 && el.scrollLeft > 0) || (dx < 0 && el.scrollLeft + el.clientWidth < el.scrollWidth - 1)) return true;
+        }
+      }
+      return false;
+    };
+    document.addEventListener('touchstart', e => { const p = e.touches[0]; last = p ? { x: p.clientX, y: p.clientY } : null; }, { passive: true });
+    document.addEventListener('touchmove', e => {
+      if (!last || !e.cancelable || e.defaultPrevented) return;
+      const tgt = e.target;
+      if (tgt.closest && tgt.closest('#map, input[type="range"], textarea, input, .sortable-fallback')) return;
+      if (e.touches.length > 1) { e.preventDefault(); return; } // no page pinch-zoom
+      const p = e.touches[0], dx = p.clientX - last.x, dy = p.clientY - last.y;
+      last = { x: p.clientX, y: p.clientY };
+      if (!dx && !dy) return;
+      if (!canScroll(tgt, dx, dy)) e.preventDefault();
+    }, { passive: false });
+  }
+
+  // If a press-and-hold ends without a drag, never leave a card stuck in its "picked up" look
+  function initDragCleanup() {
+    const tidy = () => setTimeout(() => {
+      if (document.querySelector('.sortable-fallback, .sortable-drag')) return;
+      document.querySelectorAll('.sortable-chosen').forEach(el => el.classList.remove('sortable-chosen'));
+    }, 120);
+    document.addEventListener('touchend', tidy, { passive: true });
+    document.addEventListener('touchcancel', tidy, { passive: true });
+  }
+
   /* ===== 25-tour.js ===== */
   /* =========================================================
      WELCOME TOUR
@@ -9978,7 +10245,7 @@
       <div class="tour-icon"><i class="fa-solid ${st.icon}"></i></div>
       <h3 class="tour-title">${escapeHtml(t(st.title))}</h3>
       <p class="tour-text">${escapeHtml(t(st.body))}</p>
-      <div class="tour-dots">${TOUR.map((_, i) => `<span class="${i === tourStep ? 'on' : ''}"></span>`).join('')}</div>
+      <div class="tour-dots">${TOUR.map((_, i) => `<button class="${i === tourStep ? 'on' : ''}" onclick="tourGo(${i})" aria-label="${i + 1} / ${TOUR.length}"></button>`).join('')}</div>
       <div class="tour-actions">
         ${tourStep ? `<button class="btn btn-secondary" onclick="tourNext(-1)">${escapeHtml(t('tourBack'))}</button>` : `<button class="btn btn-ghost" onclick="closeTour()">${escapeHtml(t('tourSkip'))}</button>`}
         ${last ? `<button class="btn btn-primary" onclick="closeTour()">${escapeHtml(t('tourDone'))}</button>`
@@ -10038,6 +10305,8 @@
     box.addEventListener('touchend', end, { passive: true });
     box.addEventListener('touchcancel', end, { passive: true });
   }
+
+  function tourGo(i) { tourNext(i - tourStep); }
 
   /* ===== 26-bookings-spending.js ===== */
   /* =========================================================
@@ -10116,33 +10385,36 @@
     box.style.display = 'block';
   }
 
-  /* ---------- Add a day to the phone's calendar (.ics file) ---------- */
+  /* ---------- Add a day to the calendar ----------
+     A window with two ways: every stop at once (a calendar file your phone opens in Calendar),
+     or one stop at a time in Google Calendar (works everywhere). */
   function icsEscape(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
   function icsFold(line) { const out = []; while (line.length > 72) { out.push(line.slice(0, 72)); line = ' ' + line.slice(72); } out.push(line); return out.join('\r\n'); }
-  function exportDayCalendar(day) {
-    closeMenus();
-    const iso = dayDateIso(day);
-    if (!iso) { showToast(t('calNeedDate'), { ms: 4000 }); return; }
-    const stops = dayDisplayOrder(day);
-    if (!stops.length) { showToast(t('offlineNoStops'), { ms: 3000 }); return; }
-    const ymd = iso.replace(/-/g, '');
+  const hhmmss = n => `${String(Math.floor(n / 60) % 24).padStart(2, '0')}${String(n % 60).padStart(2, '0')}00`;
+
+  function stopTimes(s, iso) {
+    const date = (effectiveDate(s) || iso).replace(/-/g, '');
+    if (!/^\d{1,2}:\d{2}$/.test(s.time || '')) {
+      const next = isoFromDate(new Date(isoToDate(date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')).getTime() + 864e5)).replace(/-/g, '');
+      return { allDay: true, start: date, end: next };
+    }
+    const [h, m] = s.time.split(':').map(Number);
+    const a = h * 60 + m, e = Math.min(a + Math.max(15, stayMinutes(s)), 23 * 60 + 59);
+    return { allDay: false, start: `${date}T${hhmmss(a)}`, end: `${date}T${hhmmss(e)}` };
+  }
+  function stopDescription(s) {
+    return [s.desc, s.bookingRef ? `${t('booking')}: ${s.bookingRef}` : '', safeUrl(s.bookingUrl),
+      hasCoords(s) ? `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}` : ''].filter(Boolean).join('\n');
+  }
+  function dayIcs(day) {
+    const iso = dayDateIso(day), ymd = iso.replace(/-/g, '');
     const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
     const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MapPin//Trip planner//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
-    stops.forEach((s, i) => {
-      const date = (effectiveDate(s) || iso).replace(/-/g, '');
-      const timed = /^\d{1,2}:\d{2}$/.test(s.time || '');
-      const desc = [s.desc, s.bookingRef ? `${t('booking')}: ${s.bookingRef}` : '', safeUrl(s.bookingUrl),
-        hasCoords(s) ? `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}` : ''].filter(Boolean).join('\n');
+    dayDisplayOrder(day).forEach((s, i) => {
+      const tm = stopTimes(s, iso), desc = stopDescription(s);
       lines.push('BEGIN:VEVENT', `UID:mappin-${day}-${s.id}-${ymd}@mappin`, `DTSTAMP:${stamp}`);
-      if (timed) {
-        const [h, m] = s.time.split(':').map(Number);
-        const end = h * 60 + m + Math.max(15, stayMinutes(s));
-        const hm = n => `${String(Math.floor(n / 60) % 24).padStart(2, '0')}${String(n % 60).padStart(2, '0')}00`;
-        lines.push(`DTSTART:${date}T${hm(h * 60 + m)}`, `DTEND:${date}T${hm(Math.min(end, 23 * 60 + 59))}`);
-      } else {
-        const next = isoFromDate(new Date(isoToDate(date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')).getTime() + 864e5)).replace(/-/g, '');
-        lines.push(`DTSTART;VALUE=DATE:${date}`, `DTEND;VALUE=DATE:${next}`);
-      }
+      if (tm.allDay) lines.push(`DTSTART;VALUE=DATE:${tm.start}`, `DTEND;VALUE=DATE:${tm.end}`);
+      else lines.push(`DTSTART:${tm.start}`, `DTEND:${tm.end}`);
       lines.push(icsFold(`SUMMARY:${icsEscape(`${i + 1}. ${s.cleanTitle || s.title}`)}`));
       if (s.address || hasCoords(s)) lines.push(icsFold(`LOCATION:${icsEscape(s.address || `${s.lat},${s.lng}`)}`));
       if (hasCoords(s)) lines.push(`GEO:${s.lat};${s.lng}`);
@@ -10150,13 +10422,53 @@
       lines.push('END:VEVENT');
     });
     lines.push('END:VCALENDAR');
+    return lines.join('\r\n') + '\r\n';
+  }
+  function googleCalUrl(s, iso) {
+    const tm = stopTimes(s, iso);
+    const q = new URLSearchParams({ action: 'TEMPLATE', text: s.cleanTitle || s.title, dates: `${tm.start}/${tm.end}`, details: stopDescription(s) });
+    if (s.address || hasCoords(s)) q.set('location', s.address || `${s.lat},${s.lng}`);
+    return `https://calendar.google.com/calendar/render?${q.toString()}`;
+  }
+
+  function exportDayCalendar(day) {
+    closeMenus();
+    const iso = dayDateIso(day);
+    if (!iso) {
+      showToast(t('calNeedDate'), { ms: 6000, actionLabel: t('setDate'), onAction: () => openSingleDayModal(day) });
+      return;
+    }
+    const stops = dayDisplayOrder(day);
+    if (!stops.length) { showToast(t('offlineNoStops'), { ms: 3000 }); return; }
+    $('calendar-title').textContent = `${t('addToCalendar')} · ${getDayTitle(day)}`;
+    $('calendar-body').innerHTML = `
+      <p class="settings-note">${escapeHtml(t('calIntro', { date: formatDateShort(iso) }))}</p>
+      <button class="btn btn-primary cal-all" onclick="downloadDayCalendar(${day})"><i class="fa-regular fa-calendar-plus"></i> ${escapeHtml(t('calAddAll', { n: stops.length }))}</button>
+      <p class="settings-note cal-or">${escapeHtml(t('calOneByOne'))}</p>
+      <div class="cal-list">${stops.map(s => `
+        <a class="cal-row" href="${escapeHtml(googleCalUrl(s, iso))}" target="_blank" rel="noopener">
+          <span class="cal-time">${escapeHtml(/^\d{1,2}:\d{2}$/.test(s.time || '') ? s.time : t('allDay'))}</span>
+          <span class="cal-name">${escapeHtml(s.cleanTitle || s.title)}</span>
+          <span class="cal-add"><i class="fa-brands fa-google"></i> ${escapeHtml(t('add'))}</span>
+        </a>`).join('')}</div>`;
+    $('calendar-modal').style.display = 'flex';
+  }
+
+  function downloadDayCalendar(day) {
+    const ics = dayIcs(day);
     const name = `MapPin_${(getDayTitle(day) || 'Day').replace(/[^\p{L}\p{N}]+/gu, '_')}.ics`;
-    const ics = lines.join('\r\n') + '\r\n';
-    // iPhone (Safari and Home Screen app): opening the calendar file shows Apple's "Add to Calendar" screen
-    if (isIos() && !IS_NATIVE) { location.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics); return; }
+    if (isIos() && !IS_NATIVE) {
+      // iPhone: opening the calendar file shows Apple's "Add All" screen
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+      a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast(t('calIosHint'), { ms: 6000 });
+      return;
+    }
     shareFile(name, ics, 'text/calendar;charset=utf-8')
-      .then(r => { if (r !== 'cancelled') showToast(t(r === 'shared' ? 'calShared' : 'calSaved'), { ms: 4500 }); })
-      .catch(() => {});
+      .then(r => { if (r !== 'cancelled') showToast(t(r === 'shared' ? 'calShared' : 'calSaved'), { ms: 5000 }); })
+      .catch(() => showToast(t('calFailed'), { ms: 5000 }));
   }
 
   /* ---------- Send feedback (email with the app version and device filled in) ---------- */
@@ -10210,6 +10522,8 @@
   initTodayTicker();
   initTourSwipe();
   initSingleToast();
+  initScrollLock();
+  initDragCleanup();
 
   window.addEventListener('load', () => {
     initMap();
