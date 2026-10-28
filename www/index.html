@@ -1000,6 +1000,61 @@
     .tp-dayname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tp-day { background: var(--tint); border: 1px solid var(--panel-border); color: var(--text-main); border-radius: 8px; width: 26px; height: 26px; flex-shrink: 0; cursor: pointer; font-size: 11px; }
     .tp-day:disabled { opacity: 0.35; cursor: default; }
+    /* 1.1.0: phones — map buttons bottom-right, no zoom buttons (pinch to zoom), small attribution */
+    @media (max-width: 820px), (max-height: 520px) {
+      .leaflet-control-zoom { display: none !important; }
+      .leaflet-control-attribution { font-size: 9px !important; line-height: 1.5 !important; padding: 0 5px !important; opacity: 0.85; }
+      .leaflet-bottom.leaflet-right { margin-bottom: 0 !important; }
+      :root[data-side] .map-controls-overlay { top: auto !important; bottom: calc(76px + var(--sa-b)); right: max(10px, var(--sa-r)); left: auto; flex-direction: column-reverse; align-items: flex-end; }
+      :root[data-side] .locate-btn { bottom: calc(22px + var(--sa-b)); right: max(10px, var(--sa-r)); left: auto; width: 44px; height: 44px; border-radius: 12px; font-size: 17px; }
+      .layers-panel.open { transform-origin: bottom right !important; }
+      .today-on .locate-btn { bottom: calc(22px + var(--sa-b)); }
+    }
+    @media (max-height: 520px) {
+      :root[data-side="right"] .map-controls-overlay { right: auto; left: max(10px, var(--sa-l)); align-items: flex-start; }
+      :root[data-side="right"] .locate-btn { right: auto; left: max(10px, var(--sa-l)); }
+      :root[data-side="right"] .layers-panel.open { transform-origin: bottom left !important; }
+    }
+    @media (max-width: 820px) and (min-height: 521px) {
+      .map-controls-overlay { bottom: 76px; }
+      .locate-btn { bottom: 22px; }
+    }
+
+    /* Today card docked at the top of the list sheet (phones held upright) */
+    sidebar #today-panel {
+      position: static; transform: none; left: auto; bottom: auto; width: auto; margin: 0 12px 10px; z-index: auto;
+      box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--tint); flex-shrink: 0;
+    }
+
+    /* Menus as bottom sheets on phones */
+    #menu-backdrop { display: none; position: fixed; inset: 0; background: rgba(2,6,23,0.45); z-index: 2990; }
+    #menu-backdrop.show { display: block; animation: fadeIn 0.15s ease; }
+    .dropdown-menu.as-sheet, #day-menu.as-sheet {
+      position: fixed !important; left: 8px !important; right: 8px !important; top: auto !important; bottom: calc(8px + var(--sa-b)) !important;
+      width: auto !important; max-width: 520px; margin: 0 auto; max-height: min(78vh, calc(100% - 24px)); overflow-y: auto; z-index: 3000 !important;
+      border-radius: 16px; padding: 14px 6px 8px; animation: sheetUp 0.2s ease-out !important; overscroll-behavior: contain;
+    }
+    .dropdown-menu.as-sheet::before, #day-menu.as-sheet::before {
+      content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--group-dash); margin: -4px auto 8px;
+    }
+    .as-sheet .context-menu-item { padding: 13px 16px; font-size: 15px; }
+    @keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Phones: messages appear at the top of the map, clear of the list sheet and the Today card */
+    @media (max-width: 820px) and (min-height: 521px) {
+      #toast-host { top: calc(12px + var(--sa-t)); bottom: auto; width: calc(100% - 24px); }
+      .toast { max-width: 100%; }
+    }
+    /* Opening hours now, trip summary */
+    .now-hours { display: inline-flex; align-items: center; gap: 4px; color: #10b981; font-weight: 600; }
+    .now-hours.warn { color: #f59e0b; } .now-hours.bad { color: #ef4444; }
+    .tp-leave.lb-info span { color: var(--text-muted); }
+    .trip-summary { margin: 0 0 14px; padding: 10px 12px; border-radius: 12px; background: var(--tint); border: 1px solid var(--panel-border); }
+    .ts-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+    .ts-bits { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--text-muted); }
+    .ts-bits span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .ts-link { color: #10b981 !important; cursor: pointer; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -2140,6 +2195,18 @@
   };
   Object.keys(I18N_EXTRA5).forEach(l => Object.assign(I18N[l], I18N_EXTRA5[l]));
 
+  // Strings added in 1.1.0
+  const I18N_EXTRA6 = {
+    en: { openNow: 'Open now', closesInN: 'Closes in {m} min', openUntil: 'Open until {time}', closedToday: 'Closed today', opensAtT: 'Opens at {time}', closedNow: 'Closed now', fromYou: 'from you', fromPrev: 'from the last stop', nDays: '{n} days' },
+    ja: { openNow: '営業中', closesInN: 'あと {m} 分で閉店', openUntil: '{time} まで営業', closedToday: '本日休業', opensAtT: '{time} 開店', closedNow: '営業時間外', fromYou: '現在地から', fromPrev: '前のスポットから', nDays: '{n} 日間' },
+    zh: { openNow: '营业中', closesInN: '{m} 分钟后关门', openUntil: '营业至 {time}', closedToday: '今天休息', opensAtT: '{time} 开门', closedNow: '现在关门', fromYou: '从你的位置', fromPrev: '从上一站', nDays: '{n} 天' },
+    ko: { openNow: '영업 중', closesInN: '{m}분 후 마감', openUntil: '{time}까지 영업', closedToday: '오늘 휴무', opensAtT: '{time} 영업 시작', closedNow: '영업 종료', fromYou: '내 위치에서', fromPrev: '이전 장소에서', nDays: '{n}일' },
+    es: { openNow: 'Abierto ahora', closesInN: 'Cierra en {m} min', openUntil: 'Abierto hasta las {time}', closedToday: 'Cerrado hoy', opensAtT: 'Abre a las {time}', closedNow: 'Cerrado ahora', fromYou: 'desde tu ubicación', fromPrev: 'desde la parada anterior', nDays: '{n} días' },
+    fr: { openNow: 'Ouvert', closesInN: 'Ferme dans {m} min', openUntil: 'Ouvert jusqu’à {time}', closedToday: 'Fermé aujourd’hui', opensAtT: 'Ouvre à {time}', closedNow: 'Fermé', fromYou: 'depuis votre position', fromPrev: 'depuis l’étape précédente', nDays: '{n} jours' },
+    de: { openNow: 'Jetzt geöffnet', closesInN: 'Schließt in {m} Min.', openUntil: 'Geöffnet bis {time}', closedToday: 'Heute geschlossen', opensAtT: 'Öffnet um {time}', closedNow: 'Jetzt geschlossen', fromYou: 'von dir', fromPrev: 'vom letzten Stopp', nDays: '{n} Tage' }
+  };
+  Object.keys(I18N_EXTRA6).forEach(l => Object.assign(I18N[l], I18N_EXTRA6[l]));
+
   /* =========================================================
      STATE
      ========================================================= */
@@ -2277,6 +2344,7 @@
     map.on('click', e => {
       clearTimeout(mapClickTimer);
       if (Date.now() - lastPopupCloseAt < 350) return; // that click just closed a popup
+      if (mapTapSuppressed()) return; // that tap just closed a menu, the keyboard or a panel
       mapClickTimer = setTimeout(() => handleMapPlaceClick(e.latlng), 230);
     });
     map.on('dblclick', () => clearTimeout(mapClickTimer));
@@ -2329,7 +2397,8 @@
     const m = $('app-menu');
     const show = !m.classList.contains('show');
     m.classList.toggle('show', show);
-    if (!show) return;
+    if (!show) { menuBackdrop(false); return; }
+    if (asSheet(m)) return;
     const r = $('app-menu-btn').getBoundingClientRect();
     m.style.position = 'fixed';
     m.style.left = 'auto';
@@ -2354,9 +2423,10 @@
       document.documentElement.classList.remove('header-in-sheet');
     }
     updateTopColour();
+    placeTodayPanel();
     setTimeout(() => map && map.invalidateSize(), 60);
   }
-  function closeAppMenu() { const m = $('app-menu'); if (m) m.classList.remove('show'); }
+  function closeAppMenu() { const m = $('app-menu'); if (m) m.classList.remove('show'); if (typeof menuBackdrop === 'function' && !($('day-menu') && $('day-menu').style.display === 'block')) menuBackdrop(false); }
 
   /* ---------- Autosave switch ---------- */
   function toggleAutosave() {
@@ -2571,6 +2641,7 @@
   function closeMenus() {
     $('context-menu').style.display = 'none';
     $('day-menu').style.display = 'none';
+    if (!$('app-menu').classList.contains('show')) menuBackdrop(false);
   }
 
   /* ---------- Map images (Google) ---------- */
@@ -2599,6 +2670,12 @@
     // Smallest size still shows the drag bar, the menu bar and the "Itinerary" title
     const hh = el => (el ? el.getBoundingClientRect().height : 0);
     const header = document.querySelector('header');
+    const tp = $('today-panel');
+    if (todayMode && tp && tp.parentElement === $('sidebar') && tp.style.display !== 'none') {
+      // Today mode: the smallest size shows the drag bar and the Today card
+      const needT = hh($('sheet-handle')) + hh(tp) + 16;
+      return { min: Math.round(Math.min(Math.max(needT, 120), total * 0.62)), mid: Math.round(Math.max(total * 0.46, needT)), max: Math.round(total * 0.9), total };
+    }
     const need = hh($('sheet-handle')) + (header && header.parentElement === $('sidebar') ? hh(header) : 0) + hh(document.querySelector('.sidebar-title-row')) + 14;
     return { min: Math.round(Math.min(Math.max(need, 96), total * 0.4)), mid: Math.round(total * 0.46), max: Math.round(total * 0.9), total };
   }
@@ -3343,6 +3420,7 @@
       <div class="context-menu-item" onclick="closeMenus(); insertDayAt(${day + 1})"><i class="fa-solid fa-arrow-down"></i> ${t('addDayBelow')}</div>
       <div class="context-menu-item danger" onclick="closeMenus(); removeDay(${day})"><i class="fa-solid fa-trash"></i> ${escapeHtml(t('removeX', { name: getDayTitle(day) }))}</div>`;
     menu.style.display = 'block';
+    if (asSheet(menu)) return;
     const r = e.currentTarget.getBoundingClientRect();
     const mw = menu.offsetWidth, mh = menu.offsetHeight;
     let left = r.right - mw, top = r.bottom + 4;
@@ -3730,6 +3808,7 @@
       if (pendingFitAll) { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 }); pendingFitAll = false; }
       else if (activeDay !== 'all') map.fitBounds(bounds, { padding: [50, 50] });
     }
+    renderTripSummary();
     scheduleAutosave();
     recordHistory();
     if (todayMode) renderTodayPanel();
@@ -5892,7 +5971,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.0.9';
+  const APP_VERSION = '1.1.0';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -6801,6 +6880,7 @@
     }
     todayMode = true;
     document.documentElement.classList.add('today-on');
+    placeTodayPanel();
     activeDay = todayDay;
     revealDay(todayDay);
     todayIdx = firstOpenIndex();
@@ -6884,7 +6964,11 @@
       return;
     }
     const prev = list[todayIdx - 1];
-    const from = meMarker ? { lat: meMarker.getLatLng().lat, lng: meMarker.getLatLng().lng } : prev;
+    // Measure from you only when you're actually nearby; otherwise from the previous stop
+    const me = meMarker ? { lat: meMarker.getLatLng().lat, lng: meMarker.getLatLng().lng } : null;
+    const meNear = me && hasCoords(s) && distMeters([me.lat, me.lng], [s.lat, s.lng]) < 30000;
+    const from = meNear ? me : prev;
+    const fromKind = meNear ? 'you' : 'prev';
     const dist = from && hasCoords(from) && hasCoords(s) ? formatDistance(distMeters([from.lat, from.lng], [s.lat, s.lng])) : '';
     const dirUrl = hasCoords(s)
       ? `https://www.google.com/maps/dir/?api=1${from && hasCoords(from) ? `&origin=${from.lat},${from.lng}` : ''}&destination=${s.lat},${s.lng}&travelmode=${directionsMode(from, s)}&hl=${LANG}`
@@ -6898,8 +6982,8 @@
           <div class="tp-title">${escapeHtml(s.cleanTitle || s.title)}</div>
           <div class="tp-meta">${s.time ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</span>` : ''}
             <span><i class="fa-solid ${categoryIcon(s.category)}"></i> ${escapeHtml(s.category)}</span>
-            ${dist ? `<span><i class="fa-solid fa-route"></i> ${escapeHtml(dist)}</span>` : ''} ${hoursWarningHtml(s)}</div>
-          ${leaveByHtml(from, s)}
+            ${dist ? `<span><i class="fa-solid fa-route"></i> ${escapeHtml(dist)}</span>` : ''} ${(effectiveDayIsToday() && nowHoursHtml(s)) || hoursWarningHtml(s)}</div>
+          ${leaveByHtml(from, s, fromKind)}
           ${s.desc ? `<div class="tp-notes">${escapeHtml(s.desc)}</div>` : ''}
         </div>
         ${todayPhotos[s.id] ? `<img class="tp-photo" src="${escapeHtml(todayPhotos[s.id])}" alt="" onerror="this.remove()">` : ''}
@@ -7151,10 +7235,11 @@
     let url = '';
     try {
       const tags = s.osmTags || await findTagsForStop(s);
+      if (tags && tags.opening_hours && !s.hours) { s.hours = tags.opening_hours; s.hoursChecked = true; }
       url = (await photoUrlForTags(tags || {})).url || '';
     } catch (e) {}
     todayPhotos[s.id] = url;
-    if (url && todayMode) renderTodayPanel();
+    if (todayMode) renderTodayPanel();
   }
 
   /* ---------- Optional: official Google map tiles (Google Maps Platform, Map Tiles API) ----------
@@ -7327,20 +7412,24 @@
     return { mins: Math.max(1, Math.round(km / p.kmh * 60 + p.extra)), mode };
   }
 
-  function leaveByHtml(from, s) {
-    if (!s || s.done || !s.time || !/^\d{1,2}:\d{2}$/.test(s.time)) return '';
+  function leaveByHtml(from, s, fromKind) {
+    if (!s || s.done) return '';
     const tr = travelMinutes(from, s);
-    if (!tr) return '';
+    if (!tr || tr.mins > 240) return ''; // too far to be a real "next stop" journey
+    const modeLabel = t(tr.mode === 'walking' ? 'byWalk' : tr.mode === 'driving' ? 'byCar' : 'byTransit', { m: tr.mins });
+    const fromLabel = fromKind === 'you' ? t('fromYou') : t('fromPrev');
+    const isToday = effectiveDayIsToday();
+    if (!isToday || !s.time || !/^\d{1,2}:\d{2}$/.test(s.time)) {
+      return `<div class="tp-leave lb-info"><i class="fa-solid fa-route"></i> <span>${escapeHtml(modeLabel)} ${escapeHtml(fromLabel)}</span></div>`;
+    }
     const [h, m] = s.time.split(':').map(Number);
     const arrive = h * 60 + m, leave = arrive - tr.mins;
     const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes();
     const pad = n => String(((n % 1440) + 1440) % 1440 / 60 | 0).padStart(2, '0') + ':' + String(((n % 60) + 60) % 60).padStart(2, '0');
-    const modeLabel = t(tr.mode === 'walking' ? 'byWalk' : tr.mode === 'driving' ? 'byCar' : 'byTransit', { m: tr.mins });
-    const isToday = effectiveDayIsToday();
     let cls = 'lb-ok', label = t('leaveBy', { time: pad(leave) });
-    if (isToday && nowMin > arrive) { cls = 'lb-late'; label = t('runningLate', { m: nowMin - leave }); }
-    else if (isToday && nowMin >= leave - 10) { cls = 'lb-soon'; label = nowMin >= leave ? t('leaveNow') : t('leaveInN', { m: leave - nowMin }); }
-    return `<div class="tp-leave ${cls}"><i class="fa-solid fa-person-walking-arrow-right"></i> <b>${escapeHtml(label)}</b> <span>· ${escapeHtml(modeLabel)}</span></div>`;
+    if (nowMin > arrive) { cls = 'lb-late'; label = t('runningLate', { m: nowMin - arrive }); }
+    else if (nowMin >= leave - 10) { cls = 'lb-soon'; label = nowMin >= leave ? t('leaveNow') : t('leaveInN', { m: leave - nowMin }); }
+    return `<div class="tp-leave ${cls}"><i class="fa-solid fa-person-walking-arrow-right"></i> <b>${escapeHtml(label)}</b> <span>· ${escapeHtml(modeLabel)} ${escapeHtml(fromLabel)}</span></div>`;
   }
   function effectiveDayIsToday() {
     const d = new Date(), iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -7469,6 +7558,128 @@
       x0 = null;
       if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) todaySwitchDay(dx < 0 ? 1 : -1);
     }, { passive: true });
+  })();
+
+  /* =========================================================
+     1.1.0: Today panel in the list sheet, menus as bottom sheets on phones,
+     no stray pins when tapping away, opening hours "now", trip summary
+     ========================================================= */
+
+  /* ---------- Opening hours right now (Today mode) ---------- */
+  function nowHoursHtml(s) {
+    if (!s || !s.hours || typeof hoursStatusAt !== 'function') return '';
+    const now = new Date();
+    const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const st = hoursStatusAt(s.hours, isoFromDate(now), hhmm);
+    if (!st || st.open === null) return '';
+    let cls = '', text = '';
+    if (st.open) {
+      if (st.always || st.closesAt % 1440 === 0 && st.minsLeft > 600) text = t('openNow');
+      else if (st.minsLeft <= 60) { cls = 'warn'; text = t('closesInN', { m: st.minsLeft }); }
+      else text = t('openUntil', { time: fromMin(st.closesAt) });
+    } else if (st.allDay) { cls = 'bad'; text = t('closedToday'); }
+    else if (st.opensAt !== undefined) { cls = 'warn'; text = t('opensAtT', { time: fromMin(st.opensAt) }); }
+    else { cls = 'bad'; text = t('closedNow'); }
+    return `<span class="now-hours ${cls}" title="${escapeHtml(t('hoursTitle'))}"><i class="fa-regular fa-clock"></i> ${escapeHtml(text)}</span>`;
+  }
+
+  /* ---------- Tapping the map to close something shouldn't drop a pin ---------- */
+  let suppressMapTapUntil = 0;
+  function somethingOpen() {
+    const ae = document.activeElement;
+    if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return true;
+    if (document.querySelector('.dropdown-menu.show, .layers-panel.open, .modal-overlay[style*="flex"]')) return true;
+    const vis = id => { const el = $(id); return el && el.style.display && el.style.display !== 'none'; };
+    return vis('search-results') || vis('day-menu') || vis('context-menu') || vis('date-popover') || vis('area-results');
+  }
+  document.addEventListener('pointerdown', e => {
+    const mapEl = $('map');
+    if (!mapEl || !mapEl.contains(e.target)) return;
+    if (somethingOpen()) suppressMapTapUntil = Date.now() + 700;
+  }, true);
+  function mapTapSuppressed() { return Date.now() < suppressMapTapUntil; }
+
+  /* ---------- Menus: bottom sheets on phones, so every option fits and nothing floats away ---------- */
+  function menuBackdrop(show) {
+    let b = $('menu-backdrop');
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'menu-backdrop';
+      b.addEventListener('click', () => { closeAppMenu(); closeMenus(); });
+      document.body.appendChild(b);
+    }
+    b.classList.toggle('show', !!show);
+  }
+  function asSheet(menu) {
+    const phone = isPhoneWidth();
+    menu.classList.toggle('as-sheet', phone);
+    if (phone) { menu.style.left = ''; menu.style.top = ''; menu.style.right = ''; menuBackdrop(true); }
+    return phone;
+  }
+  // Keep the app menu at the top level so it can sit above everything
+  (function () { const m = $('app-menu'); if (m && m.parentElement !== document.body) document.body.appendChild(m); })();
+
+  // A desktop drop-down closes when the list scrolls or the window changes, instead of being left behind
+  (function () {
+    const close = () => { if (!isPhoneWidth()) { closeAppMenu(); closeMenus(); } };
+    const sb = $('sidebar'), tl = document.querySelector('.timeline-container');
+    [sb, tl].forEach(el => el && el.addEventListener('scroll', close, { passive: true }));
+    window.addEventListener('resize', () => { closeAppMenu(); closeMenus(); });
+  })();
+
+  /* ---------- Today panel: inside the list sheet on phones held upright, floating on the map otherwise ---------- */
+  function placeTodayPanel() {
+    const panel = $('today-panel');
+    if (!panel) return;
+    const sb = $('sidebar'), handle = $('sheet-handle'), mapWrap = document.querySelector('.map-wrap');
+    if (isPortraitPhone()) {
+      if (panel.parentElement !== sb) handle.after(panel);
+    } else if (panel.parentElement !== mapWrap) {
+      mapWrap.appendChild(panel);
+    }
+  }
+
+  /* ---------- Trip summary at the top of the itinerary ---------- */
+  function tripSummaryHtml() {
+    if (!rawData.length) return '';
+    const days = getAllDays();
+    const dates = days.map(d => dayDateIso(d)).filter(Boolean).sort();
+    let meters = 0;
+    days.forEach(d => {
+      const pts = dayDisplayOrder(d).filter(hasCoords);
+      for (let i = 1; i < pts.length; i++) {
+        const m = distMeters([pts[i - 1].lat, pts[i - 1].lng], [pts[i].lat, pts[i].lng]);
+        if (m < 300000) meters += m; // ignore flights between cities
+      }
+    });
+    const bits = [];
+    if (dates.length) bits.push(`<span><i class="fa-regular fa-calendar"></i> ${escapeHtml(dates[0] === dates[dates.length - 1] ? formatDateShort(dates[0]) : `${formatDateShort(dates[0])} – ${formatDateShort(dates[dates.length - 1])}`)}</span>`);
+    bits.push(`<span><i class="fa-solid fa-sun"></i> ${escapeHtml(t('nDays', { n: days.length }))}</span>`);
+    bits.push(`<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(t('stopsCount', { n: rawData.length }))}</span>`);
+    if (meters > 0) bits.push(`<span><i class="fa-solid fa-route"></i> ${escapeHtml(formatDistance(meters))}</span>`);
+    if (tripCost()) bits.push(`<span><i class="fa-solid fa-wallet"></i> ${escapeHtml(fmtMoney(tripCost()))}</span>`);
+    const open = CHECKLIST.filter(c => !c.done).length;
+    if (open) bits.push(`<span class="ts-link" onclick="openChecklist()"><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('checklistOpenN', { n: open }))}</span>`);
+    return `<div class="trip-summary">${TRIP.title ? `<div class="ts-title">${escapeHtml(TRIP.title)}</div>` : ''}<div class="ts-bits">${bits.join('')}</div></div>`;
+  }
+  function renderTripSummary() {
+    const tl = $('timeline');
+    if (!tl) return;
+    let el = $('trip-summary');
+    const html = tripSummaryHtml();
+    if (!html) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('div'); el.id = 'trip-summary'; }
+    el.innerHTML = html;
+    if (tl.firstChild !== el) tl.prepend(el);
+  }
+
+  // Keep the smallest sheet size fitted to the Today card as its content changes
+  (function () {
+    const tp = $('today-panel');
+    if (!tp || typeof ResizeObserver === 'undefined') return;
+    new ResizeObserver(() => {
+      if (todayMode && isPortraitPhone() && sheetState === 'min' && tp.parentElement === $('sidebar')) setSheet('min');
+    }).observe(tp);
   })();
 
 </script>
