@@ -16,13 +16,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Mappin</title>
+  <title>MapPin</title>
   <meta name="description" content="Plan trips day by day on a map: stops, routes, times, budgets and opening hours.">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Mappin">
+  <meta name="apple-mobile-web-app-title" content="MapPin">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -106,8 +106,11 @@
       width: 36px; height: 36px; background: linear-gradient(135deg, #3b82f6, #8b5cf6);
       border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;
     }
-    .brand-title h1 { font-size: 18px; font-weight: 700; }
-    .brand-title span { font-size: 11px; color: var(--text-muted); }
+    .brand-title h1 { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.1; }
+    /* MapPin wordmark: the P is a map pin whose point drops below the line */
+    .wordmark { display: inline-block; white-space: nowrap; }
+    .wm-p { display: inline-block; height: 1.18em; width: 0.68em; vertical-align: -0.364em; margin: 0 0.015em 0 0.035em; color: var(--text-main); overflow: visible; }
+    .brand-title .brand-sub { font-size: 11px; color: var(--text-muted); }
 
     .header-actions { display: flex; gap: 8px; align-items: center; min-width: 0; }
     .btn {
@@ -740,6 +743,16 @@
     .segmented button { background: var(--tint); border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 6px 12px; cursor: pointer; }
     .segmented button.active { background: var(--accent-blue); color: #fff; }
 
+    /* Phones: top bar moved into the list panel (out of the way of the status bar) */
+    .header-in-sheet header {
+      min-height: 0; background: transparent; border-bottom: 1px solid var(--panel-border);
+      padding: 2px 14px 10px; flex-wrap: nowrap; z-index: 5;
+    }
+    .header-in-sheet .brand-title .brand-sub { display: none; }
+    .header-in-sheet .brand-title h1 { font-size: 19px; }
+    .header-in-sheet #offline-banner { padding-top: calc(7px + var(--sa-t)); }
+    .dropdown-menu { max-height: calc(100vh - 16px); overflow-y: auto; }
+
     /* Offline banner */
     #offline-banner {
       display: none; background: #92400e; color: #fff; font-size: 12px; font-weight: 600; padding: 7px 16px; text-align: center; z-index: 999;
@@ -794,7 +807,7 @@
     /* ---------- Phone layout ---------- */
     @media (max-width: 820px) and (min-height: 521px) {
       header { padding: calc(6px + var(--sa-t)) max(12px, var(--sa-r)) 6px max(12px, var(--sa-l)); flex-wrap: wrap; row-gap: 8px; }
-      .brand-title span { display: none; }
+      .brand-title .brand-sub { display: none; }
       .header-actions { flex: 1 1 100%; overflow-x: auto; padding-bottom: 2px; }
       .header-actions .btn .btn-label, .switch-label, .hdr-divider { display: none; }
       .header-actions .lang-wrap, .header-actions #ui-theme-switch, .header-actions #autosave-switch { display: none; } /* these live in Settings on phones */
@@ -820,7 +833,7 @@
       .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: var(--group-dash); }
       .sidebar-header { padding: 0 14px 12px; }
       .timeline-container { padding: 12px 14px calc(16px + var(--sa-b)); }
-      .map-controls-overlay { top: 8px; right: 8px; }
+      .map-controls-overlay { top: calc(8px + var(--sa-t)); right: 8px; }
       .map-control-btn { padding: 6px 8px; }
       .map-control-btn .btn-label, .map-controls-row .ctl-label { display: none; }
       .activity-card:hover { transform: none; }
@@ -833,9 +846,8 @@
     @media (max-height: 520px) {
       :root { --sidebar-w: 340px; }
       header { min-height: 46px; padding: calc(4px + var(--sa-t)) max(12px, var(--sa-r)) 4px max(12px, var(--sa-l)); }
-      .brand-title span { display: none; }
-      .brand-icon { width: 30px; height: 30px; font-size: 15px; }
-      .brand-title h1 { font-size: 16px; }
+      .brand-title .brand-sub { display: none; }
+      .brand-title h1 { font-size: 18px; }
       .header-actions .btn .btn-label, .switch-label, .hdr-divider { display: none; }
       .header-actions .lang-wrap, .header-actions #ui-theme-switch, .header-actions #autosave-switch { display: none; }
       .header-actions .btn { padding: 7px 10px; }
@@ -863,10 +875,9 @@
 <div id="app-container">
   <header>
     <div class="brand">
-      <div class="brand-icon"><i class="fa-solid fa-map-location-dot"></i></div>
       <div class="brand-title">
-        <h1>Mappin</h1>
-        <span data-i18n="subtitle">Directional Itinerary Mapper</span>
+        <h1><span class="wordmark" aria-label="MapPin"><span>Map</span><svg class="wm-p" viewBox="0 0 60 104" aria-hidden="true"><defs><linearGradient id="wmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><ellipse cx="13" cy="100.5" rx="7" ry="1.8" fill="currentColor" opacity="0.28"/><path fill="url(#wmg)" fill-rule="evenodd" d="M6 8H32A24 24 0 0 1 32 56H20V74L13 98L6 74ZM45 32A10 10 0 1 0 25 32A10 10 0 1 0 45 32Z"/></svg><span>in</span></span></h1>
+        <span class="brand-sub" data-i18n="subtitle">Directional Itinerary Mapper</span>
       </div>
     </div>
     <div class="header-actions">
@@ -1595,9 +1606,9 @@
       autoSync: 'Keep this trip synced', synced: 'Synced', syncing: 'Syncing…', syncFailed: "Couldn't sync. Will retry.", openCloud: 'Open', deleteCloud: 'Delete',
       deleteCloudConfirm: 'Delete “{t}” from the cloud?', cloudOpened: 'Opened “{t}”', cloudSaved: 'Saved to the cloud', cloudError: 'Cloud sync: {msg}',
       signInFirst: 'Sign in to use cloud sync.', shortLinkCopied: 'Short share link copied.', tripName: 'Trip name', currentTrip: 'This trip',
-      installApp: 'Install app', installIos: 'To install on iPhone: tap the Share button in Safari, then “Add to Home Screen”.', installed: 'Mappin is installed',
+      installApp: 'Install app', installIos: 'To install on iPhone: tap the Share button in Safari, then “Add to Home Screen”.', installed: 'MapPin is installed',
       offlineBanner: "You're offline. Your itinerary still works. Search, routes and new map areas need a connection.", backOnline: 'Back online',
-      locateMe: 'Show my location', locationDenied: "Couldn't get your location. Check that location access is allowed for Mappin.", youAreHere: 'You are here',
+      locateMe: 'Show my location', locationDenied: "Couldn't get your location. Check that location access is allowed for MapPin.", youAreHere: 'You are here',
       shareItinerary: 'Share itinerary', fileReady: 'Itinerary file ready to share', needPublicUrl: 'Add your public web address in Settings to share links from the app. Sharing the CSV file instead.',
       about: 'About', version: 'Version {v}', minutesShort: '{m} min', on: 'On', off: 'Off',
       listSide: 'List position', sideLeft: 'Left', sideRight: 'Right', listSideHint: 'Puts the itinerary list on the other side, e.g. away from the camera when your phone is on its side.',
@@ -1621,7 +1632,7 @@
       autoSync: 'この旅程を同期し続ける', synced: '同期済み', syncing: '同期中…', syncFailed: '同期できませんでした。再試行します。', openCloud: '開く', deleteCloud: '削除',
       deleteCloudConfirm: '「{t}」をクラウドから削除しますか？', cloudOpened: '「{t}」を開きました', cloudSaved: 'クラウドに保存しました', cloudError: 'クラウド同期: {msg}',
       signInFirst: 'クラウド同期にはサインインが必要です。', shortLinkCopied: '短い共有リンクをコピーしました。', tripName: '旅程名', currentTrip: 'この旅程',
-      installApp: 'アプリをインストール', installIos: 'iPhoneでは、Safariの共有ボタンから「ホーム画面に追加」をタップしてください。', installed: 'Mappinはインストール済みです',
+      installApp: 'アプリをインストール', installIos: 'iPhoneでは、Safariの共有ボタンから「ホーム画面に追加」をタップしてください。', installed: 'MapPinはインストール済みです',
       offlineBanner: 'オフラインです。旅程はそのまま使えます。検索・ルート・新しい地図の表示には接続が必要です。', backOnline: 'オンラインに戻りました',
       locateMe: '現在地を表示', locationDenied: '現在地を取得できませんでした。位置情報の許可を確認してください。', youAreHere: '現在地',
       shareItinerary: '旅程を共有', fileReady: '共有用の旅程ファイルを作成しました', needPublicUrl: 'アプリからリンクを共有するには設定で公開ウェブアドレスを追加してください。代わりにCSVファイルを共有します。',
@@ -1647,9 +1658,9 @@
       autoSync: '保持此行程同步', synced: '已同步', syncing: '同步中…', syncFailed: '同步失败，将重试。', openCloud: '打开', deleteCloud: '删除',
       deleteCloudConfirm: '从云端删除“{t}”？', cloudOpened: '已打开“{t}”', cloudSaved: '已保存到云端', cloudError: '云同步：{msg}',
       signInFirst: '请先登录以使用云同步。', shortLinkCopied: '已复制短分享链接。', tripName: '行程名称', currentTrip: '当前行程',
-      installApp: '安装应用', installIos: '在 iPhone 上安装：点按 Safari 的分享按钮，然后选择“添加到主屏幕”。', installed: 'Mappin 已安装',
+      installApp: '安装应用', installIos: '在 iPhone 上安装：点按 Safari 的分享按钮，然后选择“添加到主屏幕”。', installed: 'MapPin 已安装',
       offlineBanner: '你已离线。行程仍可使用；搜索、路线和新的地图区域需要网络。', backOnline: '已恢复网络',
-      locateMe: '显示我的位置', locationDenied: '无法获取位置。请检查 Mappin 的定位权限。', youAreHere: '你在这里',
+      locateMe: '显示我的位置', locationDenied: '无法获取位置。请检查 MapPin 的定位权限。', youAreHere: '你在这里',
       shareItinerary: '分享行程', fileReady: '行程文件已准备好分享', needPublicUrl: '要从应用分享链接，请在设置中添加公开网址。现改为分享 CSV 文件。',
       about: '关于', version: '版本 {v}', minutesShort: '{m} 分钟', on: '开', off: '关',
       listSide: '列表位置', sideLeft: '左侧', sideRight: '右侧', listSideHint: '将行程列表放到另一侧，例如横屏时避开摄像头。',
@@ -1673,9 +1684,9 @@
       autoSync: '이 일정 계속 동기화', synced: '동기화됨', syncing: '동기화 중…', syncFailed: '동기화하지 못했습니다. 다시 시도합니다.', openCloud: '열기', deleteCloud: '삭제',
       deleteCloudConfirm: '클라우드에서 "{t}"을(를) 삭제할까요?', cloudOpened: '"{t}"을(를) 열었습니다', cloudSaved: '클라우드에 저장했습니다', cloudError: '클라우드 동기화: {msg}',
       signInFirst: '클라우드 동기화를 사용하려면 로그인하세요.', shortLinkCopied: '짧은 공유 링크를 복사했습니다.', tripName: '일정 이름', currentTrip: '현재 일정',
-      installApp: '앱 설치', installIos: 'iPhone에 설치하려면 Safari의 공유 버튼을 누른 뒤 "홈 화면에 추가"를 선택하세요.', installed: 'Mappin이 설치되었습니다',
+      installApp: '앱 설치', installIos: 'iPhone에 설치하려면 Safari의 공유 버튼을 누른 뒤 "홈 화면에 추가"를 선택하세요.', installed: 'MapPin이 설치되었습니다',
       offlineBanner: '오프라인입니다. 일정은 계속 사용할 수 있습니다. 검색, 경로, 새 지도 영역에는 연결이 필요합니다.', backOnline: '다시 온라인',
-      locateMe: '내 위치 보기', locationDenied: '위치를 가져올 수 없습니다. Mappin의 위치 권한을 확인하세요.', youAreHere: '현재 위치',
+      locateMe: '내 위치 보기', locationDenied: '위치를 가져올 수 없습니다. MapPin의 위치 권한을 확인하세요.', youAreHere: '현재 위치',
       shareItinerary: '일정 공유', fileReady: '공유할 일정 파일이 준비되었습니다', needPublicUrl: '앱에서 링크를 공유하려면 설정에 공개 웹 주소를 추가하세요. 대신 CSV 파일을 공유합니다.',
       about: '정보', version: '버전 {v}', minutesShort: '{m}분', on: '켜짐', off: '꺼짐',
       listSide: '목록 위치', sideLeft: '왼쪽', sideRight: '오른쪽', listSideHint: '일정 목록을 반대쪽에 표시합니다(예: 가로 모드에서 카메라 피하기).',
@@ -1699,9 +1710,9 @@
       autoSync: 'Mantener este viaje sincronizado', synced: 'Sincronizado', syncing: 'Sincronizando…', syncFailed: 'No se pudo sincronizar. Se reintentará.', openCloud: 'Abrir', deleteCloud: 'Eliminar',
       deleteCloudConfirm: '¿Eliminar «{t}» de la nube?', cloudOpened: 'Se abrió «{t}»', cloudSaved: 'Guardado en la nube', cloudError: 'Nube: {msg}',
       signInFirst: 'Inicia sesión para usar la nube.', shortLinkCopied: 'Enlace corto copiado.', tripName: 'Nombre del viaje', currentTrip: 'Este viaje',
-      installApp: 'Instalar app', installIos: 'Para instalar en iPhone: toca Compartir en Safari y luego «Añadir a pantalla de inicio».', installed: 'Mappin está instalada',
+      installApp: 'Instalar app', installIos: 'Para instalar en iPhone: toca Compartir en Safari y luego «Añadir a pantalla de inicio».', installed: 'MapPin está instalada',
       offlineBanner: 'Sin conexión. Tu itinerario sigue funcionando; la búsqueda, las rutas y las zonas nuevas del mapa necesitan conexión.', backOnline: 'Conexión recuperada',
-      locateMe: 'Mostrar mi ubicación', locationDenied: 'No se pudo obtener tu ubicación. Revisa los permisos de ubicación de Mappin.', youAreHere: 'Estás aquí',
+      locateMe: 'Mostrar mi ubicación', locationDenied: 'No se pudo obtener tu ubicación. Revisa los permisos de ubicación de MapPin.', youAreHere: 'Estás aquí',
       shareItinerary: 'Compartir itinerario', fileReady: 'Archivo del itinerario listo para compartir', needPublicUrl: 'Añade tu dirección web pública en Ajustes para compartir enlaces desde la app. Se comparte el CSV.',
       about: 'Acerca de', version: 'Versión {v}', minutesShort: '{m} min', on: 'Sí', off: 'No',
       listSide: 'Posición de la lista', sideLeft: 'Izquierda', sideRight: 'Derecha', listSideHint: 'Coloca el itinerario al otro lado, p. ej., lejos de la cámara con el móvil en horizontal.',
@@ -1725,9 +1736,9 @@
       autoSync: 'Garder ce voyage synchronisé', synced: 'Synchronisé', syncing: 'Synchronisation…', syncFailed: 'Échec de la synchronisation. Nouvel essai bientôt.', openCloud: 'Ouvrir', deleteCloud: 'Supprimer',
       deleteCloudConfirm: 'Supprimer « {t} » du cloud ?', cloudOpened: '« {t} » ouvert', cloudSaved: 'Enregistré dans le cloud', cloudError: 'Cloud : {msg}',
       signInFirst: 'Connectez-vous pour utiliser le cloud.', shortLinkCopied: 'Lien court copié.', tripName: 'Nom du voyage', currentTrip: 'Ce voyage',
-      installApp: 'Installer l’app', installIos: 'Pour installer sur iPhone : touchez Partager dans Safari, puis « Sur l’écran d’accueil ».', installed: 'Mappin est installée',
+      installApp: 'Installer l’app', installIos: 'Pour installer sur iPhone : touchez Partager dans Safari, puis « Sur l’écran d’accueil ».', installed: 'MapPin est installée',
       offlineBanner: 'Hors ligne. Votre itinéraire reste utilisable ; la recherche, les trajets et les nouvelles zones de carte nécessitent une connexion.', backOnline: 'Connexion rétablie',
-      locateMe: 'Afficher ma position', locationDenied: 'Position introuvable. Vérifiez l’accès à la localisation pour Mappin.', youAreHere: 'Vous êtes ici',
+      locateMe: 'Afficher ma position', locationDenied: 'Position introuvable. Vérifiez l’accès à la localisation pour MapPin.', youAreHere: 'Vous êtes ici',
       shareItinerary: 'Partager l’itinéraire', fileReady: 'Fichier de l’itinéraire prêt à partager', needPublicUrl: 'Ajoutez votre adresse web publique dans Réglages pour partager des liens depuis l’app. Partage du CSV à la place.',
       about: 'À propos', version: 'Version {v}', minutesShort: '{m} min', on: 'Oui', off: 'Non',
       listSide: 'Position de la liste', sideLeft: 'Gauche', sideRight: 'Droite', listSideHint: 'Place l’itinéraire de l’autre côté, par ex. loin de la caméra en mode paysage.',
@@ -1751,9 +1762,9 @@
       autoSync: 'Diese Reise synchron halten', synced: 'Synchronisiert', syncing: 'Synchronisiere…', syncFailed: 'Synchronisierung fehlgeschlagen. Neuer Versuch folgt.', openCloud: 'Öffnen', deleteCloud: 'Löschen',
       deleteCloudConfirm: '„{t}“ aus der Cloud löschen?', cloudOpened: '„{t}“ geöffnet', cloudSaved: 'In der Cloud gespeichert', cloudError: 'Cloud: {msg}',
       signInFirst: 'Zum Synchronisieren bitte anmelden.', shortLinkCopied: 'Kurzer Link kopiert.', tripName: 'Reisename', currentTrip: 'Diese Reise',
-      installApp: 'App installieren', installIos: 'Auf dem iPhone installieren: In Safari auf Teilen tippen, dann „Zum Home-Bildschirm“.', installed: 'Mappin ist installiert',
+      installApp: 'App installieren', installIos: 'Auf dem iPhone installieren: In Safari auf Teilen tippen, dann „Zum Home-Bildschirm“.', installed: 'MapPin ist installiert',
       offlineBanner: 'Offline. Dein Reiseplan funktioniert weiter; Suche, Routen und neue Kartenbereiche brauchen eine Verbindung.', backOnline: 'Wieder online',
-      locateMe: 'Meinen Standort zeigen', locationDenied: 'Standort nicht verfügbar. Prüfe die Standortberechtigung für Mappin.', youAreHere: 'Du bist hier',
+      locateMe: 'Meinen Standort zeigen', locationDenied: 'Standort nicht verfügbar. Prüfe die Standortberechtigung für MapPin.', youAreHere: 'Du bist hier',
       shareItinerary: 'Reiseplan teilen', fileReady: 'Reiseplan-Datei bereit zum Teilen', needPublicUrl: 'Trage in den Einstellungen deine öffentliche Webadresse ein, um Links aus der App zu teilen. Stattdessen wird die CSV geteilt.',
       about: 'Über', version: 'Version {v}', minutesShort: '{m} Min.', on: 'An', off: 'Aus',
       listSide: 'Position der Liste', sideLeft: 'Links', sideRight: 'Rechts', listSideHint: 'Zeigt den Reiseplan auf der anderen Seite, z. B. weg von der Kamera im Querformat.',
@@ -1888,6 +1899,8 @@
     applyI18n();
     applyUiTheme(loadUiTheme());
     applySide();
+    placeHeader();
+    if (phoneLayoutMQ.addEventListener) phoneLayoutMQ.addEventListener('change', placeHeader);
 
     map = L.map('map', { zoomControl: false }).setView([35.6762, 139.6503], 12);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -1945,7 +1958,34 @@
   /* ---------- Header menu ---------- */
   function toggleAppMenu(e) {
     e.stopPropagation();
-    $('app-menu').classList.toggle('show');
+    const m = $('app-menu');
+    const show = !m.classList.contains('show');
+    m.classList.toggle('show', show);
+    if (!show) return;
+    const r = $('app-menu-btn').getBoundingClientRect();
+    m.style.position = 'fixed';
+    m.style.left = 'auto';
+    m.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
+    const h = m.offsetHeight;
+    const below = window.innerHeight - r.bottom - 8, above = r.top - 8;
+    m.style.top = (h + 6 > below && above > below ? Math.max(8, r.top - 6 - h) : r.bottom + 6) + 'px';
+  }
+
+  // Phones: keep the menu bar inside the list panel, just above "Itinerary"
+  const phoneLayoutMQ = window.matchMedia('(max-width: 820px) and (min-height: 521px), (max-height: 520px)');
+  function placeHeader() {
+    const header = document.querySelector('header'), sb = $('sidebar'), app = $('app-container');
+    if (!header || !sb || !app) return;
+    closeAppMenu();
+    if (phoneLayoutMQ.matches) {
+      const handle = $('sheet-handle');
+      if (header.parentElement !== sb) { if (handle) handle.after(header); else sb.prepend(header); }
+      document.documentElement.classList.add('header-in-sheet');
+    } else {
+      if (header.parentElement !== app) app.insertBefore(header, app.firstChild);
+      document.documentElement.classList.remove('header-in-sheet');
+    }
+    setTimeout(() => map && map.invalidateSize(), 60);
   }
   function closeAppMenu() { const m = $('app-menu'); if (m) m.classList.remove('show'); }
 
@@ -2139,7 +2179,7 @@
     if (menu && !menu.contains(e.target)) menu.style.display = 'none';
     const dayMenu = $('day-menu');
     if (dayMenu && !dayMenu.contains(e.target) && !e.target.closest('.day-menu-btn')) dayMenu.style.display = 'none';
-    if (dpState && !$('date-popover').contains(e.target) && !(dpState.opener && dpState.opener.contains(e.target))) closeDatePopover();
+    if (dpState && e.target.isConnected && !$('date-popover').contains(e.target) && !(dpState.opener && dpState.opener.contains(e.target))) closeDatePopover();
     if (!e.target.closest('.search-container')) $('search-results').style.display = 'none';
     if (!e.target.closest('.menu-wrap')) closeAppMenu();
 
@@ -4727,15 +4767,18 @@
 
   async function reverseLookup(lat, lng) {
     try {
-      const z = Math.min(18, Math.max(10, Math.round(map.getZoom())));
-      const d = await fetchJson(`https://nominatim.openstreetmap.org/reverse?format=json&accept-language=${LANG}&lat=${lat}&lon=${lng}&zoom=${z}&extratags=1&namedetails=1`, 6000);
+      // Always ask for street-address detail, so the answer is about this spot rather than the whole suburb
+      const d = await fetchJson(`https://nominatim.openstreetmap.org/reverse?format=json&accept-language=${LANG}&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&extratags=1&namedetails=1`, 6000);
       if (!d || d.error) return null;
       const nd = d.namedetails || {};
-      const name = localName(nd) || d.name || (d.display_name || '').split(',')[0] || t('droppedPin');
+      const a = d.address || {};
+      const isPoi = !!(d.name && POI_KEYS.includes(d.class));
+      const street = [a.house_number, a.road || a.pedestrian || a.footway].filter(Boolean).join(' ');
+      const name = (isPoi && (localName(nd) || d.name)) || street || d.name || (d.display_name || '').split(',')[0] || t('droppedPin');
       return {
-        name, lat: d.name ? parseFloat(d.lat) : lat, lng: d.name ? parseFloat(d.lon) : lng,
-        address: d.display_name || '', category: d.name ? prettyType(d.class, d.type) : t('droppedPin'),
-        tags: Object.assign({}, d.extratags || {}, nd), named: !!d.name, osmRef: osmRefOf(d.osm_type, d.osm_id)
+        name, lat: parseFloat(d.lat), lng: parseFloat(d.lon),
+        address: d.display_name || '', category: isPoi ? prettyType(d.class, d.type) : t('droppedPin'),
+        tags: isPoi ? Object.assign({}, d.extratags || {}, nd) : {}, named: !!d.name, isPoi, osmRef: isPoi ? osmRefOf(d.osm_type, d.osm_id) : null
       };
     } catch (e) { return null; }
   }
@@ -4758,14 +4801,25 @@
     showPreviewPin({ name: t('lookingUp'), lat, lng, address: '', loading: true }, mode);
     const token = previewToken;
 
-    // Both lookups start at once; the quick address lookup is the fallback if the precise one is slow
+    // A fingertip's worth of map around the tap (at least 12 m, at most 60 m)
+    const zoom = map.getZoom();
+    const tapRadius = Math.min(60, Math.max(12, metersPerPixel(lat, zoom) * 22));
     const reverseP = reverseLookup(lat, lng);
     let place = null;
-    if (map.getZoom() >= 13) {
-      const radius = Math.min(120, Math.max(18, metersPerPixel(lat, map.getZoom()) * 28));
-      try { place = bestPoiFrom(await overpassNear(lat, lng, radius, 1800), lat, lng); } catch (e) { /* slow: use reverse */ }
+    if (zoom >= 14) {
+      try {
+        const poi = bestPoiFrom(await overpassNear(lat, lng, tapRadius, 1800), lat, lng);
+        if (poi && distMeters([lat, lng], [poi.lat, poi.lng]) <= tapRadius) place = poi;
+      } catch (e) { /* slow: use the address lookup */ }
     }
-    if (!place) place = await reverseP;
+    if (!place) {
+      const rev = await reverseP;
+      if (rev) {
+        // Only move the pin to the place found if it's a real place right where you tapped; otherwise keep your spot
+        const onTarget = rev.isPoi && distMeters([lat, lng], [rev.lat, rev.lng]) <= tapRadius;
+        place = onTarget ? rev : Object.assign({}, rev, { lat, lng, name: rev.isPoi ? rev.address.split(',')[0] : rev.name, category: rev.isPoi ? t('droppedPin') : rev.category });
+      }
+    }
     if (!place) place = { name: t('droppedPin'), lat, lng, address: `${lat.toFixed(5)}, ${lng.toFixed(5)}`, category: t('droppedPin'), tags: {} };
 
     if (token !== previewToken) return; // clicked somewhere else meanwhile
@@ -5301,7 +5355,7 @@
      ========================================================= */
   function openSaveModal() {
     if (rawData.length === 0 && EXTRA_DAYS.size === 0) { alert(t('nothingToSave')); return; }
-    $('save-map-title-input').value = TRIP.title || `Mappin ${new Date().toLocaleDateString(LANG)}`;
+    $('save-map-title-input').value = TRIP.title || `MapPin ${new Date().toLocaleDateString(LANG)}`;
     $('save-modal').style.display = 'flex';
   }
 
@@ -5425,7 +5479,7 @@
       'Fixed time': item.fixedTime ? 'yes' : '', 'Opening hours': item.hours || ''
     }));
     const csv = Papa.unparse(exportData);
-    shareFile('Mappin_Itinerary.csv', '﻿' + csv, 'text/csv;charset=utf-8').then(r => { if (r === 'shared' && IS_NATIVE) showToast(t('fileReady'), { ms: 2000 }); }).catch(() => {});
+    shareFile('MapPin_Itinerary.csv', '﻿' + csv, 'text/csv;charset=utf-8').then(r => { if (r === 'shared' && IS_NATIVE) showToast(t('fileReady'), { ms: 2000 }); }).catch(() => {});
   }
 
   /* =========================================================
@@ -5500,7 +5554,7 @@
     if (!rawData.length) { alert(t('noExport')); return; }
     if (IS_NATIVE) { shareItineraryText(); return; } // printing isn't available inside the phone app
     const days = getAllDays();
-    let html = `<h1>${escapeHtml(TRIP.title || 'Mappin')}</h1><div class="pv-sub">${escapeHtml(t('printSubtitle', { n: rawData.length, d: days.length }))}${tripCost() ? ' · ' + escapeHtml(t('tripTotal')) + ' ' + escapeHtml(fmtMoney(tripCost())) : ''}</div>`;
+    let html = `<h1>${escapeHtml(TRIP.title || 'MapPin')}</h1><div class="pv-sub">${escapeHtml(t('printSubtitle', { n: rawData.length, d: days.length }))}${tripCost() ? ' · ' + escapeHtml(t('tripTotal')) + ' ' + escapeHtml(fmtMoney(tripCost())) : ''}</div>`;
     let lastDg = null;
     days.forEach(d => {
       const dg = dayToGroup[d] && DAY_GROUPS[dayToGroup[d]];
@@ -5540,7 +5594,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.0.3';
+  const APP_VERSION = '1.0.4';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -5602,11 +5656,8 @@
     const root = document.documentElement.style;
     ['--sa-t', '--sa-b', '--sa-l', '--sa-r'].forEach(v => root.removeProperty(v));
     if (!isIos() || !isStandalone() || IS_NATIVE) return;
-    const sw = Math.min(screen.width, screen.height), sh = Math.max(screen.width, screen.height);
+    const sh = Math.max(screen.width, screen.height);
     const portrait = window.innerHeight >= window.innerWidth;
-    // Does the page reach the very top of the screen (under the status bar)?
-    const fullScreen = portrait ? window.innerHeight >= sh - 2 : window.innerWidth >= sh - 2;
-    if (!fullScreen) return;
     const modern = sh >= 812;              // Face ID iPhones
     const island = sh >= 852;              // Dynamic Island iPhones (14 Pro and later)
     const top = island ? 62 : modern ? 47 : 20;
@@ -5715,13 +5766,13 @@
     const FS = IS_NATIVE ? capPlugin('Filesystem') : null, Share = IS_NATIVE ? capPlugin('Share') : null;
     if (FS && Share) {
       const r = await FS.writeFile({ path: name, data: text, directory: 'CACHE', encoding: 'utf8' });
-      await Share.share({ title: 'Mappin', files: [r.uri] });
+      await Share.share({ title: 'MapPin', files: [r.uri] });
       return 'shared';
     }
     try {
       const file = new File([text], name, { type: mime });
       if (isPhoneWidth() && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Mappin' });
+        await navigator.share({ files: [file], title: 'MapPin' });
         return 'shared';
       }
     } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
@@ -5734,9 +5785,9 @@
 
   async function shareUrl(url) {
     const Share = IS_NATIVE ? capPlugin('Share') : null;
-    if (Share) { await Share.share({ title: 'Mappin', url }); return 'shared'; }
+    if (Share) { await Share.share({ title: 'MapPin', url }); return 'shared'; }
     if (navigator.share && isPhoneWidth()) {
-      try { await navigator.share({ title: 'Mappin', url }); return 'shared'; }
+      try { await navigator.share({ title: 'MapPin', url }); return 'shared'; }
       catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
     }
     await navigator.clipboard.writeText(url);
@@ -5745,7 +5796,7 @@
 
   // Plain-text itinerary (used by "Share itinerary" in the phone app, where printing isn't available)
   function itineraryText() {
-    const lines = [`Mappin${TRIP.title ? ' · ' + TRIP.title : ''}`, ''];
+    const lines = [`MapPin${TRIP.title ? ' · ' + TRIP.title : ''}`, ''];
     getAllDays().forEach(d => {
       lines.push(`${getDayTitle(d)}${DAY_DATES[d] ? ' · ' + formatDateShort(DAY_DATES[d]) : ''}${dayCost(d) ? ' · ' + fmtMoney(dayCost(d)) : ''}`);
       dayDisplayOrder(d).forEach((s, i) => {
@@ -5763,8 +5814,8 @@
     if (!rawData.length) { alert(t('noExport')); return; }
     const Share = IS_NATIVE ? capPlugin('Share') : null;
     try {
-      if (Share) await Share.share({ title: 'Mappin', text: itineraryText() });
-      else await shareFile('Mappin_Itinerary.txt', itineraryText(), 'text/plain');
+      if (Share) await Share.share({ title: 'MapPin', text: itineraryText() });
+      else await shareFile('MapPin_Itinerary.txt', itineraryText(), 'text/plain');
     } catch (e) {}
   }
 
@@ -6180,7 +6231,7 @@
       </div>
       <div class="settings-section">
         <h3><i class="fa-solid fa-circle-info"></i> ${escapeHtml(t('about'))}</h3>
-        <p class="settings-note">Mappin · ${escapeHtml(t('version', { v: APP_VERSION }))}${IS_NATIVE ? ' · app' : ''}<br>
+        <p class="settings-note">MapPin · ${escapeHtml(t('version', { v: APP_VERSION }))}${IS_NATIVE ? ' · app' : ''}<br>
           Map data © OpenStreetMap contributors · Geocoding: Nominatim, Photon · Routes: FOSSGIS OSRM</p>
         ${(!IS_NATIVE && !isStandalone() && (deferredInstall || isIos())) ? `<button class="btn btn-primary" onclick="installApp()"><i class="fa-solid fa-mobile-screen-button"></i> ${escapeHtml(t('installApp'))}</button>` : ''}
       </div>`;

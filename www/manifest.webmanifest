@@ -1,6 +1,6 @@
 {
-  "name": "Mappin – trip planner",
-  "short_name": "Mappin",
+  "name": "MapPin – trip planner",
+  "short_name": "MapPin",
   "description": "Plan trips day by day on a map: stops, routes, times, budgets and opening hours.",
   "start_url": "./",
   "scope": "./",
