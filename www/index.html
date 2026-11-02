@@ -1143,7 +1143,7 @@
     html, body { touch-action: pan-x pan-y; }
 
     /* The card copy that follows your finger while moving it */
-    .sortable-fallback { opacity: 0.96 !important; transform: rotate(1.5deg) scale(1.03); box-shadow: 0 16px 36px rgba(0,0,0,0.45) !important;
+    .sortable-fallback { opacity: 0.96 !important; box-shadow: 0 16px 36px rgba(0,0,0,0.45) !important;
       border-color: var(--accent-blue) !important; pointer-events: none; z-index: 5000 !important; }
     .activity-card.sortable-ghost { opacity: 0.25; border-style: dashed; }
 
@@ -1180,6 +1180,91 @@
     .tp-dots button.done { background: #10b981; opacity: 0.6; }
     .tp-dots button.on { width: 18px; border-radius: 4px; background: var(--accent-blue); opacity: 1; }
     .tp-stop { touch-action: pan-y; will-change: transform; }
+
+    /* Calendar: month and year picker */
+    .dp-title { background: none; border: none; color: var(--text-main); font: inherit; font-weight: 700; cursor: pointer; padding: 4px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; }
+    .dp-title i { font-size: 9px; opacity: 0.7; }
+    .dp-title:hover { background: var(--tint); }
+    .dp-months { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 6px 2px 4px; }
+    .dp-month { background: var(--tint); border: 1px solid transparent; color: var(--text-main); border-radius: 8px; padding: 12px 0; font-size: 13px; cursor: pointer; }
+    .dp-month.today { border-color: var(--accent-blue); }
+    .dp-month.sel { background: var(--accent-blue); color: #fff; }
+
+    /* ===== 1.3.0 layout polish ===== */
+    /* Windows can't be wider than the screen (this pushed the tour off-centre) */
+    .modal-overlay { box-sizing: border-box; }
+    .modal-box { box-sizing: border-box; }
+    /* Card: the time sits right after the name; actions stay on the right */
+    .card-header { justify-content: flex-start; }
+    .card-title-editable { min-width: 0; }
+    .card-time { flex-shrink: 0; margin-top: 1px; }
+    .card-actions { margin-left: auto; }
+    /* Day header: no long line, just a tidy arrow at the end */
+    .day-line::before { display: none; }
+    .day-line { flex: 1; }
+    .day-chevron { color: var(--text-muted); }
+    /* Drop-down menus on a phone on its side: never taller than the screen */
+    #day-menu, .dropdown-menu { max-height: calc(100dvh - 16px); overflow-y: auto; overscroll-behavior: contain; }
+    /* Scrolling areas bounce at the ends without dragging the whole app along */
+    .timeline-container, sidebar, .modal-box, .cl-list, .search-results-list, .layers-panel { overscroll-behavior: contain; }
+    /* Trip summary: rename the trip, open the checklist */
+    .trip-summary { cursor: default; }
+    .ts-title { background: none; border: none; padding: 0; color: var(--text-main); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; text-align: left;
+      display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+    .ts-title i { font-size: 10px; opacity: 0.45; }
+    .ts-title-input { margin: 0 !important; height: 30px; font-weight: 700; flex: 1; min-width: 0; }
+    .ts-open { background: rgba(59,130,246,0.12); border: none; border-radius: 999px; padding: 5px 10px; cursor: pointer; font: inherit; font-size: 11px; font-weight: 700;
+      color: var(--accent-blue); white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+    .ts-open.done { background: rgba(16,185,129,0.14); color: #10b981; }
+    /* Sheet drag bar: a taller, easier target */
+    @media (max-width: 820px) and (min-height: 521px) {
+      .sheet-handle { height: 34px !important; }
+    }
+
+    /* Show-all-pins button (above the layers and location buttons) */
+    .fit-btn { bottom: calc(140px + var(--sa-b)); }
+    @media (max-width: 820px), (max-height: 520px) {
+      :root[data-side] .fit-btn { bottom: calc(130px + var(--sa-b)); }
+    }
+    :root[data-side="right"] .fit-btn { right: auto; left: max(10px, var(--sa-l)); }
+    @media (max-width: 820px) and (min-height: 521px) { :root[data-side] .fit-btn { left: auto; right: max(10px, var(--sa-r)); } }
+
+    /* Filter button (phones held upright) */
+    .day-chips-row { display: flex; align-items: center; gap: 8px; }
+    .day-chips-row .day-chips { flex: 1; min-width: 0; }
+    .filter-btn { position: relative; flex-shrink: 0; width: 36px; height: 32px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--chip-bg, var(--tint));
+      color: var(--text-main); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; }
+    .filter-btn.active { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .fb-count { position: absolute; top: -6px; right: -6px; min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent-blue); color: #fff; font-size: 10px; font-weight: 700;
+      display: none; align-items: center; justify-content: center; padding: 0 4px; }
+    .filter-btn.active .fb-count { display: inline-flex; }
+    #filter-body .filters-row { flex-direction: column; align-items: stretch; gap: 14px; margin: 4px 0 16px; }
+    #filter-body .sort-wrap { width: 100%; }
+    #filter-body .sort-select { width: 100%; }
+    #filter-body .cat-chips { flex-wrap: wrap; overflow: visible; }
+
+    /* Resizable list column (landscape and bigger screens) */
+    #col-resizer { display: none; }
+    @media not all and (max-width: 820px) and (min-height: 521px) {
+      sidebar { width: calc(var(--sidebar-w) + var(--sa-l)); }
+      .main-content { position: relative; }
+      #col-resizer { display: block; position: absolute; top: 0; bottom: 0; left: calc(var(--sidebar-w) + var(--sa-l) - 7px); width: 14px; cursor: col-resize; z-index: 950; touch-action: none; }
+      #col-resizer::after { content: ''; position: absolute; top: 50%; left: 5px; width: 4px; height: 44px; margin-top: -22px; border-radius: 2px; background: var(--group-dash); opacity: 0.6; transition: opacity 0.2s, background 0.2s; }
+      #col-resizer:hover::after, #col-resizer.active::after { opacity: 1; background: var(--accent-blue); }
+      :root[data-side="right"] #col-resizer { left: auto; right: calc(var(--sidebar-w) + var(--sa-r) - 7px); }
+    }
+
+    /* Landscape: menu bar and search stay at the top while the itinerary scrolls */
+    @media (max-height: 520px) {
+      .header-in-sheet header { position: sticky; top: 0; z-index: 8; background: linear-gradient(var(--tint), var(--tint)), var(--panel-solid); box-shadow: 0 -14px 0 var(--panel-solid); }
+      .sidebar-header { position: sticky; top: var(--hdr-stick, 60px); z-index: 7; background: var(--panel-solid); }
+    }
+
+    /* Tips */
+    .toast span:first-child { line-height: 1.4; }
+
+    :root { --panel-solid: #0f172a; }
+    :root[data-ui="light"] { --panel-solid: #ffffff; }
   </style>
 </head>
 <body>
@@ -1280,7 +1365,7 @@
         <div class="filters-row">
           <label class="sort-wrap" data-i18n-title="sortBy">
             <i class="fa-solid fa-arrow-down-wide-short"></i>
-            <select class="select-input sort-select" id="sort-select" onchange="sortItinerary()">
+            <select class="select-input sort-select" id="sort-select" onchange="sortItinerary(); updateFilterBadge()">
               <option value="address" data-i18n="sortAddress">Address</option>
               <option value="date" data-i18n="sortDate">Date</option>
               <option value="day" selected data-i18n="sortDay">Day</option>
@@ -1295,6 +1380,7 @@
         <!-- Day Chips Row -->
         <div class="day-chips-row">
           <div class="day-chips" id="day-chips-container"></div>
+          <button class="filter-btn" id="filter-btn" style="display:none" onclick="openFilters()" data-i18n-title="filters"><i class="fa-solid fa-sliders"></i><span class="fb-count"></span></button>
         </div>
       </div>
       <div class="select-bar" id="select-bar">
@@ -1311,6 +1397,7 @@
     <div id="today-panel" style="display:none"></div>
 
     <button class="locate-btn" id="locate-btn" onclick="locateMe()" data-i18n-title="locateMe"><i class="fa-solid fa-location-crosshairs"></i></button>
+    <button class="locate-btn fit-btn" id="fit-btn" onclick="fitAllPins()" data-i18n-title="showAllPins"><i class="fa-solid fa-expand"></i></button>
 
     <div class="map-controls-overlay">
       <button id="layers-btn" onclick="toggleLayers(event)" data-i18n-title="mapLayers" aria-label="Map type and routes"><i class="fa-solid fa-layer-group"></i></button>
@@ -1395,6 +1482,17 @@
       <i class="fa-solid fa-xmark modal-close-x" onclick="closeChecklist()"></i>
     </div>
     <div id="checklist-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="filter-modal" onclick="if(event.target.id==='filter-modal')closeModalById('filter-modal')">
+  <div class="modal-box" style="width: 420px;">
+    <div class="modal-title"><span><i class="fa-solid fa-sliders"></i> <span data-i18n="filters">Sort and filter</span></span><i class="fa-solid fa-xmark modal-close-x" onclick="closeModalById('filter-modal')"></i></div>
+    <div id="filter-body"></div>
+    <div class="modal-actions-footer">
+      <button class="btn btn-secondary" onclick="resetFilters()" data-i18n="resetFilters">Reset</button>
+      <button class="btn btn-primary" onclick="closeModalById('filter-modal')" data-i18n="done">Done</button>
+    </div>
   </div>
 </div>
 
@@ -1876,7 +1974,27 @@
       allDay: "All day",
       calIosHint: "If iPhone asks, tap \"Add All\" to put the stops in Calendar.",
       calFailed: "Couldn't create the calendar file.",
-      chooseDay: "Choose a day"
+      chooseDay: "Choose a day",
+      filters: "Sort and filter",
+      resetFilters: "Reset",
+      showAllPins: "Show all pins",
+      noPinsYet: "No pins on the map yet.",
+      movedToDay: "Moved to {name}",
+      sortDaysOffer: "Your days are out of date order.",
+      sortDays: "Sort by date",
+      daysSorted: "Days sorted by date",
+      tipCards: "Press and hold a card to move it, or hold and let go to select cards for grouping. Swipe left to delete, right to mark done. Double tap to find it on the map.",
+      tipToday: "Swipe the Today card for the next stop, or tap the day name to switch days.",
+      tipMap: "Tap anywhere on the map to add a place. The buttons at the bottom right switch map type, show all pins and find you.",
+      tipSelect: "Tap more cards to select them, then choose Group.",
+      showTips: "Show tips",
+      gotIt: "Got it",
+      resizeList: "Drag to resize the list (double-click to reset)",
+      checklistAllDone: "Checklist done",
+      renameTrip: "Rename trip",
+      myTrip: "My trip",
+      prevYear: "Previous year",
+      nextYear: "Next year"
     },
     ja: {
       language: "言語",
@@ -2262,7 +2380,27 @@
       allDay: "終日",
       calIosHint: "iPhone で確認が出たら「すべて追加」をタップしてください。",
       calFailed: "カレンダーファイルを作成できませんでした。",
-      chooseDay: "日を選ぶ"
+      chooseDay: "日を選ぶ",
+      filters: "並べ替えと絞り込み",
+      resetFilters: "リセット",
+      showAllPins: "すべてのピンを表示",
+      noPinsYet: "地図にまだピンがありません。",
+      movedToDay: "{name} に移動しました",
+      sortDaysOffer: "日の順番が日付順になっていません。",
+      sortDays: "日付順に並べる",
+      daysSorted: "日付順に並べました",
+      tipCards: "カードを長押しで移動、長押しして離すとグループ化のために選択できます。左にスワイプで削除、右で完了。ダブルタップで地図上の場所へ。",
+      tipToday: "「今日」カードをスワイプで次のスポットへ。日の名前をタップで日を切り替え。",
+      tipMap: "地図をタップすると場所を追加できます。右下のボタンで地図の種類・全ピン表示・現在地。",
+      tipSelect: "他のカードもタップして選び、「グループ化」を選んでください。",
+      showTips: "ヒントを表示",
+      gotIt: "OK",
+      resizeList: "ドラッグでリストの幅を変更（ダブルクリックで元に戻す）",
+      checklistAllDone: "チェックリスト完了",
+      renameTrip: "旅行名を変更",
+      myTrip: "マイ旅行",
+      prevYear: "前の年",
+      nextYear: "次の年"
     },
     zh: {
       language: "语言",
@@ -2648,7 +2786,27 @@
       allDay: "全天",
       calIosHint: "如果 iPhone 询问，请点“全部添加”。",
       calFailed: "无法创建日历文件。",
-      chooseDay: "选择日期"
+      chooseDay: "选择日期",
+      filters: "排序和筛选",
+      resetFilters: "重置",
+      showAllPins: "显示所有图钉",
+      noPinsYet: "地图上还没有图钉。",
+      movedToDay: "已移到{name}",
+      sortDaysOffer: "天的顺序与日期不一致。",
+      sortDays: "按日期排序",
+      daysSorted: "已按日期排序",
+      tipCards: "长按卡片可移动，长按后松开可选择卡片来分组。向左滑删除，向右滑标记完成。双击在地图上查看。",
+      tipToday: "滑动“今天”卡片切换下一站，点天名称切换日期。",
+      tipMap: "点地图任意处即可添加地点。右下角按钮可切换地图类型、显示全部图钉和定位。",
+      tipSelect: "继续点选其他卡片，然后选择“分组”。",
+      showTips: "显示提示",
+      gotIt: "知道了",
+      resizeList: "拖动调整列表宽度（双击恢复）",
+      checklistAllDone: "清单已完成",
+      renameTrip: "重命名行程",
+      myTrip: "我的行程",
+      prevYear: "上一年",
+      nextYear: "下一年"
     },
     ko: {
       language: "언어",
@@ -3034,7 +3192,27 @@
       allDay: "종일",
       calIosHint: "iPhone에서 물어보면 \"모두 추가\"를 탭하세요.",
       calFailed: "캘린더 파일을 만들지 못했어요.",
-      chooseDay: "날 선택"
+      chooseDay: "날 선택",
+      filters: "정렬 및 필터",
+      resetFilters: "초기화",
+      showAllPins: "모든 핀 보기",
+      noPinsYet: "아직 지도에 핀이 없어요.",
+      movedToDay: "{name}(으)로 옮겼어요",
+      sortDaysOffer: "날짜 순서가 맞지 않아요.",
+      sortDays: "날짜순 정렬",
+      daysSorted: "날짜순으로 정렬했어요",
+      tipCards: "카드를 길게 눌러 옮기거나, 길게 눌렀다 떼면 그룹으로 묶을 카드를 고를 수 있어요. 왼쪽으로 밀면 삭제, 오른쪽은 완료. 두 번 탭하면 지도에서 찾아요.",
+      tipToday: "오늘 카드를 밀어 다음 장소로, 날 이름을 탭해 날을 바꿔요.",
+      tipMap: "지도를 탭하면 장소를 추가할 수 있어요. 오른쪽 아래 버튼으로 지도 유형, 모든 핀, 내 위치를 볼 수 있어요.",
+      tipSelect: "다른 카드도 탭해 고른 뒤 그룹을 선택하세요.",
+      showTips: "도움말 표시",
+      gotIt: "확인",
+      resizeList: "드래그해 목록 너비 조절 (더블클릭하면 초기화)",
+      checklistAllDone: "체크리스트 완료",
+      renameTrip: "여행 이름 바꾸기",
+      myTrip: "내 여행",
+      prevYear: "이전 해",
+      nextYear: "다음 해"
     },
     es: {
       language: "Idioma",
@@ -3425,7 +3603,27 @@
       allDay: "Todo el día",
       calIosHint: "Si el iPhone pregunta, toca «Añadir todo».",
       calFailed: "No se pudo crear el archivo de calendario.",
-      chooseDay: "Elegir día"
+      chooseDay: "Elegir día",
+      filters: "Ordenar y filtrar",
+      resetFilters: "Restablecer",
+      showAllPins: "Ver todos los pines",
+      noPinsYet: "Aún no hay pines en el mapa.",
+      movedToDay: "Movido a {name}",
+      sortDaysOffer: "Tus días no están en orden de fecha.",
+      sortDays: "Ordenar por fecha",
+      daysSorted: "Días ordenados por fecha",
+      tipCards: "Mantén pulsada una tarjeta para moverla, o mantén y suelta para seleccionar tarjetas y agruparlas. Desliza a la izquierda para borrar y a la derecha para marcar hecha. Doble toque para verla en el mapa.",
+      tipToday: "Desliza la tarjeta de Hoy para la siguiente parada; toca el nombre del día para cambiar de día.",
+      tipMap: "Toca el mapa para añadir un lugar. Los botones de abajo a la derecha cambian el tipo de mapa, muestran todos los pines y te localizan.",
+      tipSelect: "Toca más tarjetas para seleccionarlas y elige Agrupar.",
+      showTips: "Mostrar consejos",
+      gotIt: "Entendido",
+      resizeList: "Arrastra para cambiar el ancho de la lista (doble clic para restablecer)",
+      checklistAllDone: "Lista completada",
+      renameTrip: "Renombrar viaje",
+      myTrip: "Mi viaje",
+      prevYear: "Año anterior",
+      nextYear: "Año siguiente"
     },
     fr: {
       language: "Langue",
@@ -3816,7 +4014,27 @@
       allDay: "Toute la journée",
       calIosHint: "Si l’iPhone le demande, touchez « Tout ajouter ».",
       calFailed: "Impossible de créer le fichier calendrier.",
-      chooseDay: "Choisir un jour"
+      chooseDay: "Choisir un jour",
+      filters: "Trier et filtrer",
+      resetFilters: "Réinitialiser",
+      showAllPins: "Voir tous les repères",
+      noPinsYet: "Aucun repère sur la carte pour l’instant.",
+      movedToDay: "Déplacé vers {name}",
+      sortDaysOffer: "Vos jours ne sont pas dans l’ordre des dates.",
+      sortDays: "Trier par date",
+      daysSorted: "Jours triés par date",
+      tipCards: "Appui long sur une carte pour la déplacer, ou appui long puis relâcher pour sélectionner des cartes à grouper. Glissez à gauche pour supprimer, à droite pour marquer comme fait. Double tap pour la voir sur la carte.",
+      tipToday: "Glissez la carte Aujourd’hui pour l’étape suivante ; touchez le nom du jour pour changer de jour.",
+      tipMap: "Touchez la carte pour ajouter un lieu. Les boutons en bas à droite changent le type de carte, montrent tous les repères et vous localisent.",
+      tipSelect: "Touchez d’autres cartes pour les sélectionner, puis choisissez Grouper.",
+      showTips: "Afficher les astuces",
+      gotIt: "Compris",
+      resizeList: "Glissez pour redimensionner la liste (double-clic pour réinitialiser)",
+      checklistAllDone: "Liste terminée",
+      renameTrip: "Renommer le voyage",
+      myTrip: "Mon voyage",
+      prevYear: "Année précédente",
+      nextYear: "Année suivante"
     },
     de: {
       language: "Sprache",
@@ -4207,7 +4425,27 @@
       allDay: "Ganztägig",
       calIosHint: "Wenn das iPhone fragt, tippe auf „Alle hinzufügen“.",
       calFailed: "Die Kalenderdatei konnte nicht erstellt werden.",
-      chooseDay: "Tag wählen"
+      chooseDay: "Tag wählen",
+      filters: "Sortieren und filtern",
+      resetFilters: "Zurücksetzen",
+      showAllPins: "Alle Pins zeigen",
+      noPinsYet: "Noch keine Pins auf der Karte.",
+      movedToDay: "Nach {name} verschoben",
+      sortDaysOffer: "Deine Tage sind nicht nach Datum sortiert.",
+      sortDays: "Nach Datum sortieren",
+      daysSorted: "Tage nach Datum sortiert",
+      tipCards: "Halte eine Karte gedrückt, um sie zu verschieben, oder halten und loslassen, um Karten zum Gruppieren auszuwählen. Nach links wischen löscht, nach rechts markiert als erledigt. Doppeltippen zeigt sie auf der Karte.",
+      tipToday: "Wische die Heute-Karte für den nächsten Stopp; tippe auf den Tagesnamen, um den Tag zu wechseln.",
+      tipMap: "Tippe auf die Karte, um einen Ort hinzuzufügen. Die Tasten unten rechts wechseln den Kartentyp, zeigen alle Pins und deinen Standort.",
+      tipSelect: "Tippe weitere Karten an und wähle dann Gruppieren.",
+      showTips: "Tipps anzeigen",
+      gotIt: "Verstanden",
+      resizeList: "Ziehen, um die Listenbreite zu ändern (Doppelklick setzt zurück)",
+      checklistAllDone: "Checkliste erledigt",
+      renameTrip: "Reise umbenennen",
+      myTrip: "Meine Reise",
+      prevYear: "Vorheriges Jahr",
+      nextYear: "Nächstes Jahr"
     }
   };
 
@@ -4445,7 +4683,9 @@
     m.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
     const h = m.offsetHeight;
     const below = window.innerHeight - r.bottom - 8, above = r.top - 8;
-    m.style.top = (h + 6 > below && above > below ? Math.max(8, r.top - 6 - h) : r.bottom + 6) + 'px';
+    let top = h + 6 > below && above > below ? Math.max(8, r.top - 6 - h) : r.bottom + 6;
+    top = Math.max(8, Math.min(top, window.innerHeight - h - 8)); // never past the bottom of the screen
+    m.style.top = top + 'px';
   }
 
   // Phones: keep the menu bar inside the list panel, just above "Itinerary"
@@ -4464,6 +4704,7 @@
     }
     updateTopColour();
     placeTodayPanel();
+    if (typeof placeFilters === 'function') { placeFilters(); applySidebarWidth(); updateStickyOffsets(); }
     setTimeout(() => map && map.invalidateSize(), 60);
   }
   function closeAppMenu() { const m = $('app-menu'); if (m) m.classList.remove('show'); if (typeof menuBackdrop === 'function' && !($('day-menu') && $('day-menu').style.display === 'block')) menuBackdrop(false); }
@@ -5503,6 +5744,7 @@
     daySelectMode = true;
     selectedDays = new Set(day !== undefined ? [day] : []);
     $('timeline').classList.add('day-select-mode');
+    foldDaysForSelect();
     document.querySelectorAll('.day-section').forEach(s => s.classList.toggle('day-selected', selectedDays.has(parseInt(s.dataset.day))));
     updateSelectBar();
   }
@@ -5511,6 +5753,7 @@
     daySelectMode = false;
     selectedDays.clear();
     $('timeline').classList.remove('day-select-mode');
+    unfoldDaysAfterSelect();
     document.querySelectorAll('.day-section.day-selected').forEach(s => s.classList.remove('day-selected'));
     updateSelectBar();
   }
@@ -5595,6 +5838,7 @@
     activeDay = day;
     populateFilters();
     renderItinerary();
+    if (day === 'all') fitAllPins();
   }
 
   function sortItinerary() { renderItinerary(); }
@@ -6049,13 +6293,18 @@
       scrollSpeed: 14,
       bubbleScroll: true,
       chosenClass: 'sortable-chosen',
-      onChoose: function() { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} },
+      swapThreshold: 0.65,
+      onChoose: function(evt) {
+        holdInfo = { id: Number(evt.item.getAttribute('data-id')), started: false, touch: lastPointerTouch };
+        try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
+      },
+      onUnchoose: function() { const h = holdInfo; holdInfo = null; if (h && !h.started && h.touch) holdToSelect(h.id); },
       draggable: '.activity-card',
       ghostClass: 'sortable-ghost',
       filter: 'input, textarea, select',
       preventOnFilter: false,
-      onStart: function() { isDragging = true; },
-      onEnd: function() { isDragging = false; reorderAllStops(); }
+      onStart: function() { isDragging = true; if (holdInfo) holdInfo.started = true; startDragAssist(); },
+      onEnd: function() { isDragging = false; stopDragAssist(); reorderAllStops(); }
     };
   }
 
@@ -6284,6 +6533,7 @@
   }
 
   function handleCardClick(e, id) {
+    if (Date.now() < ignoreCardTapUntil) return; // the tap that ended a press-and-hold
     if (selectMode || e.ctrlKey || e.metaKey || e.shiftKey) {
       if (e.button === 2) return;
       toggleCardSelected(id);
@@ -6295,6 +6545,7 @@
 
   function handleCardContextMenu(e, id) {
     e.preventDefault();
+    if (lastPointerTouch) return; // phones: press-and-hold is handled by drag / select
     if (!selectedStopIds.has(id)) {
       if (!selectMode) clearSelection();
       toggleCardSelected(id);
@@ -6386,6 +6637,7 @@
     btn.dataset.value = v || '';
     btn.classList.toggle('empty', !v);
     btn.querySelector('span').textContent = v ? formatDateShort(v) : t('addDate');
+    if (typeof scheduleLiveEdit === 'function') scheduleLiveEdit();
   }
 
   function openSingleModal(title, bodyHtml) {
@@ -6533,24 +6785,31 @@
   }
 
   // Preview: apply the edits for real (map + list), keep the modal open, and remember how to undo them
-  function previewSingleItemModal() {
+  // Changes show live while the window is open; Save keeps them, Cancel puts everything back
+  function previewSingleItemModal(silent) {
+    if (!singleEditTarget) return;
     if (!singlePreviewBackup) singlePreviewBackup = cloneState();
     else applyState(JSON.parse(JSON.stringify(singlePreviewBackup)));
+    histSuspend = true;
     applyStagedSingle();
     populateFilters();
     renderItinerary();
+    histSuspend = false;
+    if (silent) return;
     $('single-item-modal').classList.add('previewing');
     showToast(t('previewing'), { ms: 3000 });
   }
 
   function saveSingleItemModal() {
     if (!singleEditTarget) return;
+    const wasDay = singleEditTarget.type === 'day';
     if (singlePreviewBackup) applyState(singlePreviewBackup);
     singlePreviewBackup = null;
     applyStagedSingle();
     finishSingleModal();
     populateFilters();
     renderItinerary();
+    if (wasDay) maybeOfferSortDays();
   }
 
   function closeSingleItemModal() {
@@ -6709,12 +6968,15 @@
     }
   }
 
-  function previewMasterChanges() {
+  function previewMasterChanges(silent) {
     if (!masterPreviewBackup) masterPreviewBackup = cloneState();
     else applyState(JSON.parse(JSON.stringify(masterPreviewBackup)));
+    histSuspend = true;
     applyStagedMaster();
     populateFilters();
     renderItinerary();
+    histSuspend = false;
+    if (silent) return;
     $('color-modal').classList.add('previewing');
     showToast(t('previewing'), { ms: 3000 });
   }
@@ -6749,6 +7011,12 @@
     const target = e.currentTarget || e.target;
     clearTimeout(inlineEditTimer);
     if (e.detail > 1) return;
+    // Touch screens: edit straight away. iPhone only opens the keyboard when the box is focused during the tap itself
+    // (double tap on the rest of the card still flies to the pin).
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      if (kind === 'title') inlineEditTitle(id, e); else inlineEditDesc(id, e);
+      return;
+    }
     inlineEditTimer = setTimeout(() => {
       if (!target.isConnected) return;
       const fakeEvent = { stopPropagation() {}, currentTarget: target, target };
@@ -6882,6 +7150,9 @@
     if (!item || !chip) return;
     openDatePopover(chip, chip.querySelector('.cal-icon') || chip, toIsoDate(effectiveDate(item)), v => {
       item.date = v && v !== DAY_DATES[item.day] ? v : '';
+      // A date that belongs to another day moves the stop to that day
+      const target = v && getAllDays().find(d => d !== item.day && DAY_DATES[d] === v);
+      if (target) { moveStopToDay(item, target); populateFilters(); showToast(t('movedToDay', { name: getDayTitle(target) }), { ms: 4000, actionLabel: t('undoBtn'), onAction: undo }); }
       renderItinerary();
     });
   }
@@ -6910,6 +7181,24 @@
   function renderDatePopover() {
     if (!dpState) return;
     const v = dpState.view;
+    if (dpState.mode === 'months') {
+      // Month and year picker (tap the month name to get here)
+      const selD = isoToDate(dpState.sel);
+      const months = [];
+      for (let m = 0; m < 12; m++) {
+        const isSel = selD && selD.getFullYear() === v.getFullYear() && selD.getMonth() === m;
+        const isNow = new Date().getFullYear() === v.getFullYear() && new Date().getMonth() === m;
+        months.push(`<button class="dp-month ${isSel ? 'sel' : ''} ${isNow ? 'today' : ''}" onclick="dpSetMonth(${m})">${escapeHtml(new Date(2024, m, 1).toLocaleDateString(LANG, { month: 'short' }))}</button>`);
+      }
+      $('date-popover').innerHTML = `
+        <div class="dp-head">
+          <button class="dp-nav" onclick="dpNavYear(-1)" aria-label="${escapeHtml(t('prevYear'))}"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="dp-title" onclick="dpToggleMonths()">${v.getFullYear()} <i class="fa-solid fa-chevron-up"></i></button>
+          <button class="dp-nav" onclick="dpNavYear(1)" aria-label="${escapeHtml(t('nextYear'))}"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="dp-months">${months.join('')}</div>`;
+      return;
+    }
     const todayIso = isoFromDate(new Date());
     const first = new Date(v.getFullYear(), v.getMonth(), 1);
     const offset = (first.getDay() + 6) % 7; // Monday-first weeks
@@ -6925,7 +7214,7 @@
     $('date-popover').innerHTML = `
       <div class="dp-head">
         <button class="dp-nav" onclick="dpNav(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-        <span>${escapeHtml(v.toLocaleDateString(LANG, { month: 'long', year: 'numeric' }))}</span>
+        <button class="dp-title" onclick="dpToggleMonths()">${escapeHtml(v.toLocaleDateString(LANG, { month: 'long', year: 'numeric' }))} <i class="fa-solid fa-chevron-down"></i></button>
         <button class="dp-nav" onclick="dpNav(1)"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
       <div class="dp-grid">${wd.map(x => `<div class="dp-wd">${escapeHtml(x)}</div>`).join('')}${cells}</div>
@@ -6934,6 +7223,10 @@
         <button onclick="dpPick('')">${escapeHtml(t('clear'))}</button>
       </div>`;
   }
+
+  function dpToggleMonths() { if (!dpState) return; dpState.mode = dpState.mode === 'months' ? 'days' : 'months'; renderDatePopover(); }
+  function dpNavYear(n) { if (!dpState) return; dpState.view = new Date(dpState.view.getFullYear() + n, dpState.view.getMonth(), 1); renderDatePopover(); }
+  function dpSetMonth(m) { if (!dpState) return; dpState.view = new Date(dpState.view.getFullYear(), m, 1); dpState.mode = 'days'; renderDatePopover(); }
 
   function dpNav(n) {
     if (!dpState) return;
@@ -8089,7 +8382,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.2.1';
+  const APP_VERSION = '1.3.0';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -8130,7 +8423,10 @@
     initZoomReset();
     cloudInit();
     scheduleHoursCheck(4000);
-    if (loadPref('mappin_start_at_location', 'true') === 'true') locateMe({ silent: true, startup: true });
+    // Start at your location when there's no trip yet (or it's a trip day); otherwise show the whole trip
+    const startHere = !rawData.length || todayDayNumber() !== null;
+    if (startHere && loadPref('mappin_start_at_location', 'true') === 'true') locateMe({ silent: true, startup: true });
+    else if (rawData.length) setTimeout(() => fitAllPins({ instant: true }), 300);
   }
 
   /* ---------- Typing on phones ----------
@@ -8144,7 +8440,10 @@
       const editing = a.matches && a.matches('input, textarea, select, [contenteditable="true"]');
       if (!editing) return;
       if (e.target === a || a.contains(e.target)) return;
-      if (e.target.closest('input, textarea, select, [contenteditable="true"], label, .search-container, .date-popover, #date-popover')) return;
+      // Buttons next to a text box (Add, Save…) work on the first tap and keep the keyboard where it makes sense
+      if (e.target.closest('input, textarea, select, [contenteditable="true"], label, button, a, [role="button"], [role="checkbox"], .search-container, #date-popover, .context-menu-item')) return;
+      // Tapping the dimmed area around a window while typing only closes the keyboard (the window stays)
+      if (e.target.classList && (e.target.classList.contains('modal-overlay') || e.target.id === 'menu-backdrop')) swallowNextClick();
       a.blur();
     }, true);
     // No page zoom outside the map (iPhone pinch and double-tap zoom)
@@ -8651,6 +8950,7 @@
             <button class="${loadPref('mappin_side', 'left') === 'right' ? 'active' : ''}" onclick="setSide('right')">${escapeHtml(t('sideRight'))} <i class="fa-solid fa-arrow-right"></i></button>
           </div></div>
         <p class="settings-note">${escapeHtml(t('listSideHint'))}</p>
+        ${tipsSettingHtml()}
         <div class="settings-row"><span>${escapeHtml(t('startAtLocation'))}</span>${switchHtml(loadPref('mappin_start_at_location', 'true') === 'true', 'toggleStartAtLocation()', t('startAtLocation'))}</div>
       </div>
       <div class="settings-section">
@@ -9004,6 +9304,7 @@
     todayIdx = firstOpenIndex();
     populateFilters();
     renderItinerary();
+    showTip('today');
     if (isPortraitPhone()) setSheet('min');
     else if (phoneLayoutMQ.matches) $('sidebar').scrollTop = 0;
     focusTodayStop();
@@ -9441,6 +9742,7 @@
     sel.value = [...sel.options].some(o => o.value === c) ? c : 'all';
     renderCategoryChips();
     renderItinerary();
+    if (typeof updateFilterBadge === 'function') updateFilterBadge();
   }
 
   /* ===== 17-offline-maps.js ===== */
@@ -9699,6 +10001,7 @@
     recordHistory();
     renderChecklist();
     updateChecklistPill();
+    renderTripSummary();
   }
 
   function addChecklistItem() {
@@ -9882,9 +10185,12 @@
     if (tripCost() && !tripSpent()) bits.push(`<span><i class="fa-solid fa-wallet"></i> ${escapeHtml(fmtMoney(tripCost()))}</span>`);
     const sp = spendSummaryHtml(); if (sp) bits.push(sp);
     const open = CHECKLIST.filter(c => !c.done).length;
-    if (open) bits.push(`<span class="ts-link"><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('checklistOpenN', { n: open }))}</span>`);
-    return `<div class="trip-summary" role="button" tabindex="0" onclick="openChecklist()" title="${escapeHtml(t('checklist'))}">
-      <div class="ts-head">${TRIP.title ? `<div class="ts-title">${escapeHtml(TRIP.title)}</div>` : '<div></div>'}<span class="ts-open"><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('checklist'))} <i class="fa-solid fa-chevron-right"></i></span></div>
+    const clLabel = !CHECKLIST.length ? t('checklist') : open ? t('checklistOpenN', { n: open }) : t('checklistAllDone');
+    return `<div class="trip-summary">
+      <div class="ts-head">
+        <button class="ts-title" onclick="renameTrip(this)" title="${escapeHtml(t('renameTrip'))}">${escapeHtml(TRIP.title || t('myTrip'))} <i class="fa-solid fa-pen"></i></button>
+        <button class="ts-open ${CHECKLIST.length && !open ? 'done' : ''}" onclick="openChecklist()"><i class="fa-solid ${CHECKLIST.length && !open ? 'fa-circle-check' : 'fa-list-check'}"></i> ${escapeHtml(clLabel)} <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
       <div class="ts-bits">${bits.join('')}</div></div>`;
   }
   function renderTripSummary() {
@@ -9896,6 +10202,27 @@
     if (!el) { el = document.createElement('div'); el.id = 'trip-summary'; }
     el.innerHTML = html;
     if (tl.firstChild !== el) tl.prepend(el);
+  }
+
+  // Tap the trip name to rename it (also used as the name in cloud sync and when sharing)
+  function renameTrip(btn) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'edit-form-input ts-title-input';
+    input.value = TRIP.title || '';
+    input.placeholder = t('myTrip');
+    input.maxLength = 80;
+    let done = false;
+    const finish = save => {
+      if (done) return; done = true;
+      if (save) { TRIP.title = input.value.trim(); scheduleAutosave(); recordHistory(); }
+      renderTripSummary();
+    };
+    input.onblur = () => finish(true);
+    input.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); finish(true); } if (e.key === 'Escape') finish(false); };
+    btn.replaceWith(input);
+    input.focus();
+    input.select();
   }
 
   /* ===== 24-gestures.js ===== */
@@ -9914,7 +10241,8 @@
     b.classList.toggle('show', !!show);
   }
   function asSheet(menu) {
-    const phone = isPhoneWidth();
+    // Upright phones: menus slide up from the bottom. On its side (and on bigger screens) they drop down from the button.
+    const phone = isPortraitPhone();
     menu.classList.toggle('as-sheet', phone);
     if (phone) { keepPageAtTop(); menu.style.left = ''; menu.style.top = ''; menu.style.right = ''; menuBackdrop(true); }
     return phone;
@@ -10071,7 +10399,7 @@
       }
       if (dx > THRESH) {
         const item = rawData.find(s => s.id === id);
-        if (item) { item.done = !item.done; renderItinerary(); showToast(item.done ? t('markedDone') : t('markedNotDone'), { ms: 1800 }); }
+        if (item) { item.done = !item.done; renderItinerary(); showToast(item.done ? t('markedDone') : t('markedNotDone'), { ms: 3500, actionLabel: t('undoBtn'), onAction: undo }); }
         return;
       }
       card.style.transform = '';
@@ -10177,31 +10505,45 @@
   /* ---------- No rubber-band bounce: on iPhone, dragging somewhere that can't scroll would pull the whole
      app around (and can leave it shifted). Only real scrolling areas move; the map handles its own gestures. ---------- */
   function initScrollLock() {
-    let last = null;
-    const canScroll = (el, dx, dy) => {
+    let last = null, elastic = null;
+    const scrollerFor = (el, vertical) => {
       for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
         const cs = getComputedStyle(el);
-        if (Math.abs(dy) >= Math.abs(dx)) {
-          if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1) {
-            if ((dy > 0 && el.scrollTop > 0) || (dy < 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1)) return true;
-          }
-        } else if (/(auto|scroll)/.test(cs.overflowX) && el.scrollWidth > el.clientWidth + 1) {
-          if ((dx > 0 && el.scrollLeft > 0) || (dx < 0 && el.scrollLeft + el.clientWidth < el.scrollWidth - 1)) return true;
-        }
+        if (vertical ? (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1)
+                     : (/(auto|scroll)/.test(cs.overflowX) && el.scrollWidth > el.clientWidth + 1)) return el;
       }
-      return false;
+      return null;
+    };
+    const release = () => {
+      if (!elastic) return;
+      const el = elastic.el; elastic = null;
+      el.style.transition = 'transform 0.35s cubic-bezier(.2,.9,.3,1.2)';
+      el.style.transform = '';
+      setTimeout(() => { el.style.transition = ''; }, 380);
     };
     document.addEventListener('touchstart', e => { const p = e.touches[0]; last = p ? { x: p.clientX, y: p.clientY } : null; }, { passive: true });
     document.addEventListener('touchmove', e => {
       if (!last || !e.cancelable || e.defaultPrevented) return;
       const tgt = e.target;
-      if (tgt.closest && tgt.closest('#map, input[type="range"], textarea, input, .sortable-fallback')) return;
+      if (tgt.closest && tgt.closest('#map, input[type="range"], textarea, input')) return;
       if (e.touches.length > 1) { e.preventDefault(); return; } // no page pinch-zoom
       const p = e.touches[0], dx = p.clientX - last.x, dy = p.clientY - last.y;
       last = { x: p.clientX, y: p.clientY };
       if (!dx && !dy) return;
-      if (!canScroll(tgt, dx, dy)) e.preventDefault();
+      const vertical = Math.abs(dy) >= Math.abs(dx);
+      // A real scrolling area: let iPhone scroll it and bounce at the ends as usual
+      if (scrollerFor(tgt, vertical)) return;
+      e.preventDefault(); // nothing to scroll here, so don't drag the whole app around
+      // …but give windows and menus a little stretch so it doesn't feel stuck
+      const box = vertical && tgt.closest && tgt.closest('.modal-box, .as-sheet, .dropdown-menu.show, #day-menu');
+      if (!box) return;
+      if (!elastic || elastic.el !== box) elastic = { el: box, off: 0 };
+      elastic.off = Math.max(-70, Math.min(70, elastic.off + dy * 0.35));
+      box.style.transition = 'none';
+      box.style.transform = `translateY(${elastic.off}px)`;
     }, { passive: false });
+    document.addEventListener('touchend', release, { passive: true });
+    document.addEventListener('touchcancel', release, { passive: true });
   }
 
   // If a press-and-hold ends without a drag, never leave a card stuck in its "picked up" look
@@ -10212,6 +10554,23 @@
     }, 120);
     document.addEventListener('touchend', tidy, { passive: true });
     document.addEventListener('touchcancel', tidy, { passive: true });
+  }
+
+  /* ---------- "Close first, then act": a tap outside an open calendar only closes it ---------- */
+  let swallowUntil = 0;
+  function swallowNextClick() { swallowUntil = Date.now() + 650; }
+  function initDismissFirst() {
+    document.addEventListener('click', e => {
+      if (Date.now() < swallowUntil) { swallowUntil = 0; e.stopPropagation(); e.preventDefault(); }
+    }, true);
+    document.addEventListener('pointerdown', e => {
+      if (!dpState) return;
+      const pop = $('date-popover');
+      if (pop.contains(e.target) || (dpState.opener && dpState.opener.contains(e.target))) return;
+      closeDatePopover();
+      e.preventDefault(); // don't focus a text box or start anything else with this tap
+      swallowNextClick();
+    }, true);
   }
 
   /* ===== 25-tour.js ===== */
@@ -10505,6 +10864,279 @@
     });
   }
 
+  /* ===== 28-trip-tools.js ===== */
+  /* =========================================================
+     TRIP TOOLS: fit all pins, moving stops by date, sorting days by date, press-and-hold to select,
+     live edits, filter sheet, tips
+     ========================================================= */
+
+  /* ---------- Show every pin ---------- */
+  function fitAllPins(opts = {}) {
+    if (!map) return;
+    const pts = rawData.filter(hasCoords).map(s => [s.lat, s.lng]);
+    if (!pts.length) { if (!opts.instant) showToast(t('noPinsYet'), { ms: 2500 }); return; }
+    userMovedMap = true;
+    if (pts.length === 1) { map.setView(pts[0], 15); return; }
+    const b = L.latLngBounds(pts);
+    if (opts.instant || !map.flyToBounds) map.fitBounds(b, { padding: [50, 50], maxZoom: 15 });
+    else map.flyToBounds(b, { padding: [50, 50], maxZoom: 15, duration: 0.7 });
+  }
+
+  /* ---------- Dates move things where they belong ---------- */
+  function moveStopToDay(item, target) {
+    const from = item.day;
+    delete stopToGroup[item.id];
+    const list = dayDisplayOrder(target);
+    item.day = target; item.date = '';
+    // Put it in time order if it has a time, otherwise at the end of the day
+    let at = list.length;
+    if (/^\d{1,2}:\d{2}$/.test(item.time || '')) {
+      const i = list.findIndex(s => /^\d{1,2}:\d{2}$/.test(s.time || '') && toMin(s.time) > toMin(item.time));
+      if (i !== -1) at = i;
+    }
+    list.splice(at, 0, item);
+    renumberDay(target, list);
+    renumberDay(from, dayDisplayOrder(from));
+    pruneEmptyGroups();
+  }
+  function daysOutOfDateOrder() {
+    const dated = getAllDays().filter(d => DAY_DATES[d]);
+    return dated.some((d, i) => i && DAY_DATES[d] < DAY_DATES[dated[i - 1]]);
+  }
+  function maybeOfferSortDays() {
+    if (daysOutOfDateOrder()) showToast(t('sortDaysOffer'), { ms: 8000, actionLabel: t('sortDays'), onAction: sortDaysByDate });
+  }
+  function sortDaysByDate() {
+    const days = getAllDays();
+    // Dated days go in date order; undated days keep their place relative to the day before them
+    const order = [...days].sort((a, b) => {
+      const da = DAY_DATES[a], db = DAY_DATES[b];
+      if (da && db) return da < db ? -1 : da > db ? 1 : a - b;
+      return days.indexOf(a) - days.indexOf(b);
+    });
+    reorderDays(order);
+    populateFilters();
+    renderItinerary();
+    showToast(t('daysSorted'), { ms: 3500, actionLabel: t('undoBtn'), onAction: undo });
+  }
+
+  /* ---------- Press and hold a card, then let go: start selecting cards (for grouping) ---------- */
+  let holdInfo = null, lastPointerTouch = false, ignoreCardTapUntil = 0;
+  document.addEventListener('pointerdown', e => { lastPointerTouch = e.pointerType === 'touch' || e.pointerType === 'pen'; }, true);
+  function holdToSelect(id) {
+    if (VIEW_ONLY) return;
+    const item = rawData.find(s => s.id === id);
+    if (!item) return;
+    ignoreCardTapUntil = Date.now() + 600;
+    if (!selectMode) enterSelectMode();
+    if (!selectedStopIds.has(id)) toggleCardSelected(id);
+    showTip('select', true);
+  }
+
+  /* ---------- Edits show live while the window is open ---------- */
+  let liveTimer = null;
+  function scheduleLiveEdit() {
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(() => {
+      if ($('single-item-modal').style.display === 'flex' && singleEditTarget) previewSingleItemModal(true);
+      else if ($('color-modal').style.display === 'flex') previewMasterChanges(true);
+    }, 220);
+  }
+  function initLiveEdits() {
+    ['single-item-modal', 'color-modal'].forEach(id => {
+      const box = $(id) && $(id).querySelector('.modal-box');
+      if (!box) return;
+      box.addEventListener('input', scheduleLiveEdit);
+      box.addEventListener('change', scheduleLiveEdit);
+      box.addEventListener('click', e => {
+        if (e.target.closest('.modal-actions-footer, .modal-close-x')) return; // Save / Cancel / close
+        scheduleLiveEdit();
+      });
+    });
+    ['single-preview-btn', 'master-preview-btn'].forEach(id => { const b = $(id); if (b) b.remove(); });
+  }
+
+  /* ---------- Phones held upright: sort and categories live behind one Filter button ---------- */
+  function placeFilters() {
+    const row = document.querySelector('.filters-row'), body = $('filter-body'), btn = $('filter-btn');
+    if (!row || !body || !btn) return;
+    const home = document.querySelector('.search-container');
+    if (isPortraitPhone()) { if (row.parentElement !== body) body.appendChild(row); btn.style.display = ''; }
+    else { if (row.previousElementSibling !== home && home) home.after(row); btn.style.display = 'none'; closeModalById('filter-modal'); }
+    updateFilterBadge();
+  }
+  function updateFilterBadge() {
+    const btn = $('filter-btn');
+    if (!btn) return;
+    const n = ($('sort-select').value !== 'day' ? 1 : 0) + ($('category-select').value !== 'all' ? 1 : 0);
+    btn.classList.toggle('active', n > 0);
+    btn.querySelector('.fb-count').textContent = n ? n : '';
+  }
+  function openFilters() { $('filter-modal').style.display = 'flex'; }
+  function resetFilters() {
+    $('sort-select').value = 'day';
+    if (typeof setCategory === 'function') setCategory('all'); else $('category-select').value = 'all';
+    renderItinerary();
+    updateFilterBadge();
+  }
+
+  /* ---------- Tips: one at a time, each shown once; Settings → Show tips turns them off ---------- */
+  const TIPS = { cards: 'tipCards', today: 'tipToday', map: 'tipMap', select: 'tipSelect' };
+  let tipShownThisSession = false;
+  function tipsOn() { return loadPref('mappin_tips', 'true') === 'true'; }
+  function toggleTips() { savePref('mappin_tips', String(!tipsOn())); renderSettings(); }
+  function tipsSettingHtml() {
+    return `<div class="settings-row"><span>${escapeHtml(t('showTips'))}</span>${switchHtml(tipsOn(), 'toggleTips()', t('showTips'))}</div>`;
+  }
+  function showTip(key, force) {
+    if (!tipsOn() || !TIPS[key] || loadPref('mappin_tip_' + key, '') === '1') return;
+    if (tipShownThisSession && !force) return;
+    tipShownThisSession = true;
+    savePref('mappin_tip_' + key, '1');
+    setTimeout(() => showToast('💡 ' + t(TIPS[key]), { ms: 9000, actionLabel: t('gotIt'), onAction: () => {} }), force ? 400 : 1500);
+  }
+  function maybeShowTips() {
+    if (VIEW_ONLY || !rawData.length) return;
+    if (todayMode) showTip('today');
+    else if (rawData.length >= 2) showTip('cards');
+    else showTip('map');
+  }
+
+  /* ===== 29-layout.js ===== */
+  /* =========================================================
+     LAYOUT HELPERS: resizable list column, landscape scrolling, card dragging help,
+     drag-bar guard, folding days while picking days
+     ========================================================= */
+
+  /* ---------- Drag the edge of the list to make it wider or narrower (landscape and bigger screens) ---------- */
+  const landscapeMQ = window.matchMedia('(max-height: 520px)');
+  function sidebarMode() { return isPortraitPhone() ? null : landscapeMQ.matches ? 'land' : 'desk'; }
+  function applySidebarWidth() {
+    const mode = sidebarMode(), root = document.documentElement.style;
+    if (!mode) { root.removeProperty('--sidebar-w'); return; }
+    const w = parseInt(loadPref('mappin_sbw_' + mode, ''));
+    if (w) root.setProperty('--sidebar-w', Math.round(clampSidebar(w)) + 'px'); else root.removeProperty('--sidebar-w');
+  }
+  function clampSidebar(w) { return Math.max(260, Math.min(w, window.innerWidth * 0.62)); }
+  function initColumnResize() {
+    const sb = $('sidebar');
+    if (!sb) return;
+    const grip = document.createElement('div');
+    grip.id = 'col-resizer';
+    grip.setAttribute('role', 'separator');
+    grip.setAttribute('aria-orientation', 'vertical');
+    grip.title = t('resizeList');
+    (document.querySelector('.main-content') || sb.parentElement).appendChild(grip);
+    let start = null;
+    grip.addEventListener('pointerdown', e => {
+      if (!sidebarMode()) return;
+      e.preventDefault();
+      grip.setPointerCapture(e.pointerId);
+      start = { x: e.clientX, w: sb.getBoundingClientRect().width, right: document.documentElement.getAttribute('data-side') === 'right' };
+      grip.classList.add('active');
+    });
+    grip.addEventListener('pointermove', e => {
+      if (!start) return;
+      const dx = (e.clientX - start.x) * (start.right ? -1 : 1);
+      document.documentElement.style.setProperty('--sidebar-w', Math.round(clampSidebar(start.w + dx)) + 'px');
+      if (map) map.invalidateSize();
+    });
+    const end = () => {
+      if (!start) return;
+      start = null; grip.classList.remove('active');
+      const v = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-w'));
+      if (v && sidebarMode()) savePref('mappin_sbw_' + sidebarMode(), String(v));
+      if (map) setTimeout(() => map.invalidateSize(), 50);
+    };
+    grip.addEventListener('pointerup', end);
+    grip.addEventListener('pointercancel', end);
+    grip.addEventListener('dblclick', () => { savePref('mappin_sbw_' + sidebarMode(), ''); applySidebarWidth(); if (map) map.invalidateSize(); });
+    applySidebarWidth();
+    window.addEventListener('resize', () => { applySidebarWidth(); updateStickyOffsets(); });
+  }
+
+  /* ---------- Landscape: the menu bar and search stay put while the itinerary scrolls ---------- */
+  function updateStickyOffsets() {
+    const h = document.querySelector('header');
+    if (!h) return;
+    document.documentElement.style.setProperty('--hdr-stick', Math.round(h.getBoundingClientRect().height - 1) + 'px');
+  }
+
+  /* ---------- Moving a card: it only moves up and down, and a second finger can scroll the list ---------- */
+  let dragAssist = null;
+  function dragScroller() {
+    const tl = document.querySelector('.timeline-container'), sb = $('sidebar');
+    const scrolls = el => el && /(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight + 1;
+    return scrolls(tl) ? tl : scrolls(sb) ? sb : tl;
+  }
+  function startDragAssist() {
+    stopDragAssist();
+    const st = { raf: 0, fingers: {} };
+    const lockAxis = () => {
+      const g = document.querySelector('.sortable-fallback');
+      if (g) {
+        const tr = g.style.transform || '';
+        let m = tr.match(/^matrix\(([^)]+)\)/);
+        if (m) {
+          const v = m[1].split(',').map(x => x.trim());
+          if (v.length === 6 && parseFloat(v[4]) !== 0) { v[4] = '0'; g.style.transform = `matrix(${v.join(', ')})`; }
+        } else if ((m = tr.match(/^translate3d\(([-\d.]+)px,\s*([-\d.]+)px/)) && parseFloat(m[1]) !== 0) {
+          g.style.transform = `translate3d(0px, ${m[2]}px, 0px)`;
+        }
+      }
+      st.raf = requestAnimationFrame(lockAxis);
+    };
+    st.raf = requestAnimationFrame(lockAxis);
+    st.move = e => {
+      if (e.touches.length < 2) { st.fingers = {}; return; }
+      const sc = dragScroller();
+      // Any finger other than the one holding the card scrolls the list
+      for (let i = 1; i < e.touches.length; i++) {
+        const tch = e.touches[i], prev = st.fingers[tch.identifier];
+        if (prev !== undefined && sc) sc.scrollTop -= (tch.clientY - prev);
+        st.fingers[tch.identifier] = tch.clientY;
+      }
+    };
+    document.addEventListener('touchmove', st.move, { passive: true, capture: true });
+    dragAssist = st;
+  }
+  function stopDragAssist() {
+    if (!dragAssist) return;
+    cancelAnimationFrame(dragAssist.raf);
+    document.removeEventListener('touchmove', dragAssist.move, { capture: true });
+    dragAssist = null;
+  }
+
+  /* ---------- The list's drag bar: taps just above it don't reach the map ---------- */
+  function initHandleGuard() {
+    document.addEventListener('pointerdown', e => {
+      if (!isPortraitPhone()) return;
+      const mapEl = $('map'), sb = $('sidebar');
+      if (!mapEl || !sb || !mapEl.contains(e.target)) return;
+      const top = sb.getBoundingClientRect().top;
+      if (e.clientY > top - 26) suppressMapTapUntil = Date.now() + 700;
+    }, true);
+  }
+
+  /* ---------- Picking days to group: fold every day so they're easy to tap, then unfold as they were ---------- */
+  let daySelectFoldBackup = null;
+  function foldDaysForSelect() {
+    daySelectFoldBackup = new Set(collapsedDays);
+    getAllDays().forEach(d => collapsedDays.add(d));
+    document.querySelectorAll('.day-section').forEach(s => s.classList.add('collapsed'));
+    document.querySelectorAll('.day-section .day-count').forEach(c => { c.style.display = ''; });
+  }
+  function unfoldDaysAfterSelect() {
+    if (!daySelectFoldBackup) return;
+    collapsedDays = daySelectFoldBackup;
+    daySelectFoldBackup = null;
+    document.querySelectorAll('.day-section').forEach(s => {
+      const d = parseInt(s.dataset.day), c = collapsedDays.has(d);
+      s.classList.toggle('collapsed', c);
+      const cnt = s.querySelector('.day-count'); if (cnt) cnt.style.display = c ? '' : 'none';
+    });
+  }
+
   /* ===== 99-boot.js ===== */
   /* =========================================================
      START-UP: wire up gestures and helpers, then build the map once the page has loaded
@@ -10524,12 +11156,19 @@
   initSingleToast();
   initScrollLock();
   initDragCleanup();
+  initDismissFirst();
+  initLiveEdits();
+  initColumnResize();
+  initHandleGuard();
+  placeFilters();
 
   window.addEventListener('load', () => {
     initMap();
     initAutoToday();
     initTourAutoOpen();
     labelIconButtons();
+    updateStickyOffsets();
+    setTimeout(maybeShowTips, 5000);
     if (!feedbackEmail()) { const f = $('feedback-menu-item'); if (f) f.style.display = 'none'; }
   });
 </script>
