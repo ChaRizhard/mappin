@@ -1265,6 +1265,48 @@
 
     :root { --panel-solid: #0f172a; }
     :root[data-ui="light"] { --panel-solid: #ffffff; }
+
+    /* ===== 1.4.0 ===== */
+    /* Day header: the name on top, date · weather · cost · stops underneath; nothing pushes the list sideways */
+    .timeline-container, sidebar { overflow-x: hidden; }
+    .day-section-title { align-items: center; text-transform: none; letter-spacing: 0; min-width: 0; }
+    .day-head-main { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; gap: 1px; }
+    .day-head-main .day-title-text { align-self: flex-start; max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 2px 6px 0 2px;
+      text-transform: uppercase; letter-spacing: 0.8px; font-size: 12px; }
+    .day-sub { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; padding-left: 2px; min-width: 0; }
+    .day-sub > * { font-size: 11px !important; }
+    .day-sub .day-count { color: var(--text-muted); font-weight: 600; }
+    .day-section-title .day-line { flex: 0 0 auto; width: 34px; justify-content: center; }
+    .activity-card { max-width: 100%; }
+    /* Moving a card: the card lifts (shadow, no resizing), the others slide out of the way, its old spot stays open */
+    .activity-card.sortable-chosen { transform: none !important; }
+    .activity-card.sortable-ghost { opacity: 0 !important; }
+    .sortable-fallback { box-shadow: 0 18px 40px rgba(0,0,0,0.5) !important; border-color: var(--accent-blue) !important; opacity: 1 !important; }
+    /* Currency picker next to Cost */
+    .cost-label { display: flex !important; align-items: center; gap: 6px; }
+    .cur-select { background: var(--tint); color: var(--text-main); border: 1px solid var(--panel-border); border-radius: 6px; font-size: 11px; padding: 1px 4px; height: 20px; }
+
+    /* Phones: no "Itinerary" heading (the list speaks for itself); its status pills only appear while busy */
+    @media (max-width: 820px), (max-height: 520px) {
+      .sidebar-title, #activity-count { display: none !important; }
+      .sidebar-title-row { margin-bottom: 0 !important; min-height: 0; }
+      .sidebar-title-row:not(:has(.sync-pill[style*="inline"], .geo-pill[style*="flex"])) { display: none; }
+      .header-in-sheet .sidebar-header { padding-top: 10px; }
+    }
+
+    /* Resize handle for the list column: a visible grip on the edge (landscape and bigger screens) */
+    @media not all and (max-width: 820px) and (min-height: 521px) {
+      #col-resizer::after { width: 6px !important; height: 56px !important; margin-top: -28px !important; left: 4px !important; border-radius: 3px !important;
+        background: var(--text-muted) !important; opacity: 0.55 !important; box-shadow: 0 0 0 3px var(--panel-solid); }
+      #col-resizer::before { content: ''; position: absolute; top: 0; bottom: 0; left: 6px; width: 2px; background: var(--panel-border); }
+      #col-resizer:hover::after, #col-resizer.active::after { opacity: 1 !important; background: var(--accent-blue) !important; }
+      #col-resizer.hint::after { animation: gripHint 1.6s ease-in-out 2; }
+    }
+    @keyframes gripHint { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-4px); } 60% { transform: translateX(4px); } }
+
+    /* Checklist starter button, Show in list */
+    .cl-starter { width: 100%; justify-content: center; margin-top: 8px; padding: 11px; }
+    .trip-summary { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -1986,7 +2028,7 @@
       tipCards: "Press and hold a card to move it, or hold and let go to select cards for grouping. Swipe left to delete, right to mark done. Double tap to find it on the map.",
       tipToday: "Swipe the Today card for the next stop, or tap the day name to switch days.",
       tipMap: "Tap anywhere on the map to add a place. The buttons at the bottom right switch map type, show all pins and find you.",
-      tipSelect: "Tap more cards to select them, then choose Group.",
+      tipSelect: "Tap more cards to select them, then choose Group. Tap anywhere else to stop.",
       showTips: "Show tips",
       gotIt: "Got it",
       resizeList: "Drag to resize the list (double-click to reset)",
@@ -1994,7 +2036,25 @@
       renameTrip: "Rename trip",
       myTrip: "My trip",
       prevYear: "Previous year",
-      nextYear: "Next year"
+      nextYear: "Next year",
+      showOnMap: "Show on the map",
+      showInList: "Show in the list",
+      tipSelectDays: "Tap more days to pick them, then choose Group days. Tap anywhere else to stop.",
+      tripRenamed: "Trip renamed",
+      itemDeleted: "Deleted “{name}”",
+      addStarterItems: "Add common items",
+      starterPassport: "Passport",
+      starterInsurance: "Travel insurance",
+      starterFlights: "Flights booked",
+      starterStay: "Accommodation booked",
+      starterCharger: "Phone charger and power adapter",
+      starterMoney: "Bank card and some local cash",
+      starterMeds: "Medications",
+      starterOffline: "Save maps for offline",
+      homeCurrency: "Home currency (totals)",
+      tripCurrency: "Prices on this trip are in",
+      currencyHint: "Each stop can use its own currency (next to Cost). Totals are converted to your home currency.",
+      ratesAsOf: "Rates from {d}."
     },
     ja: {
       language: "言語",
@@ -2392,7 +2452,7 @@
       tipCards: "カードを長押しで移動、長押しして離すとグループ化のために選択できます。左にスワイプで削除、右で完了。ダブルタップで地図上の場所へ。",
       tipToday: "「今日」カードをスワイプで次のスポットへ。日の名前をタップで日を切り替え。",
       tipMap: "地図をタップすると場所を追加できます。右下のボタンで地図の種類・全ピン表示・現在地。",
-      tipSelect: "他のカードもタップして選び、「グループ化」を選んでください。",
+      tipSelect: "他のカードもタップして選び、「グループ化」を選択。他の場所をタップで終了。",
       showTips: "ヒントを表示",
       gotIt: "OK",
       resizeList: "ドラッグでリストの幅を変更（ダブルクリックで元に戻す）",
@@ -2400,7 +2460,25 @@
       renameTrip: "旅行名を変更",
       myTrip: "マイ旅行",
       prevYear: "前の年",
-      nextYear: "次の年"
+      nextYear: "次の年",
+      showOnMap: "地図で表示",
+      showInList: "リストで表示",
+      tipSelectDays: "他の日もタップして選び、「日をグループ化」を選択。他の場所をタップで終了。",
+      tripRenamed: "旅行名を変更しました",
+      itemDeleted: "「{name}」を削除しました",
+      addStarterItems: "よくある項目を追加",
+      starterPassport: "パスポート",
+      starterInsurance: "旅行保険",
+      starterFlights: "航空券の予約",
+      starterStay: "宿の予約",
+      starterCharger: "充電器と変換プラグ",
+      starterMoney: "カードと現地の現金",
+      starterMeds: "常備薬",
+      starterOffline: "地図をオフライン保存",
+      homeCurrency: "自国通貨（合計）",
+      tripCurrency: "この旅行の価格の通貨",
+      currencyHint: "スポットごとに通貨を選べます（費用の横）。合計は自国通貨に換算されます。",
+      ratesAsOf: "{d} のレート。"
     },
     zh: {
       language: "语言",
@@ -2798,7 +2876,7 @@
       tipCards: "长按卡片可移动，长按后松开可选择卡片来分组。向左滑删除，向右滑标记完成。双击在地图上查看。",
       tipToday: "滑动“今天”卡片切换下一站，点天名称切换日期。",
       tipMap: "点地图任意处即可添加地点。右下角按钮可切换地图类型、显示全部图钉和定位。",
-      tipSelect: "继续点选其他卡片，然后选择“分组”。",
+      tipSelect: "继续点选其他卡片，然后选择“分组”。点别处即可结束。",
       showTips: "显示提示",
       gotIt: "知道了",
       resizeList: "拖动调整列表宽度（双击恢复）",
@@ -2806,7 +2884,25 @@
       renameTrip: "重命名行程",
       myTrip: "我的行程",
       prevYear: "上一年",
-      nextYear: "下一年"
+      nextYear: "下一年",
+      showOnMap: "在地图上显示",
+      showInList: "在列表中显示",
+      tipSelectDays: "继续点选其他天，然后选择“分组天”。点别处即可结束。",
+      tripRenamed: "已重命名行程",
+      itemDeleted: "已删除“{name}”",
+      addStarterItems: "添加常用项目",
+      starterPassport: "护照",
+      starterInsurance: "旅行保险",
+      starterFlights: "已订机票",
+      starterStay: "已订住宿",
+      starterCharger: "充电器和转换插头",
+      starterMoney: "银行卡和当地现金",
+      starterMeds: "常用药",
+      starterOffline: "保存离线地图",
+      homeCurrency: "本国货币（合计）",
+      tripCurrency: "本次行程的价格货币",
+      currencyHint: "每个地点可用自己的货币（在费用旁）。合计换算为本国货币。",
+      ratesAsOf: "{d} 的汇率。"
     },
     ko: {
       language: "언어",
@@ -3204,7 +3300,7 @@
       tipCards: "카드를 길게 눌러 옮기거나, 길게 눌렀다 떼면 그룹으로 묶을 카드를 고를 수 있어요. 왼쪽으로 밀면 삭제, 오른쪽은 완료. 두 번 탭하면 지도에서 찾아요.",
       tipToday: "오늘 카드를 밀어 다음 장소로, 날 이름을 탭해 날을 바꿔요.",
       tipMap: "지도를 탭하면 장소를 추가할 수 있어요. 오른쪽 아래 버튼으로 지도 유형, 모든 핀, 내 위치를 볼 수 있어요.",
-      tipSelect: "다른 카드도 탭해 고른 뒤 그룹을 선택하세요.",
+      tipSelect: "다른 카드도 탭해 고른 뒤 그룹을 선택하세요. 다른 곳을 탭하면 끝나요.",
       showTips: "도움말 표시",
       gotIt: "확인",
       resizeList: "드래그해 목록 너비 조절 (더블클릭하면 초기화)",
@@ -3212,7 +3308,25 @@
       renameTrip: "여행 이름 바꾸기",
       myTrip: "내 여행",
       prevYear: "이전 해",
-      nextYear: "다음 해"
+      nextYear: "다음 해",
+      showOnMap: "지도에서 보기",
+      showInList: "목록에서 보기",
+      tipSelectDays: "다른 날도 탭해 고른 뒤 날 그룹을 선택하세요. 다른 곳을 탭하면 끝나요.",
+      tripRenamed: "여행 이름을 바꿨어요",
+      itemDeleted: "“{name}” 삭제됨",
+      addStarterItems: "자주 쓰는 항목 추가",
+      starterPassport: "여권",
+      starterInsurance: "여행자 보험",
+      starterFlights: "항공권 예약",
+      starterStay: "숙소 예약",
+      starterCharger: "충전기와 변환 플러그",
+      starterMoney: "카드와 현지 현금",
+      starterMeds: "상비약",
+      starterOffline: "오프라인 지도 저장",
+      homeCurrency: "기본 통화 (합계)",
+      tripCurrency: "이 여행의 가격 통화",
+      currencyHint: "장소마다 통화를 고를 수 있어요(비용 옆). 합계는 기본 통화로 환산돼요.",
+      ratesAsOf: "{d} 환율."
     },
     es: {
       language: "Idioma",
@@ -3615,7 +3729,7 @@
       tipCards: "Mantén pulsada una tarjeta para moverla, o mantén y suelta para seleccionar tarjetas y agruparlas. Desliza a la izquierda para borrar y a la derecha para marcar hecha. Doble toque para verla en el mapa.",
       tipToday: "Desliza la tarjeta de Hoy para la siguiente parada; toca el nombre del día para cambiar de día.",
       tipMap: "Toca el mapa para añadir un lugar. Los botones de abajo a la derecha cambian el tipo de mapa, muestran todos los pines y te localizan.",
-      tipSelect: "Toca más tarjetas para seleccionarlas y elige Agrupar.",
+      tipSelect: "Toca más tarjetas para elegirlas y luego Agrupar. Toca en otro sitio para salir.",
       showTips: "Mostrar consejos",
       gotIt: "Entendido",
       resizeList: "Arrastra para cambiar el ancho de la lista (doble clic para restablecer)",
@@ -3623,7 +3737,25 @@
       renameTrip: "Renombrar viaje",
       myTrip: "Mi viaje",
       prevYear: "Año anterior",
-      nextYear: "Año siguiente"
+      nextYear: "Año siguiente",
+      showOnMap: "Ver en el mapa",
+      showInList: "Ver en la lista",
+      tipSelectDays: "Toca más días para elegirlos y luego Agrupar días. Toca en otro sitio para salir.",
+      tripRenamed: "Viaje renombrado",
+      itemDeleted: "Se eliminó «{name}»",
+      addStarterItems: "Añadir elementos comunes",
+      starterPassport: "Pasaporte",
+      starterInsurance: "Seguro de viaje",
+      starterFlights: "Vuelos reservados",
+      starterStay: "Alojamiento reservado",
+      starterCharger: "Cargador y adaptador de enchufe",
+      starterMoney: "Tarjeta y algo de efectivo local",
+      starterMeds: "Medicamentos",
+      starterOffline: "Guardar mapas sin conexión",
+      homeCurrency: "Moneda de casa (totales)",
+      tripCurrency: "Los precios de este viaje están en",
+      currencyHint: "Cada parada puede tener su moneda (junto a Coste). Los totales se convierten a tu moneda.",
+      ratesAsOf: "Tipos del {d}."
     },
     fr: {
       language: "Langue",
@@ -4026,7 +4158,7 @@
       tipCards: "Appui long sur une carte pour la déplacer, ou appui long puis relâcher pour sélectionner des cartes à grouper. Glissez à gauche pour supprimer, à droite pour marquer comme fait. Double tap pour la voir sur la carte.",
       tipToday: "Glissez la carte Aujourd’hui pour l’étape suivante ; touchez le nom du jour pour changer de jour.",
       tipMap: "Touchez la carte pour ajouter un lieu. Les boutons en bas à droite changent le type de carte, montrent tous les repères et vous localisent.",
-      tipSelect: "Touchez d’autres cartes pour les sélectionner, puis choisissez Grouper.",
+      tipSelect: "Touchez d’autres cartes pour les choisir, puis Grouper. Touchez ailleurs pour arrêter.",
       showTips: "Afficher les astuces",
       gotIt: "Compris",
       resizeList: "Glissez pour redimensionner la liste (double-clic pour réinitialiser)",
@@ -4034,7 +4166,25 @@
       renameTrip: "Renommer le voyage",
       myTrip: "Mon voyage",
       prevYear: "Année précédente",
-      nextYear: "Année suivante"
+      nextYear: "Année suivante",
+      showOnMap: "Voir sur la carte",
+      showInList: "Voir dans la liste",
+      tipSelectDays: "Touchez d’autres jours pour les choisir, puis Grouper les jours. Touchez ailleurs pour arrêter.",
+      tripRenamed: "Voyage renommé",
+      itemDeleted: "« {name} » supprimé",
+      addStarterItems: "Ajouter les éléments courants",
+      starterPassport: "Passeport",
+      starterInsurance: "Assurance voyage",
+      starterFlights: "Vols réservés",
+      starterStay: "Hébergement réservé",
+      starterCharger: "Chargeur et adaptateur",
+      starterMoney: "Carte bancaire et un peu d’espèces",
+      starterMeds: "Médicaments",
+      starterOffline: "Enregistrer les cartes hors ligne",
+      homeCurrency: "Devise de référence (totaux)",
+      tripCurrency: "Les prix de ce voyage sont en",
+      currencyHint: "Chaque étape peut avoir sa devise (à côté du coût). Les totaux sont convertis dans votre devise.",
+      ratesAsOf: "Taux du {d}."
     },
     de: {
       language: "Sprache",
@@ -4437,7 +4587,7 @@
       tipCards: "Halte eine Karte gedrückt, um sie zu verschieben, oder halten und loslassen, um Karten zum Gruppieren auszuwählen. Nach links wischen löscht, nach rechts markiert als erledigt. Doppeltippen zeigt sie auf der Karte.",
       tipToday: "Wische die Heute-Karte für den nächsten Stopp; tippe auf den Tagesnamen, um den Tag zu wechseln.",
       tipMap: "Tippe auf die Karte, um einen Ort hinzuzufügen. Die Tasten unten rechts wechseln den Kartentyp, zeigen alle Pins und deinen Standort.",
-      tipSelect: "Tippe weitere Karten an und wähle dann Gruppieren.",
+      tipSelect: "Tippe weitere Karten an und wähle dann Gruppieren. Tippe woanders hin, um aufzuhören.",
       showTips: "Tipps anzeigen",
       gotIt: "Verstanden",
       resizeList: "Ziehen, um die Listenbreite zu ändern (Doppelklick setzt zurück)",
@@ -4445,7 +4595,25 @@
       renameTrip: "Reise umbenennen",
       myTrip: "Meine Reise",
       prevYear: "Vorheriges Jahr",
-      nextYear: "Nächstes Jahr"
+      nextYear: "Nächstes Jahr",
+      showOnMap: "Auf der Karte zeigen",
+      showInList: "In der Liste zeigen",
+      tipSelectDays: "Tippe weitere Tage an und wähle dann Tage gruppieren. Tippe woanders hin, um aufzuhören.",
+      tripRenamed: "Reise umbenannt",
+      itemDeleted: "„{name}“ gelöscht",
+      addStarterItems: "Übliche Einträge hinzufügen",
+      starterPassport: "Reisepass",
+      starterInsurance: "Reiseversicherung",
+      starterFlights: "Flüge gebucht",
+      starterStay: "Unterkunft gebucht",
+      starterCharger: "Ladegerät und Reisestecker",
+      starterMoney: "Bankkarte und etwas Bargeld",
+      starterMeds: "Medikamente",
+      starterOffline: "Karten offline speichern",
+      homeCurrency: "Heimatwährung (Summen)",
+      tripCurrency: "Preise dieser Reise in",
+      currencyHint: "Jeder Stopp kann eine eigene Währung haben (neben Kosten). Summen werden in deine Heimatwährung umgerechnet.",
+      ratesAsOf: "Kurse vom {d}."
     }
   };
 
@@ -5017,7 +5185,7 @@
 
   /* ---------- List position (left / right) ---------- */
   function applySide() {
-    document.documentElement.setAttribute('data-side', loadPref('mappin_side', 'left') === 'right' ? 'right' : 'left');
+    document.documentElement.setAttribute('data-side', loadPref('mappin_side', 'right') === 'right' ? 'right' : 'left');
     setTimeout(() => map && map.invalidateSize(), 60);
   }
   function setSide(side) {
@@ -5058,6 +5226,7 @@
     order: ['order', 'sequence', 'seq', 'stopnumber', 'stopno'],
     colour: ['customcolour', 'customcolor', 'colour', 'color'],
     cost: ['cost', 'price', 'budget', 'amount', 'fee', 'costs', 'plannedcost'],
+    currency: ['currency', 'curr', 'ccy'],
     spent: ['spent', 'actualcost', 'actual', 'actualspend', 'spend'],
     bookingref: ['bookingref', 'booking', 'bookingnumber', 'confirmation', 'confirmationnumber', 'reference', 'ref'],
     bookinglink: ['bookinglink', 'bookingurl', 'ticketlink', 'ticketurl'],
@@ -5168,6 +5337,7 @@
         customColour: get(item, 'colour') || null,
         cost: parseCost(get(item, 'cost')),
         spent: parseCost(get(item, 'spent')),
+        currency: (/^[A-Za-z]{3}$/.test(get(item, 'currency') || '') ? get(item, 'currency').toUpperCase() : undefined),
         bookingRef: get(item, 'bookingref') || '', bookingUrl: get(item, 'bookinglink') || '',
         stay: (() => { const v = parseInt(get(item, 'stay')); return isNaN(v) ? null : v; })(),
         fixedTime: /^(y|yes|true|1|x|✓|✔|booked|fixed)$/i.test(get(item, 'fixed')),
@@ -5604,7 +5774,7 @@
     if (sec) {
       sec.classList.toggle('collapsed', collapsedDays.has(day));
       const count = sec.querySelector('.day-count');
-      if (count) count.style.display = collapsedDays.has(day) ? '' : 'none';
+      if (count) count.style.display = '';
     }
     scheduleAutosave();
   }
@@ -5834,11 +6004,13 @@
   }
 
   function setDayChip(day) {
+    const wasToday = todayMode;
     if (todayMode) exitToday();
     activeDay = day;
     populateFilters();
     renderItinerary();
-    if (day === 'all') fitAllPins();
+    // Leaving Today resizes the list first; wait for that before moving the map so it doesn't jump
+    if (day === 'all') setTimeout(() => { if (map) map.invalidateSize(); fitAllPins(); }, wasToday ? 320 : 0);
   }
 
   function sortItinerary() { renderItinerary(); }
@@ -5990,12 +6162,16 @@
         <div class="day-section-title">
           <span class="day-check"><i class="fa-solid fa-check"></i></span>
           <div class="color-dot-picker" style="background:${dayColour}" title="${escapeHtml(t('changeColour'))}" onclick="openSingleDayModal(${dayNum})"></div>
+          <div class="day-head-main">
           <span class="day-title-text" onclick="openSingleDayModal(${dayNum})">${escapeHtml(displayDayTitle)}</span>
+          <div class="day-sub">
           ${DAY_DATES[dayNum] ? `<span class="day-date">${escapeHtml(formatDateShort(DAY_DATES[dayNum]))}</span>` : ''}
           ${weatherHtml(dayNum)}
           ${daySpent(dayNum) > 0 ? `<span class="day-cost ${dayCost(dayNum) && daySpent(dayNum) > dayCost(dayNum) ? 'over' : ''}" title="${escapeHtml(t('spentHint'))}">${escapeHtml(dayCost(dayNum) ? t('spentOf', { a: fmtMoney(daySpent(dayNum)), b: fmtMoney(dayCost(dayNum)) }) : t('spentX', { a: fmtMoney(daySpent(dayNum)) }))}</span>`
             : dayCost(dayNum) > 0 ? `<span class="day-cost">${escapeHtml(fmtMoney(dayCost(dayNum)))}</span>` : ''}
-          <span class="day-count" style="${isCollapsed ? '' : 'display:none'}">${escapeHtml(t('stopsCount', { n: dayItems.length }))}</span>
+          <span class="day-count">${escapeHtml(t('stopsCount', { n: dayItems.length }))}</span>
+          </div>
+          </div>
           <div class="day-line" onclick="toggleDayCollapse(${dayNum})"><i class="fa-solid fa-chevron-down day-chevron"></i></div>
           <button class="day-menu-btn" onclick="openDayMenu(event, ${dayNum})"><i class="fa-solid fa-bars"></i></button>
         </div>`;
@@ -6061,6 +6237,7 @@
           card.onmouseenter = () => highlightSinglePin(item.id, true);
           card.onmouseleave = () => highlightSinglePin(item.id, false);
           card.ondblclick = (e) => {
+            if (Date.now() - lastCardFlyAt < 700) return; // already handled by the double-tap on a phone
             if (selectMode || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
             clearTimeout(inlineEditTimer);
             flyToStop(item.id);
@@ -6075,7 +6252,7 @@
           const dateChip = `<span class="date-chip ${!effDate ? 'empty' : item.date ? '' : 'inherited'}" onclick="editCardDate(${item.id}, event)" title="${escapeHtml(item.date ? t('changeDate') : effDate ? t('dateFromDay') : t('addDate'))}"><i class="fa-regular fa-calendar cal-icon"></i> ${effDate ? escapeHtml(displayDate(effDate)) : escapeHtml(t('addDate'))}</span>`;
 
           card.innerHTML = `
-            <div class="card-number" style="background:${stopColour}">${seqNumber}<span class="select-check"><i class="fa-solid fa-check"></i></span></div>
+            <div class="card-number" style="background:${stopColour}" onclick="if(!selectMode){event.stopPropagation(); flyToStop(${item.id});}" title="${escapeHtml(t('showOnMap'))}">${seqNumber}<span class="select-check"><i class="fa-solid fa-check"></i></span></div>
             <div class="card-content">
               <div class="card-header">
                 <span class="card-title-editable" onclick="queueInlineEdit('title', ${item.id}, event)">${escapeHtml(item.title)}</span>
@@ -6247,6 +6424,7 @@
         ${hoursWarning(item) ? `<div style="margin:-2px 0 8px">${hoursWarningHtml(item)}</div>` : ''}
         <div class="place-details" id="pd-stop-${item.id}"><div class="pd-loading"><i class="fa-solid fa-spinner fa-spin"></i> ${escapeHtml(t('loadingDetails'))}</div></div>
         <div class="popup-actions-footer">
+          <button class="pin-toggle-btn show-in-list" data-tooltip="${escapeHtml(t('showInList'))}" aria-label="${escapeHtml(t('showInList'))}" onclick="map.closePopup(); revealStop(${item.id}, true)"><i class="fa-solid fa-list-ol"></i></button>
           <button class="pin-toggle-btn lock" data-tooltip="${escapeHtml(item.locked ? t('unlockPin') : t('lockPin'))}" aria-label="${escapeHtml(item.locked ? t('unlockPin') : t('lockPin'))}" onclick="togglePinLockFor(${item.id})"><i class="fa-solid ${item.locked ? 'fa-lock' : 'fa-lock-open'}"></i></button>
           <button class="pin-toggle-btn remove" data-tooltip="${escapeHtml(t('removePin'))}" aria-label="${escapeHtml(t('removePin'))}" onclick="removePinFromPopup(${item.id})">${TRASH_SVG}</button>
         </div>
@@ -6297,13 +6475,14 @@
       onChoose: function(evt) {
         holdInfo = { id: Number(evt.item.getAttribute('data-id')), started: false, touch: lastPointerTouch };
         try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
+        if (lastPointerTouch) startDragAssist(); // a second finger can scroll the list as soon as a card is picked up
       },
-      onUnchoose: function() { const h = holdInfo; holdInfo = null; if (h && !h.started && h.touch) holdToSelect(h.id); },
+      onUnchoose: function() { const h = holdInfo; holdInfo = null; if (!isDragging) stopDragAssist(); if (h && !h.started && h.touch) holdToSelect(h.id); },
       draggable: '.activity-card',
       ghostClass: 'sortable-ghost',
       filter: 'input, textarea, select',
       preventOnFilter: false,
-      onStart: function() { isDragging = true; if (holdInfo) holdInfo.started = true; startDragAssist(); },
+      onStart: function() { isDragging = true; if (holdInfo) holdInfo.started = true; if (!dragAssist) startDragAssist(); },
       onEnd: function() { isDragging = false; stopDragAssist(); reorderAllStops(); }
     };
   }
@@ -6716,11 +6895,11 @@
           <input type="time" id="single-time-input" class="edit-form-input" value="${timeVal}"></div>
         <div><label class="field-label">${escapeHtml(t('stayLabel'))}</label>
           <input type="number" min="0" step="5" inputmode="numeric" id="single-stay-input" class="edit-form-input" value="${typeof item.stay === 'number' ? item.stay : ''}" placeholder="${stayMinutes(item)}"></div>
-        <div><label class="field-label">${escapeHtml(t('costLabel'))} (${escapeHtml(CURRENCY)})</label>
+        <div><label class="field-label cost-label">${escapeHtml(t('costLabel'))} <select id="single-cur-input" class="cur-select" aria-label="${escapeHtml(t('currency'))}">${currencyOptions(itemCurrency(item))}</select></label>
           <input type="number" min="0" step="any" inputmode="decimal" id="single-cost-input" class="edit-form-input" value="${typeof item.cost === 'number' ? item.cost : ''}" placeholder="0"></div>
       </div>
       <div class="field-grid two">
-        <div><label class="field-label">${escapeHtml(t('spentLabel'))} (${escapeHtml(CURRENCY)})</label>
+        <div><label class="field-label">${escapeHtml(t('spentLabel'))}</label>
           <input type="number" min="0" step="any" inputmode="decimal" id="single-spent-input" class="edit-form-input" value="${typeof item.spent === 'number' ? item.spent : ''}" placeholder="${escapeHtml(t('spentPh'))}"></div>
         <div><label class="field-label">${escapeHtml(t('bookingRef'))}</label>
           <input type="text" id="single-bref-input" class="edit-form-input" autocomplete="off" value="${escapeHtml(item.bookingRef || '')}" placeholder="${escapeHtml(t('bookingRefPh'))}"></div>
@@ -6775,6 +6954,8 @@
         if (tIn) { if (tIn.value) item.time = tIn.value; else if (/^\d{1,2}:\d{2}$/.test(item.time || '')) item.time = ''; }
         if (sIn) { const v = parseInt(sIn.value); item.stay = isNaN(v) ? null : Math.max(0, v); }
         if (cIn) { const v = parseFloat(cIn.value); item.cost = isNaN(v) ? null : v; }
+        const curIn = $('single-cur-input');
+        if (curIn) item.currency = curIn.value && curIn.value !== tripCurrency() ? curIn.value : undefined;
         if (fIn) item.fixedTime = fIn.checked;
         const spIn = $('single-spent-input'), brIn = $('single-bref-input'), buIn = $('single-burl-input');
         if (spIn) { const v = parseFloat(spIn.value); item.spent = isNaN(v) ? null : v; }
@@ -8261,7 +8442,7 @@
       'Group': stopToGroup[item.id] && GROUPS[stopToGroup[item.id]] ? GROUPS[stopToGroup[item.id]].name : '',
       'Cost': typeof item.cost === 'number' ? item.cost : '', 'Stay (min)': typeof item.stay === 'number' ? item.stay : '',
       'Fixed time': item.fixedTime ? 'yes' : '', 'Opening hours': item.hours || '',
-      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || ''
+      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || ''
     }));
     const csv = Papa.unparse(exportData);
     shareFile('MapPin_Itinerary.csv', '﻿' + csv, 'text/csv;charset=utf-8').then(r => { if (r === 'shared' && IS_NATIVE) showToast(t('fileReady'), { ms: 2000 }); }).catch(() => {});
@@ -8358,7 +8539,7 @@
               <div class="pv-num" style="background:${getStopColour(s)}">${n}</div>
               <div class="pv-time">${escapeHtml(s.time || '')}</div>
               <div><div class="pv-title">${escapeHtml(s.cleanTitle || s.title)}</div>
-                <div class="pv-meta">${escapeHtml([s.category, s.date && s.date !== DAY_DATES[d] ? formatDateShort(s.date) : '', typeof s.cost === 'number' ? fmtMoney(s.cost) : '', s.address].filter(Boolean).join(' · '))}</div>
+                <div class="pv-meta">${escapeHtml([s.category, s.date && s.date !== DAY_DATES[d] ? formatDateShort(s.date) : '', typeof s.cost === 'number' ? fmtItem(s.cost, s) : '', s.address].filter(Boolean).join(' · '))}</div>
                 ${hoursWarning(s) ? `<div class="pv-meta" style="color:#b45309">⚠ ${escapeHtml(hoursWarning(s).text)}</div>` : ''}
                 ${s.desc ? `<div class="pv-notes">${escapeHtml(s.desc)}</div>` : ''}</div>
             </div>`;
@@ -8382,7 +8563,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.3.0';
+  const APP_VERSION = '1.4.0';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -8543,7 +8724,7 @@
     getAllDays().forEach(d => {
       lines.push(`${getDayTitle(d)}${DAY_DATES[d] ? ' · ' + formatDateShort(DAY_DATES[d]) : ''}${dayCost(d) ? ' · ' + fmtMoney(dayCost(d)) : ''}`);
       dayDisplayOrder(d).forEach((s, i) => {
-        lines.push(`  ${i + 1}. ${s.time ? s.time + '  ' : ''}${s.cleanTitle || s.title}${typeof s.cost === 'number' ? ' · ' + fmtMoney(s.cost) : ''}`);
+        lines.push(`  ${i + 1}. ${s.time ? s.time + '  ' : ''}${s.cleanTitle || s.title}${typeof s.cost === 'number' ? ' · ' + fmtItem(s.cost, s) : ''}`);
         if (s.address) lines.push(`     ${s.address}`);
         if (s.desc && s.desc !== s.address) lines.push(`     ${s.desc.replace(/\n+/g, ' ')}`);
       });
@@ -8612,10 +8793,49 @@
 
   let CURRENCY = loadPref('mappin_currency', defaultCurrency());
 
-  function fmtMoney(n) {
-    try { return new Intl.NumberFormat(LANG, { style: 'currency', currency: CURRENCY }).format(n); }
-    catch (e) { return `${CURRENCY} ${Math.round(n * 100) / 100}`; }
+  /* ---------- Money: each stop can be priced in any currency; totals show in your home currency ----------
+     CURRENCY = your home currency (Settings). TRIP.currency = what prices on this trip are usually in.
+     A stop can override it (item.currency). Exchange rates come from open.er-api.com, refreshed twice a day. */
+  function fmtCur(n, cur) {
+    try { return new Intl.NumberFormat(LANG, { style: 'currency', currency: cur, maximumFractionDigits: ['JPY', 'KRW', 'VND', 'IDR', 'TWD'].includes(cur) ? 0 : 2 }).format(n); }
+    catch (e) { return `${cur} ${Math.round(n * 100) / 100}`; }
   }
+  function fmtMoney(n) { return fmtCur(n, CURRENCY); }
+  function tripCurrency() { return (TRIP && TRIP.currency) || CURRENCY; }
+  function itemCurrency(item) { return (item && item.currency) || tripCurrency(); }
+
+  let FX = null;
+  try { FX = JSON.parse(localStorage.getItem('mappin_fx_v1') || 'null'); } catch (e) { FX = null; }
+  let fxLoading = false;
+  function refreshRates(force) {
+    const fresh = FX && FX.base === CURRENCY && Date.now() - FX.at < 12 * 3600e3;
+    if ((fresh && !force) || fxLoading || !navigator.onLine) return;
+    fxLoading = true;
+    fetchJson(`https://open.er-api.com/v6/latest/${encodeURIComponent(CURRENCY)}`, 8000).then(d => {
+      if (d && d.result === 'success' && d.rates) {
+        FX = { base: CURRENCY, at: Date.now(), rates: d.rates };
+        try { localStorage.setItem('mappin_fx_v1', JSON.stringify(FX)); } catch (e) {}
+        renderItinerary();
+      }
+    }).catch(() => {}).finally(() => { fxLoading = false; });
+  }
+  // Amount in your home currency, or null if there's no rate yet
+  function toHome(n, cur) {
+    if (typeof n !== 'number') return null;
+    if (!cur || cur === CURRENCY) return n;
+    const r = FX && FX.base === CURRENCY && FX.rates && FX.rates[cur];
+    if (!r) { refreshRates(); return null; }
+    return n / r;
+  }
+  function needsConversion() { return rawData.some(s => (typeof s.cost === 'number' || typeof s.spent === 'number') && itemCurrency(s) !== CURRENCY); }
+  // "¥3,000 (≈ A$30)" for a stop priced in another currency
+  function fmtItem(n, item) {
+    const cur = itemCurrency(item);
+    if (cur === CURRENCY) return fmtMoney(n);
+    const h = toHome(n, cur);
+    return h === null ? fmtCur(n, cur) : `${fmtCur(n, cur)} (≈ ${fmtMoney(h)})`;
+  }
+  function sumHome(list, field) { return list.reduce((a, s) => { const v = toHome(s[field], itemCurrency(s)); return v === null ? a : a + v; }, 0); }
 
   // "¥1,200", "$25.50", "12,50 €" -> number
   function parseCost(v) {
@@ -8628,10 +8848,10 @@
     return isNaN(n) ? null : n;
   }
 
-  function dayCost(day) { return rawData.filter(s => s.day === day && typeof s.cost === 'number').reduce((a, s) => a + s.cost, 0); }
-  function tripCost() { return rawData.filter(s => typeof s.cost === 'number').reduce((a, s) => a + s.cost, 0); }
-  function daySpent(day) { return rawData.filter(s => s.day === day && typeof s.spent === 'number').reduce((a, s) => a + s.spent, 0); }
-  function tripSpent() { return rawData.filter(s => typeof s.spent === 'number').reduce((a, s) => a + s.spent, 0); }
+  function dayCost(day) { return sumHome(rawData.filter(s => s.day === day && typeof s.cost === 'number'), 'cost'); }
+  function tripCost() { return sumHome(rawData.filter(s => typeof s.cost === 'number'), 'cost'); }
+  function daySpent(day) { return sumHome(rawData.filter(s => s.day === day && typeof s.spent === 'number'), 'spent'); }
+  function tripSpent() { return sumHome(rawData.filter(s => typeof s.spent === 'number'), 'spent'); }
 
   function updateBudgetPill() {
     const el = $('budget-pill');
@@ -8864,6 +9084,18 @@
     }
   }
 
+  function currencyOptions(sel) {
+    return [...new Set([sel, CURRENCY, tripCurrency(), ...CURRENCIES])].filter(Boolean)
+      .map(c => `<option value="${c}" ${c === sel ? 'selected' : ''}>${c}</option>`).join('');
+  }
+  function setTripCurrency(c) {
+    TRIP.currency = c === CURRENCY ? '' : c;
+    scheduleAutosave(); recordHistory();
+    refreshRates();
+    renderItinerary();
+    renderSettings();
+  }
+
   /* ===== 13-settings.js ===== */
   /* =========================================================
      SETTINGS
@@ -8946,8 +9178,8 @@
         <div class="settings-row"><span>${escapeHtml(t('autosave'))}</span>${switchHtml(autosaveOn, 'toggleAutosave(); renderSettings();', t('autosave'))}</div>
         <div class="settings-row"><span>${escapeHtml(t('listSide'))}</span>
           <div class="segmented">
-            <button class="${loadPref('mappin_side', 'left') !== 'right' ? 'active' : ''}" onclick="setSide('left')"><i class="fa-solid fa-arrow-left"></i> ${escapeHtml(t('sideLeft'))}</button>
-            <button class="${loadPref('mappin_side', 'left') === 'right' ? 'active' : ''}" onclick="setSide('right')">${escapeHtml(t('sideRight'))} <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="${loadPref('mappin_side', 'right') !== 'right' ? 'active' : ''}" onclick="setSide('left')"><i class="fa-solid fa-arrow-left"></i> ${escapeHtml(t('sideLeft'))}</button>
+            <button class="${loadPref('mappin_side', 'right') === 'right' ? 'active' : ''}" onclick="setSide('right')">${escapeHtml(t('sideRight'))} <i class="fa-solid fa-arrow-right"></i></button>
           </div></div>
         <p class="settings-note">${escapeHtml(t('listSideHint'))}</p>
         ${tipsSettingHtml()}
@@ -8955,7 +9187,9 @@
       </div>
       <div class="settings-section">
         <h3><i class="fa-solid fa-list-check"></i> ${escapeHtml(t('planning'))}</h3>
-        <div class="settings-row"><span>${escapeHtml(t('currency'))}</span><select class="lang-select" onchange="setCurrency(this.value)">${curOptions}</select></div>
+        <div class="settings-row"><span>${escapeHtml(t('homeCurrency'))}</span><select class="lang-select" onchange="setCurrency(this.value)">${curOptions}</select></div>
+        <div class="settings-row"><span>${escapeHtml(t('tripCurrency'))}</span><select class="lang-select" onchange="setTripCurrency(this.value)">${currencyOptions(tripCurrency())}</select></div>
+        <p class="settings-note">${escapeHtml(t('currencyHint'))}${FX && FX.at ? ' ' + escapeHtml(t('ratesAsOf', { d: new Date(FX.at).toLocaleDateString(LANG) })) : ''} <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates by Exchange Rate API</a></p>
         ${tempUnitSettingHtml()}
         ${autoTodaySettingHtml()}
         <div class="settings-row"><span>${escapeHtml(t('checkHours'))}</span>${switchHtml(checkHoursOn, 'toggleCheckHours()', t('checkHours'))}</div>
@@ -8992,6 +9226,7 @@
   function setCurrency(c) {
     CURRENCY = c;
     savePref('mappin_currency', c);
+    refreshRates(true);
     renderItinerary();
   }
 
@@ -10015,7 +10250,20 @@
     setTimeout(() => { const i = $('cl-text'); if (i) i.focus(); }, 30);
   }
   function toggleChecklistItem(id) { const c = CHECKLIST.find(x => x.id === id); if (c) { c.done = !c.done; checklistChanged(); } }
-  function deleteChecklistItem(id) { CHECKLIST = CHECKLIST.filter(x => x.id !== id); checklistChanged(); }
+  function deleteChecklistItem(id) {
+    const item = CHECKLIST.find(x => x.id === id);
+    CHECKLIST = CHECKLIST.filter(x => x.id !== id);
+    checklistChanged();
+    if (item) showToast(t('itemDeleted', { name: item.text }), { ms: 4000, actionLabel: t('undoBtn'), onAction: () => { undo(); renderChecklist(); renderTripSummary(); } });
+  }
+
+  // A few common things to start from (all editable / deletable)
+  const STARTER_ITEMS = [['starterPassport', 'pack'], ['starterInsurance', 'todo'], ['starterFlights', 'book'], ['starterStay', 'book'],
+    ['starterCharger', 'pack'], ['starterMoney', 'pack'], ['starterMeds', 'pack'], ['starterOffline', 'todo']];
+  function addStarterItems() {
+    STARTER_ITEMS.forEach(([key, kind], i) => CHECKLIST.push({ id: 'st' + Date.now().toString(36) + i, text: t(key), kind, day: null, done: false }));
+    checklistChanged();
+  }
   function setChecklistFilter(v) { checklistDay = v === 'all' || v === 'trip' ? v : Number(v); renderChecklist(); }
 
   function renderChecklist() {
@@ -10043,6 +10291,7 @@
       list += `</div>`;
     });
     if (!list) list = `<p class="settings-note cl-empty">${escapeHtml(t('checklistEmpty'))}</p>`;
+    if (!CHECKLIST.length) list += `<button class="btn btn-secondary cl-starter" onclick="addStarterItems()"><i class="fa-solid fa-wand-magic-sparkles"></i> ${escapeHtml(t('addStarterItems'))}</button>`;
     const defDay = checklistDay === 'all' ? 'trip' : checklistDay;
     body.innerHTML = `
       <div class="cl-top">
@@ -10186,10 +10435,10 @@
     const sp = spendSummaryHtml(); if (sp) bits.push(sp);
     const open = CHECKLIST.filter(c => !c.done).length;
     const clLabel = !CHECKLIST.length ? t('checklist') : open ? t('checklistOpenN', { n: open }) : t('checklistAllDone');
-    return `<div class="trip-summary">
+    return `<div class="trip-summary" onclick="if(!event.target.closest('.ts-title, .ts-title-input')) openChecklist()">
       <div class="ts-head">
         <button class="ts-title" onclick="renameTrip(this)" title="${escapeHtml(t('renameTrip'))}">${escapeHtml(TRIP.title || t('myTrip'))} <i class="fa-solid fa-pen"></i></button>
-        <button class="ts-open ${CHECKLIST.length && !open ? 'done' : ''}" onclick="openChecklist()"><i class="fa-solid ${CHECKLIST.length && !open ? 'fa-circle-check' : 'fa-list-check'}"></i> ${escapeHtml(clLabel)} <i class="fa-solid fa-chevron-right"></i></button>
+        <button class="ts-open ${CHECKLIST.length && !open ? 'done' : ''}"><i class="fa-solid ${CHECKLIST.length && !open ? 'fa-circle-check' : 'fa-list-check'}"></i> ${escapeHtml(clLabel)} <i class="fa-solid fa-chevron-right"></i></button>
       </div>
       <div class="ts-bits">${bits.join('')}</div></div>`;
   }
@@ -10213,12 +10462,17 @@
     input.placeholder = t('myTrip');
     input.maxLength = 80;
     let done = false;
+    const before = TRIP.title || '';
     const finish = save => {
       if (done) return; done = true;
-      if (save) { TRIP.title = input.value.trim(); scheduleAutosave(); recordHistory(); }
+      if (save && input.value.trim() !== before) {
+        TRIP.title = input.value.trim(); scheduleAutosave(); recordHistory();
+        showToast(t('tripRenamed'), { ms: 3500, actionLabel: t('undoBtn'), onAction: undo });
+      }
       renderTripSummary();
     };
     input.onblur = () => finish(true);
+    input.onclick = e => e.stopPropagation();
     input.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); finish(true); } if (e.key === 'Escape') finish(false); };
     btn.replaceWith(input);
     input.focus();
@@ -10380,6 +10634,7 @@
           if (lastTap.id === id && now - lastTap.at < 350) {
             lastTap = { id: null, at: 0 };
             clearTimeout(inlineEditTimer);
+            lastCardFlyAt = Date.now();
             flyToStop(id);
           } else lastTap = { id, at: now };
         }
@@ -10538,9 +10793,12 @@
       const box = vertical && tgt.closest && tgt.closest('.modal-box, .as-sheet, .dropdown-menu.show, #day-menu');
       if (!box) return;
       if (!elastic || elastic.el !== box) elastic = { el: box, off: 0 };
-      elastic.off = Math.max(-70, Math.min(70, elastic.off + dy * 0.35));
+      // Rubber band like iOS: follows your finger, getting gradually stiffer, with no hard stop
+      elastic.off += dy;
+      const lim = window.innerHeight * 0.55, a = Math.abs(elastic.off);
+      const shown = Math.sign(elastic.off) * lim * (1 - 1 / (a * 0.55 / lim + 1));
       box.style.transition = 'none';
-      box.style.transform = `translateY(${elastic.off}px)`;
+      box.style.transform = `translateY(${shown}px)`;
     }, { passive: false });
     document.addEventListener('touchend', release, { passive: true });
     document.addEventListener('touchcancel', release, { passive: true });
@@ -10560,8 +10818,21 @@
   let swallowUntil = 0;
   function swallowNextClick() { swallowUntil = Date.now() + 650; }
   function initDismissFirst() {
+    // A tap that only closes something mustn't focus a text box either (touch browsers focus on the touch itself)
+    document.addEventListener('touchstart', e => { if (Date.now() < swallowUntil && e.cancelable) { e.preventDefault(); swallowUntil = 0; } }, { capture: true, passive: false }); // no click follows a cancelled touch
     document.addEventListener('click', e => {
       if (Date.now() < swallowUntil) { swallowUntil = 0; e.stopPropagation(); e.preventDefault(); }
+    }, true);
+    // Picking cards or days: a tap anywhere else just stops picking (and does nothing else)
+    document.addEventListener('pointerdown', e => {
+      const t = e.target;
+      if (!t.closest) return;
+      if (selectMode && !t.closest('.activity-card, #select-bar, #day-menu, .day-menu-btn, #context-menu, .modal-overlay, #menu-backdrop, .toast')) {
+        exitSelectMode(); e.preventDefault(); swallowNextClick(); return;
+      }
+      if (daySelectMode && !t.closest('.day-section-title, .daygroup-banner, #select-bar, #day-menu, .day-menu-btn, .modal-overlay, #menu-backdrop, .toast')) {
+        exitDaySelectMode(); e.preventDefault(); swallowNextClick(); return;
+      }
     }, true);
     document.addEventListener('pointerdown', e => {
       if (!dpState) return;
@@ -10572,6 +10843,8 @@
       swallowNextClick();
     }, true);
   }
+
+  let lastCardFlyAt = 0;
 
   /* ===== 25-tour.js ===== */
   /* =========================================================
@@ -10677,7 +10950,7 @@
     const planned = typeof item.cost === 'number', spent = typeof item.spent === 'number';
     if (!planned && !spent) return '';
     const over = planned && spent && item.spent > item.cost;
-    const text = spent ? (planned ? t('spentOf', { a: fmtMoney(item.spent), b: fmtMoney(item.cost) }) : t('spentX', { a: fmtMoney(item.spent) })) : fmtMoney(item.cost);
+    const text = spent ? (planned ? t('spentOf', { a: fmtItem(item.spent, item), b: fmtItem(item.cost, item) }) : t('spentX', { a: fmtItem(item.spent, item) })) : fmtItem(item.cost, item);
     return `<span class="cost-chip ${spent ? 'spent' : ''} ${over ? 'over' : ''}" title="${escapeHtml(t('spentHint'))}"><i class="fa-solid ${spent ? 'fa-receipt' : 'fa-wallet'}"></i> ${escapeHtml(text)}</span>`;
   }
 
@@ -10921,13 +11194,23 @@
   }
 
   /* ---------- Press and hold a card, then let go: start selecting cards (for grouping) ---------- */
-  let holdInfo = null, lastPointerTouch = false, ignoreCardTapUntil = 0;
-  document.addEventListener('pointerdown', e => { lastPointerTouch = e.pointerType === 'touch' || e.pointerType === 'pen'; }, true);
+  let holdInfo = null, lastPointerTouch = false, ignoreCardTapUntil = 0, pressStart = null;
+  document.addEventListener('pointerdown', e => {
+    lastPointerTouch = e.pointerType === 'touch' || e.pointerType === 'pen';
+    pressStart = { at: Date.now(), x: e.clientX, y: e.clientY };
+  }, true);
+  document.addEventListener('pointermove', e => {
+    if (pressStart && Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y) > 10) pressStart.moved = true;
+  }, true);
+  const HOLD_MS = 450;
   function holdToSelect(id) {
     if (VIEW_ONLY) return;
+    // Only a real press-and-hold (not a tap, not a drag) starts selecting
+    if (!pressStart || pressStart.moved || Date.now() - pressStart.at < HOLD_MS) return;
     const item = rawData.find(s => s.id === id);
     if (!item) return;
     ignoreCardTapUntil = Date.now() + 600;
+    swallowNextClick(); // lifting the finger shouldn't also open the name or notes for editing
     if (!selectMode) enterSelectMode();
     if (!selectedStopIds.has(id)) toggleCardSelected(id);
     showTip('select', true);
@@ -10961,7 +11244,7 @@
     const row = document.querySelector('.filters-row'), body = $('filter-body'), btn = $('filter-btn');
     if (!row || !body || !btn) return;
     const home = document.querySelector('.search-container');
-    if (isPortraitPhone()) { if (row.parentElement !== body) body.appendChild(row); btn.style.display = ''; }
+    if (phoneLayoutMQ.matches) { if (row.parentElement !== body) body.appendChild(row); btn.style.display = ''; }
     else { if (row.previousElementSibling !== home && home) home.after(row); btn.style.display = 'none'; closeModalById('filter-modal'); }
     updateFilterBadge();
   }
@@ -10981,7 +11264,7 @@
   }
 
   /* ---------- Tips: one at a time, each shown once; Settings → Show tips turns them off ---------- */
-  const TIPS = { cards: 'tipCards', today: 'tipToday', map: 'tipMap', select: 'tipSelect' };
+  const TIPS = { cards: 'tipCards', today: 'tipToday', map: 'tipMap', select: 'tipSelect', selectDays: 'tipSelectDays' };
   let tipShownThisSession = false;
   function tipsOn() { return loadPref('mappin_tips', 'true') === 'true'; }
   function toggleTips() { savePref('mappin_tips', String(!tipsOn())); renderSettings(); }
@@ -11053,6 +11336,12 @@
     grip.addEventListener('dblclick', () => { savePref('mappin_sbw_' + sidebarMode(), ''); applySidebarWidth(); if (map) map.invalidateSize(); });
     applySidebarWidth();
     window.addEventListener('resize', () => { applySidebarWidth(); updateStickyOffsets(); });
+    // First time in landscape: give the grip a little wiggle so people notice it can be dragged
+    if (loadPref('mappin_grip_hinted', '') !== '1') {
+      const hint = () => { if (!sidebarMode()) return; savePref('mappin_grip_hinted', '1'); grip.classList.add('hint'); setTimeout(() => grip.classList.remove('hint'), 3400); landscapeMQ.removeEventListener && landscapeMQ.removeEventListener('change', hint); };
+      setTimeout(hint, 2500);
+      if (landscapeMQ.addEventListener) landscapeMQ.addEventListener('change', hint);
+    }
   }
 
   /* ---------- Landscape: the menu bar and search stay put while the itinerary scrolls ---------- */
@@ -11097,6 +11386,8 @@
         st.fingers[tch.identifier] = tch.clientY;
       }
     };
+    st.down = e => { for (let i = 1; i < e.touches.length; i++) st.fingers[e.touches[i].identifier] = e.touches[i].clientY; };
+    document.addEventListener('touchstart', st.down, { passive: true, capture: true });
     document.addEventListener('touchmove', st.move, { passive: true, capture: true });
     dragAssist = st;
   }
@@ -11104,6 +11395,7 @@
     if (!dragAssist) return;
     cancelAnimationFrame(dragAssist.raf);
     document.removeEventListener('touchmove', dragAssist.move, { capture: true });
+    document.removeEventListener('touchstart', dragAssist.down, { capture: true });
     dragAssist = null;
   }
 
@@ -11133,8 +11425,33 @@
     document.querySelectorAll('.day-section').forEach(s => {
       const d = parseInt(s.dataset.day), c = collapsedDays.has(d);
       s.classList.toggle('collapsed', c);
-      const cnt = s.querySelector('.day-count'); if (cnt) cnt.style.display = c ? '' : 'none';
+
     });
+  }
+
+  /* ---------- Press and hold a day's name to start picking days to group ---------- */
+  function initDayHold() {
+    const tl = $('timeline');
+    if (!tl) return;
+    let hold = null;
+    const cancel = () => { if (hold) { clearTimeout(hold.timer); hold = null; } };
+    tl.addEventListener('pointerdown', e => {
+      const head = e.target.closest && e.target.closest('.day-section-title');
+      if (!head || daySelectMode || selectMode || VIEW_ONLY || e.target.closest('.day-menu-btn, .day-line')) return;
+      const sec = head.closest('.day-section');
+      const day = sec ? parseInt(sec.dataset.day) : NaN;
+      if (isNaN(day)) return;
+      hold = { x: e.clientX, y: e.clientY, timer: setTimeout(() => {
+        hold = null;
+        try { if (navigator.vibrate) navigator.vibrate(12); } catch (er) {}
+        swallowNextClick(); // the finger lifting shouldn't also open the day or fold it
+        enterDaySelectMode(day);
+        showTip('selectDays', true);
+      }, 500) };
+    });
+    tl.addEventListener('pointermove', e => { if (hold && Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > 10) cancel(); });
+    ['pointerup', 'pointercancel', 'scroll'].forEach(ev => tl.addEventListener(ev, cancel, { passive: true }));
+    tl.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.day-section-title')) e.preventDefault(); });
   }
 
   /* ===== 99-boot.js ===== */
@@ -11161,6 +11478,7 @@
   initColumnResize();
   initHandleGuard();
   placeFilters();
+  initDayHold();
 
   window.addEventListener('load', () => {
     initMap();
@@ -11169,6 +11487,7 @@
     labelIconButtons();
     updateStickyOffsets();
     setTimeout(maybeShowTips, 5000);
+    if (needsConversion()) refreshRates();
     if (!feedbackEmail()) { const f = $('feedback-menu-item'); if (f) f.style.display = 'none'; }
   });
 </script>
