@@ -722,7 +722,7 @@
       -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
     }
     .activity-card input, .activity-card textarea { -webkit-user-select: text; user-select: text; }
-    .activity-card.sortable-chosen { box-shadow: 0 10px 28px var(--shadow); transform: scale(1.02); border-color: var(--accent-blue); }
+    .activity-card.sortable-chosen { box-shadow: 0 10px 28px var(--shadow); border-color: var(--accent-blue); }
     .activity-card.sortable-ghost { opacity: 0.35; }
     .segmented { display: inline-flex; border: 1px solid var(--panel-border); border-radius: 8px; overflow: hidden; }
     .segmented button { background: var(--tint); border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 6px 12px; cursor: pointer; }
@@ -1279,9 +1279,15 @@
     .day-section-title .day-line { flex: 0 0 auto; width: 34px; justify-content: center; }
     .activity-card { max-width: 100%; }
     /* Moving a card: the card lifts (shadow, no resizing), the others slide out of the way, its old spot stays open */
-    .activity-card.sortable-chosen { transform: none !important; }
-    .activity-card.sortable-ghost { opacity: 0 !important; }
-    .sortable-fallback { box-shadow: 0 18px 40px rgba(0,0,0,0.5) !important; border-color: var(--accent-blue) !important; opacity: 1 !important; }
+    /* 1.4.1: the "no resizing" rule must not touch the card copy under your finger (its position IS a transform),
+       and the copy must not animate, or it lags behind and stops following the finger */
+    .activity-card.sortable-chosen:not(.sortable-fallback) { transform: none !important; }
+    .activity-card.sortable-ghost { opacity: 1 !important; background: transparent !important; box-shadow: none !important;
+      border: 2px dashed var(--accent-blue) !important; }
+    .activity-card.sortable-ghost > * { visibility: hidden; }
+    .sortable-fallback { box-shadow: 0 18px 40px rgba(0,0,0,0.5) !important; border-color: var(--accent-blue) !important; opacity: 1 !important;
+      transition: none !important; background: var(--surface) !important; }
+    html.card-dragging, html.card-dragging body, html.card-dragging #sidebar, html.card-dragging .timeline-container { touch-action: none !important; }
     /* Currency picker next to Cost */
     .cost-label { display: flex !important; align-items: center; gap: 6px; }
     .cur-select { background: var(--tint); color: var(--text-main); border: 1px solid var(--panel-border); border-radius: 6px; font-size: 11px; padding: 1px 4px; height: 20px; }
@@ -1307,6 +1313,49 @@
     /* Checklist starter button, Show in list */
     .cl-starter { width: 100%; justify-content: center; margin-top: 8px; padding: 11px; }
     .trip-summary { cursor: pointer; }
+    /* 1.4.1: a held card pops a little when it gets selected */
+    @keyframes holdPop { 0% { transform: scale(1); } 40% { transform: scale(0.97); } 100% { transform: scale(1); } }
+    .activity-card.hold-pop:not(.sortable-fallback):not(.sortable-chosen) { animation: holdPop 0.22s ease; }
+    /* 1.4.1: Expenses */
+    .budget-pill { cursor: pointer; }
+    .ex-totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+    .ex-totals > div { background: var(--tint); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .ex-totals span { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    .ex-totals b { font-size: 16px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ex-totals b.over, .ex-stop-nums b.over { color: #ef4444; }
+    .ex-budget { margin-bottom: 8px; }
+    .ex-budget-input { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin: 4px 0 12px; }
+    .ex-budget-input span { flex: 0 0 auto; }
+    .ex-budget-input input { flex: 1; min-width: 0; }
+    .ex-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+    .ex-tab { flex: 1; border: 1px solid var(--panel-border); background: transparent; color: var(--text-main); border-radius: 999px; padding: 6px 8px; font-size: 13px; cursor: pointer; }
+    .ex-tab.on { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .ex-legend { display: flex; gap: 14px; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+    .ex-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .ex-dot { width: 10px; height: 6px; border-radius: 3px; display: inline-block; }
+    .ex-dot.spent { background: #10b981; } .ex-dot.plan { background: var(--panel-border); }
+    .ex-row { padding: 8px 0; border-bottom: 1px solid var(--panel-border); }
+    .ex-row[role="button"] { cursor: pointer; }
+    .ex-row-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+    .ex-name { font-weight: 600; font-size: 14px; color: var(--text-main); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ex-name i { color: var(--text-muted); width: 16px; }
+    .ex-nums { font-size: 13px; white-space: nowrap; color: var(--text-main); }
+    .ex-nums span { color: var(--text-muted); }
+    .ex-bar { position: relative; height: 6px; border-radius: 3px; background: var(--tint); margin-top: 6px; overflow: hidden; }
+    .ex-bar span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+    .ex-plan { background: var(--panel-border); }
+    .ex-spent { background: #10b981; } .ex-spent.over { background: #ef4444; }
+    .ex-note { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .ex-note.over { color: #ef4444; font-weight: 600; }
+    .ex-stop { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--panel-border); cursor: pointer; }
+    .ex-stop > i { color: var(--text-muted); width: 18px; text-align: center; }
+    .ex-stop-main { flex: 1; min-width: 0; }
+    .ex-stop-name { font-weight: 600; font-size: 14px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ex-stop-day { font-size: 11px; color: var(--text-muted); }
+    .ex-stop-nums { display: flex; flex-direction: column; align-items: flex-end; font-size: 13px; color: var(--text-main); }
+    .ex-stop-nums span { font-size: 11px; color: var(--text-muted); }
+    .ex-empty { text-align: center; padding: 18px 0; }
+    .ex-rates { margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -1353,6 +1402,7 @@
           <div class="context-menu-item" onclick="closeAppMenu(); exportMapCSV()"><i class="fa-solid fa-file-export"></i> <span data-i18n="exportCsv">Export CSV</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openMasterColorModal()"><i class="fa-solid fa-palette"></i> <span data-i18n="coloursTitles">Colours &amp; titles</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openChecklist()"><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openExpenses()"><i class="fa-solid fa-wallet"></i> <span data-i18n="expenses">Expenses</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); printItinerary()"><i class="fa-solid fa-print"></i> <span data-i18n="printPdf">Print or save as PDF</span></div>
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); shareTrip()"><i class="fa-solid fa-link"></i> <span data-i18n="shareLink">Copy share link</span></div>
@@ -1382,7 +1432,7 @@
             <button class="checklist-pill" id="checklist-pill" onclick="openChecklist()"></button>
             <span class="sync-pill" id="sync-pill"></span>
             <span class="geo-pill" id="geo-status"><i class="fa-solid fa-spinner fa-spin"></i> <span></span></span>
-            <span class="budget-pill" id="budget-pill"></span>
+            <span class="budget-pill" id="budget-pill" role="button" tabindex="0" onclick="openExpenses()"></span>
             <span class="count-pill" id="activity-count">0</span>
           </div>
         </div>
@@ -1524,6 +1574,16 @@
       <i class="fa-solid fa-xmark modal-close-x" onclick="closeChecklist()"></i>
     </div>
     <div id="checklist-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="expenses-modal" onclick="if(event.target.id==='expenses-modal')closeExpenses()">
+  <div class="modal-box" style="width: 480px;">
+    <div class="modal-title">
+      <span><i class="fa-solid fa-wallet"></i> <span data-i18n="expenses">Expenses</span></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeExpenses()"></i>
+    </div>
+    <div id="expenses-body"></div>
   </div>
 </div>
 
@@ -2054,7 +2114,20 @@
       homeCurrency: "Home currency (totals)",
       tripCurrency: "Prices on this trip are in",
       currencyHint: "Each stop can use its own currency (next to Cost). Totals are converted to your home currency.",
-      ratesAsOf: "Rates from {d}."
+      ratesAsOf: "Rates from {d}.",
+      expenses: "Expenses",
+      exPlanned: "Planned",
+      exOverBy: "{a} over plan",
+      exLeft: "{a} left of the plan",
+      exBudgetLeft: "Budget left",
+      exStillToSpend: "Still to spend",
+      exBudgetUsed: "{n}% of your {b} budget spent",
+      exPlanOverBudget: "plans are {a} over budget",
+      exTripBudget: "Trip budget",
+      exBudgetPh: "Optional",
+      exStops: "Stops",
+      exEmpty: "No costs yet. Add a cost (planned) or what you spent to any stop and it shows up here.",
+      exConverted: "Shown in {c} at today’s exchange rates."
     },
     ja: {
       language: "言語",
@@ -2478,7 +2551,20 @@
       homeCurrency: "自国通貨（合計）",
       tripCurrency: "この旅行の価格の通貨",
       currencyHint: "スポットごとに通貨を選べます（費用の横）。合計は自国通貨に換算されます。",
-      ratesAsOf: "{d} のレート。"
+      ratesAsOf: "{d} のレート。",
+      expenses: "費用",
+      exPlanned: "予定",
+      exOverBy: "予定より {a} 超過",
+      exLeft: "予定まで残り {a}",
+      exBudgetLeft: "予算の残り",
+      exStillToSpend: "これからの支出",
+      exBudgetUsed: "予算 {b} の {n}% を使用",
+      exPlanOverBudget: "予定が予算を {a} 超過",
+      exTripBudget: "旅行の予算",
+      exBudgetPh: "任意",
+      exStops: "スポット",
+      exEmpty: "まだ費用がありません。スポットに費用（予定）や実際の支出を入れるとここに表示されます。",
+      exConverted: "本日のレートで {c} に換算して表示しています。"
     },
     zh: {
       language: "语言",
@@ -2902,7 +2988,20 @@
       homeCurrency: "本国货币（合计）",
       tripCurrency: "本次行程的价格货币",
       currencyHint: "每个地点可用自己的货币（在费用旁）。合计换算为本国货币。",
-      ratesAsOf: "{d} 的汇率。"
+      ratesAsOf: "{d} 的汇率。",
+      expenses: "费用",
+      exPlanned: "计划",
+      exOverBy: "超出计划 {a}",
+      exLeft: "距计划还剩 {a}",
+      exBudgetLeft: "预算剩余",
+      exStillToSpend: "待支出",
+      exBudgetUsed: "已用 {b} 预算的 {n}%",
+      exPlanOverBudget: "计划超出预算 {a}",
+      exTripBudget: "行程预算",
+      exBudgetPh: "可选",
+      exStops: "地点",
+      exEmpty: "还没有费用。为任意地点填写费用（计划）或实际花费，就会显示在这里。",
+      exConverted: "按今日汇率以 {c} 显示。"
     },
     ko: {
       language: "언어",
@@ -3326,7 +3425,20 @@
       homeCurrency: "기본 통화 (합계)",
       tripCurrency: "이 여행의 가격 통화",
       currencyHint: "장소마다 통화를 고를 수 있어요(비용 옆). 합계는 기본 통화로 환산돼요.",
-      ratesAsOf: "{d} 환율."
+      ratesAsOf: "{d} 환율.",
+      expenses: "경비",
+      exPlanned: "계획",
+      exOverBy: "계획보다 {a} 초과",
+      exLeft: "계획까지 {a} 남음",
+      exBudgetLeft: "남은 예산",
+      exStillToSpend: "남은 지출",
+      exBudgetUsed: "예산 {b} 중 {n}% 사용",
+      exPlanOverBudget: "계획이 예산보다 {a} 많아요",
+      exTripBudget: "여행 예산",
+      exBudgetPh: "선택",
+      exStops: "장소",
+      exEmpty: "아직 비용이 없어요. 장소에 비용(계획)이나 실제 지출을 입력하면 여기에 보여요.",
+      exConverted: "오늘 환율로 {c} 기준 표시."
     },
     es: {
       language: "Idioma",
@@ -3755,7 +3867,20 @@
       homeCurrency: "Moneda de casa (totales)",
       tripCurrency: "Los precios de este viaje están en",
       currencyHint: "Cada parada puede tener su moneda (junto a Coste). Los totales se convierten a tu moneda.",
-      ratesAsOf: "Tipos del {d}."
+      ratesAsOf: "Tipos del {d}.",
+      expenses: "Gastos",
+      exPlanned: "Previsto",
+      exOverBy: "{a} por encima de lo previsto",
+      exLeft: "Quedan {a} de lo previsto",
+      exBudgetLeft: "Presupuesto restante",
+      exStillToSpend: "Por gastar",
+      exBudgetUsed: "Has gastado el {n}% de tu presupuesto de {b}",
+      exPlanOverBudget: "lo previsto supera el presupuesto en {a}",
+      exTripBudget: "Presupuesto del viaje",
+      exBudgetPh: "Opcional",
+      exStops: "Paradas",
+      exEmpty: "Aún no hay costes. Añade un coste (previsto) o lo que gastaste en cualquier parada y aparecerá aquí.",
+      exConverted: "En {c} al tipo de cambio de hoy."
     },
     fr: {
       language: "Langue",
@@ -4184,7 +4309,20 @@
       homeCurrency: "Devise de référence (totaux)",
       tripCurrency: "Les prix de ce voyage sont en",
       currencyHint: "Chaque étape peut avoir sa devise (à côté du coût). Les totaux sont convertis dans votre devise.",
-      ratesAsOf: "Taux du {d}."
+      ratesAsOf: "Taux du {d}.",
+      expenses: "Dépenses",
+      exPlanned: "Prévu",
+      exOverBy: "{a} au-dessus du prévu",
+      exLeft: "Reste {a} sur le prévu",
+      exBudgetLeft: "Budget restant",
+      exStillToSpend: "Reste à dépenser",
+      exBudgetUsed: "{n} % de votre budget de {b} dépensé",
+      exPlanOverBudget: "le prévu dépasse le budget de {a}",
+      exTripBudget: "Budget du voyage",
+      exBudgetPh: "Facultatif",
+      exStops: "Étapes",
+      exEmpty: "Aucun coût pour l’instant. Ajoutez un coût (prévu) ou une dépense à une étape et il apparaîtra ici.",
+      exConverted: "Affiché en {c} au taux du jour."
     },
     de: {
       language: "Sprache",
@@ -4613,7 +4751,20 @@
       homeCurrency: "Heimatwährung (Summen)",
       tripCurrency: "Preise dieser Reise in",
       currencyHint: "Jeder Stopp kann eine eigene Währung haben (neben Kosten). Summen werden in deine Heimatwährung umgerechnet.",
-      ratesAsOf: "Kurse vom {d}."
+      ratesAsOf: "Kurse vom {d}.",
+      expenses: "Ausgaben",
+      exPlanned: "Geplant",
+      exOverBy: "{a} über dem Plan",
+      exLeft: "Noch {a} bis zum Plan",
+      exBudgetLeft: "Budget übrig",
+      exStillToSpend: "Noch auszugeben",
+      exBudgetUsed: "{n} % deines Budgets von {b} ausgegeben",
+      exPlanOverBudget: "die Planung liegt {a} über dem Budget",
+      exTripBudget: "Reisebudget",
+      exBudgetPh: "Optional",
+      exStops: "Stopps",
+      exEmpty: "Noch keine Kosten. Trage bei einem Stopp Kosten (geplant) oder Ausgaben ein, dann erscheinen sie hier.",
+      exConverted: "In {c} zum heutigen Kurs."
     }
   };
 
@@ -6005,6 +6156,7 @@
 
   function setDayChip(day) {
     const wasToday = todayMode;
+    if (map) { cancelPendingFly(); map.stop(); map.closePopup(); }
     if (todayMode) exitToday();
     activeDay = day;
     populateFilters();
@@ -6304,6 +6456,7 @@
     scheduleAutosave();
     recordHistory();
     if (todayMode) renderTodayPanel();
+    if ($('expenses-modal') && $('expenses-modal').style.display === 'flex') renderExpenses();
   }
 
   /* ---------- Categories: an icon per kind of stop, editable inline ---------- */
@@ -6463,9 +6616,9 @@
       delayOnTouchOnly: true,
       touchStartThreshold: 6,
       forceFallback: true,
-      fallbackOnBody: true,
+      fallbackOnBody: true, // the copy sits above the whole page (the list sheet would clip it)
       fallbackClass: 'sortable-fallback',
-      fallbackTolerance: 4,
+      fallbackTolerance: 8, // a slightly shaky hold still counts as holding (for selecting)
       scroll: true,
       scrollSensitivity: 90,
       scrollSpeed: 14,
@@ -6477,12 +6630,12 @@
         try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
         if (lastPointerTouch) startDragAssist(); // a second finger can scroll the list as soon as a card is picked up
       },
-      onUnchoose: function() { const h = holdInfo; holdInfo = null; if (!isDragging) stopDragAssist(); if (h && !h.started && h.touch) holdToSelect(h.id); },
+      onUnchoose: function() { holdInfo = null; if (!isDragging) stopDragAssist(); },
       draggable: '.activity-card',
       ghostClass: 'sortable-ghost',
       filter: 'input, textarea, select',
       preventOnFilter: false,
-      onStart: function() { isDragging = true; if (holdInfo) holdInfo.started = true; if (!dragAssist) startDragAssist(); },
+      onStart: function(evt) { isDragging = true; if (holdInfo) holdInfo.started = true; holdBecameDrag(Number(evt.item.getAttribute('data-id'))); if (!dragAssist) startDragAssist(); },
       onEnd: function() { isDragging = false; stopDragAssist(); reorderAllStops(); }
     };
   }
@@ -7205,14 +7358,18 @@
     }, 260);
   }
 
+  let flyToken = 0; // a newer map move cancels a stop's popup that is still waiting to open
+  function cancelPendingFly() { flyToken++; }
   function flyToStop(id) {
     const item = rawData.find(d => d.id === id);
     if (!item) return;
     if (!hasCoords(item)) { if (item.notFound) startRelocate(id); return; }
-    map.closePopup();
+    map.stop(); map.closePopup();
+    const token = ++flyToken;
     let opened = false;
     const openIt = () => {
-      if (opened) return; opened = true;
+      if (opened || token !== flyToken) return; opened = true; // something else moved the map since (e.g. All days)
+      map.off('moveend', openIt);
       const m = markers.find(mk => mk.id === id);
       if (m) {
         m.openPopup();
@@ -8563,7 +8720,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.0';
+  const APP_VERSION = '1.4.1';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -10516,6 +10673,7 @@
   function closeModalById(id) {
     if (id === 'settings-modal') closeSettings();
     else if (id === 'checklist-modal') closeChecklist();
+    else if (id === 'expenses-modal') closeExpenses();
     else if (id === 'single-item-modal') closeSingleItemModal();
     else if (id === 'color-modal') closeMasterColorModal();
     else if (id === 'tour-modal') closeTour();
@@ -10817,11 +10975,15 @@
   /* ---------- "Close first, then act": a tap outside an open calendar only closes it ---------- */
   let swallowUntil = 0;
   function swallowNextClick() { swallowUntil = Date.now() + 650; }
+  // Only the click that may follow the finger lifting (a new touch still works straight away)
+  let clickSwallowUntil = 0;
+  function swallowClickOnly() { clickSwallowUntil = Date.now() + 500; }
   function initDismissFirst() {
     // A tap that only closes something mustn't focus a text box either (touch browsers focus on the touch itself)
     document.addEventListener('touchstart', e => { if (Date.now() < swallowUntil && e.cancelable) { e.preventDefault(); swallowUntil = 0; } }, { capture: true, passive: false }); // no click follows a cancelled touch
     document.addEventListener('click', e => {
-      if (Date.now() < swallowUntil) { swallowUntil = 0; e.stopPropagation(); e.preventDefault(); }
+      if (Date.now() < swallowUntil) { swallowUntil = 0; e.stopPropagation(); e.preventDefault(); return; }
+      if (Date.now() < clickSwallowUntil) { clickSwallowUntil = 0; e.stopPropagation(); e.preventDefault(); }
     }, true);
     // Picking cards or days: a tap anywhere else just stops picking (and does nothing else)
     document.addEventListener('pointerdown', e => {
@@ -11148,6 +11310,7 @@
     if (!map) return;
     const pts = rawData.filter(hasCoords).map(s => [s.lat, s.lng]);
     if (!pts.length) { if (!opts.instant) showToast(t('noPinsYet'), { ms: 2500 }); return; }
+    cancelPendingFly(); map.stop(); map.closePopup(); // stop any fly to a stop that's still going
     userMovedMap = true;
     if (pts.length === 1) { map.setView(pts[0], 15); return; }
     const b = L.latLngBounds(pts);
@@ -11202,18 +11365,56 @@
   document.addEventListener('pointermove', e => {
     if (pressStart && Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y) > 10) pressStart.moved = true;
   }, true);
-  const HOLD_MS = 450;
-  function holdToSelect(id) {
-    if (VIEW_ONLY) return;
-    // Only a real press-and-hold (not a tap, not a drag) starts selecting
-    if (!pressStart || pressStart.moved || Date.now() - pressStart.at < HOLD_MS) return;
-    const item = rawData.find(s => s.id === id);
-    if (!item) return;
-    ignoreCardTapUntil = Date.now() + 600;
-    swallowNextClick(); // lifting the finger shouldn't also open the name or notes for editing
+  /* Press and hold a card (touch): selecting starts while the finger is still down, with a little buzz.
+     Keep moving after that and it turns into moving the card instead. */
+  const HOLD_SELECT_MS = 560;
+  let holdTimer = 0, holdSelected = null;
+  function cancelHoldTimer() { clearTimeout(holdTimer); holdTimer = 0; }
+  function selectByHold(id) {
+    if (VIEW_ONLY || isDragging || !rawData.find(s => s.id === id)) return;
+    holdSelected = { id, wasSelecting: selectMode };
+    try { if (navigator.vibrate) navigator.vibrate(20); } catch (e) {}
     if (!selectMode) enterSelectMode();
     if (!selectedStopIds.has(id)) toggleCardSelected(id);
+    const card = $(`card-${id}`);
+    if (card) { card.classList.remove('hold-pop'); void card.offsetWidth; card.classList.add('hold-pop'); }
     showTip('select', true);
+  }
+  // The hold became a drag: undo the selecting it started
+  function holdBecameDrag(id) {
+    const h = holdSelected; holdSelected = null;
+    cancelHoldTimer();
+    if (h && h.id === id && !h.wasSelecting && selectMode) exitSelectMode();
+  }
+  function initHoldSelect() {
+    const tl = $('timeline');
+    if (!tl) return;
+    tl.addEventListener('pointerdown', e => {
+      cancelHoldTimer();
+      holdSelected = null;
+      if (VIEW_ONLY || daySelectMode || e.pointerType === 'mouse' || !e.isPrimary) return;
+      const card = e.target.closest('.activity-card');
+      if (!card || e.target.closest('input, textarea, select, button, [contenteditable="true"], .card-number')) return;
+      if (selectMode && selectedStopIds.has(Number(card.dataset.id))) return;
+      const id = Number(card.getAttribute('data-id'));
+      holdTimer = setTimeout(() => {
+        holdTimer = 0;
+        if (isDragging || !pressStart || pressStart.moved) return;
+        selectByHold(id);
+      }, HOLD_SELECT_MS);
+    });
+    document.addEventListener('pointermove', e => { if (holdTimer && e.isPrimary && pressStart && pressStart.moved) cancelHoldTimer(); }, true);
+    const up = e => {
+      if (!e.isPrimary) return;
+      cancelHoldTimer();
+      if (holdSelected) {
+        holdSelected = null;
+        ignoreCardTapUntil = Date.now() + 500; // lifting the finger doesn't also toggle the card or open it for editing
+        swallowClickOnly();
+      }
+    };
+    document.addEventListener('pointerup', up, true);
+    document.addEventListener('pointercancel', e => { if (e.isPrimary) cancelHoldTimer(); }, true);
   }
 
   /* ---------- Edits show live while the window is open ---------- */
@@ -11358,9 +11559,15 @@
     const scrolls = el => el && /(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight + 1;
     return scrolls(tl) ? tl : scrolls(sb) ? sb : tl;
   }
+  // The finger that is holding the card. Every other finger only scrolls the list: it must never move the card
+  // copy or drop the card when it lifts (Sortable listens on the whole page, so other fingers are stopped first).
+  let primaryTouchId = null, primaryPointerId = null;
+  window.addEventListener('touchstart', e => { if (!dragAssist && e.touches.length === 1) primaryTouchId = e.touches[0].identifier; }, { capture: true, passive: true });
+  window.addEventListener('pointerdown', e => { if (!dragAssist && e.isPrimary) primaryPointerId = e.pointerId; }, true);
   function startDragAssist() {
     stopDragAssist();
     const st = { raf: 0, fingers: {} };
+    document.documentElement.classList.add('card-dragging'); // the browser leaves all touches to us while a card is held
     const lockAxis = () => {
       const g = document.querySelector('.sortable-fallback');
       if (g) {
@@ -11376,26 +11583,46 @@
       st.raf = requestAnimationFrame(lockAxis);
     };
     st.raf = requestAnimationFrame(lockAxis);
+    const isPrimaryTouch = tch => primaryTouchId === null ? false : tch.identifier === primaryTouchId;
+    const holding = e => primaryTouchId !== null && Array.from(e.touches).some(isPrimaryTouch);
     st.move = e => {
-      if (e.touches.length < 2) { st.fingers = {}; return; }
+      if (e.cancelable) e.preventDefault();
       const sc = dragScroller();
-      // Any finger other than the one holding the card scrolls the list
-      for (let i = 1; i < e.touches.length; i++) {
-        const tch = e.touches[i], prev = st.fingers[tch.identifier];
+      for (const tch of Array.from(e.touches)) {
+        if (isPrimaryTouch(tch) || (primaryTouchId === null && tch === e.touches[0])) continue;
+        const prev = st.fingers[tch.identifier];
         if (prev !== undefined && sc) sc.scrollTop -= (tch.clientY - prev);
         st.fingers[tch.identifier] = tch.clientY;
       }
     };
-    st.down = e => { for (let i = 1; i < e.touches.length; i++) st.fingers[e.touches[i].identifier] = e.touches[i].clientY; };
-    document.addEventListener('touchstart', st.down, { passive: true, capture: true });
-    document.addEventListener('touchmove', st.move, { passive: true, capture: true });
+    st.down = e => { Array.from(e.touches).forEach(tch => { if (!isPrimaryTouch(tch)) st.fingers[tch.identifier] = tch.clientY; }); };
+    // Another finger lifting is not "letting go of the card"
+    st.end = e => {
+      Array.from(e.changedTouches).forEach(tch => { delete st.fingers[tch.identifier]; });
+      if (holding(e)) e.stopImmediatePropagation();
+    };
+    // Pointer events (Android): ignore every pointer except the one holding the card
+    st.ptr = e => {
+      if (e.pointerType === 'mouse' || primaryPointerId === null || e.pointerId === primaryPointerId) return;
+      e.stopImmediatePropagation();
+    };
+    window.addEventListener('touchstart', st.down, { passive: true, capture: true });
+    window.addEventListener('touchmove', st.move, { passive: false, capture: true });
+    window.addEventListener('touchend', st.end, { capture: true });
+    window.addEventListener('touchcancel', st.end, { capture: true });
+    ['pointermove', 'pointerup', 'pointercancel'].forEach(n => window.addEventListener(n, st.ptr, true));
     dragAssist = st;
   }
   function stopDragAssist() {
     if (!dragAssist) return;
-    cancelAnimationFrame(dragAssist.raf);
-    document.removeEventListener('touchmove', dragAssist.move, { capture: true });
-    document.removeEventListener('touchstart', dragAssist.down, { capture: true });
+    const st = dragAssist;
+    cancelAnimationFrame(st.raf);
+    window.removeEventListener('touchstart', st.down, { capture: true });
+    window.removeEventListener('touchmove', st.move, { capture: true });
+    window.removeEventListener('touchend', st.end, { capture: true });
+    window.removeEventListener('touchcancel', st.end, { capture: true });
+    ['pointermove', 'pointerup', 'pointercancel'].forEach(n => window.removeEventListener(n, st.ptr, true));
+    document.documentElement.classList.remove('card-dragging');
     dragAssist = null;
   }
 
@@ -11454,6 +11681,112 @@
     tl.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.day-section-title')) e.preventDefault(); });
   }
 
+  /* ===== 30-expenses.js ===== */
+  /* =========================================================
+     1.4.1: Expenses: planned vs spent for the whole trip, by day and by category,
+     with an optional trip budget. Everything is shown in your home currency.
+     ========================================================= */
+  let expensesTab = 'days';
+
+  function openExpenses() {
+    closeMenus(); closeAppMenu();
+    if (needsConversion()) refreshRates();
+    renderExpenses();
+    $('expenses-modal').style.display = 'flex';
+  }
+  function closeExpenses() { $('expenses-modal').style.display = 'none'; }
+  function setExpensesTab(tab) { expensesTab = tab; renderExpenses(); }
+
+  function setTripBudget(v) {
+    const n = parseCost(v);
+    if (typeof n === 'number' && n > 0) TRIP.budget = n; else delete TRIP.budget;
+    scheduleAutosave(); recordHistory();
+    renderExpenses();
+  }
+
+  function expenseRows(list) {
+    return {
+      planned: sumHome(list.filter(s => typeof s.cost === 'number'), 'cost'),
+      spent: sumHome(list.filter(s => typeof s.spent === 'number'), 'spent'),
+      n: list.length
+    };
+  }
+
+  // A thin bar: the planned amount as the track, what's spent filled in (red past the plan)
+  function expenseBar(spent, planned, max) {
+    const scale = Math.max(max, 1);
+    const pw = Math.round(Math.min(planned, scale) / scale * 100), sw = Math.round(Math.min(spent, scale) / scale * 100);
+    return `<div class="ex-bar"><span class="ex-plan" style="width:${pw}%"></span><span class="ex-spent ${planned && spent > planned ? 'over' : ''}" style="width:${sw}%"></span></div>`;
+  }
+
+  function expenseLine(label, icon, r, max, onclick) {
+    const left = r.planned - r.spent;
+    return `<div class="ex-row" ${onclick ? `role="button" tabindex="0" onclick="${onclick}"` : ''}>
+      <div class="ex-row-top">
+        <span class="ex-name">${icon ? `<i class="fa-solid ${icon}"></i> ` : ''}${escapeHtml(label)}</span>
+        <span class="ex-nums"><b>${escapeHtml(fmtMoney(r.spent))}</b> <span>/ ${escapeHtml(fmtMoney(r.planned))}</span></span>
+      </div>
+      ${expenseBar(r.spent, r.planned, max)}
+      ${r.planned && r.spent > r.planned ? `<div class="ex-note over">${escapeHtml(t('exOverBy', { a: fmtMoney(r.spent - r.planned) }))}</div>`
+        : r.planned && r.spent ? `<div class="ex-note">${escapeHtml(t('exLeft', { a: fmtMoney(left) }))}</div>` : ''}
+    </div>`;
+  }
+
+  function renderExpenses() {
+    const body = $('expenses-body');
+    if (!body) return;
+    const all = expenseRows(rawData);
+    const budget = typeof TRIP.budget === 'number' ? TRIP.budget : 0;
+    const costed = rawData.filter(s => typeof s.cost === 'number' || typeof s.spent === 'number');
+    let head = `
+      <div class="ex-totals">
+        <div><span>${escapeHtml(t('exPlanned'))}</span><b>${escapeHtml(fmtMoney(all.planned))}</b></div>
+        <div><span>${escapeHtml(t('spentLabel'))}</span><b class="${all.planned && all.spent > all.planned ? 'over' : ''}">${escapeHtml(fmtMoney(all.spent))}</b></div>
+        <div><span>${escapeHtml(budget ? t('exBudgetLeft') : t('exStillToSpend'))}</span><b class="${budget && all.spent > budget ? 'over' : ''}">${escapeHtml(fmtMoney(Math.max(0, (budget || all.planned) - all.spent)))}</b></div>
+      </div>`;
+    if (budget) {
+      const pct = Math.round(all.spent / budget * 100);
+      head += `<div class="ex-budget">${expenseBar(all.spent, budget, Math.max(budget, all.spent))}
+        <div class="ex-note ${all.spent > budget ? 'over' : ''}">${escapeHtml(t('exBudgetUsed', { n: pct, b: fmtMoney(budget) }))}${all.planned > budget ? ' · ' + escapeHtml(t('exPlanOverBudget', { a: fmtMoney(all.planned - budget) })) : ''}</div></div>`;
+    }
+    head += `<label class="ex-budget-input"><span>${escapeHtml(t('exTripBudget'))} (${escapeHtml(CURRENCY)})</span>
+      <input class="edit-form-input" inputmode="decimal" placeholder="${escapeHtml(t('exBudgetPh'))}" value="${budget ? escapeHtml(String(budget)) : ''}" onchange="setTripBudget(this.value)"></label>`;
+
+    const tabs = [['days', t('sectionDays')], ['cats', t('category')], ['stops', t('exStops')]];
+    let list = '';
+    if (!costed.length) {
+      list = `<p class="settings-note ex-empty">${escapeHtml(t('exEmpty'))}</p>`;
+    } else if (expensesTab === 'days') {
+      const days = getAllDays().map(d => ({ d, r: expenseRows(rawData.filter(s => s.day === d)) })).filter(x => x.r.planned || x.r.spent);
+      const max = Math.max(...days.map(x => Math.max(x.r.planned, x.r.spent)));
+      list = days.map(x => expenseLine(getDayTitle(x.d), null, x.r, max, `closeExpenses(); setDayChip(${x.d})`)).join('');
+    } else if (expensesTab === 'cats') {
+      const cats = {};
+      costed.forEach(s => { const c = s.category || t('category'); (cats[c] = cats[c] || []).push(s); });
+      const rows = Object.keys(cats).map(c => ({ c, r: expenseRows(cats[c]) })).sort((a, b) => Math.max(b.r.planned, b.r.spent) - Math.max(a.r.planned, a.r.spent));
+      const max = Math.max(...rows.map(x => Math.max(x.r.planned, x.r.spent)));
+      list = rows.map(x => expenseLine(x.c, categoryIcon(x.c), x.r, max)).join('');
+    } else {
+      const rows = costed.slice().sort((a, b) => (toHome(b.spent ?? b.cost, itemCurrency(b)) || 0) - (toHome(a.spent ?? a.cost, itemCurrency(a)) || 0));
+      list = rows.map(s => {
+        const other = itemCurrency(s) !== CURRENCY;
+        const plannedTxt = typeof s.cost === 'number' ? fmtItem(s.cost, s) : '–';
+        const spentTxt = typeof s.spent === 'number' ? fmtItem(s.spent, s) : '–';
+        const over = typeof s.cost === 'number' && typeof s.spent === 'number' && s.spent > s.cost;
+        return `<div class="ex-stop" role="button" tabindex="0" onclick="closeExpenses(); openSingleStopModal(${s.id})">
+          <i class="fa-solid ${categoryIcon(s.category)}"></i>
+          <div class="ex-stop-main"><div class="ex-stop-name">${escapeHtml(s.cleanTitle || s.title)}</div><div class="ex-stop-day">${escapeHtml(getDayTitle(s.day))}${other ? ` · ${escapeHtml(itemCurrency(s))}` : ''}</div></div>
+          <div class="ex-stop-nums"><b class="${over ? 'over' : ''}">${escapeHtml(spentTxt)}</b><span>${escapeHtml(plannedTxt)}</span></div>
+        </div>`;
+      }).join('');
+    }
+    const ratesNote = needsConversion() ? `<p class="settings-note ex-rates">${escapeHtml(t('exConverted', { c: CURRENCY }))}</p>` : '';
+    body.innerHTML = `${head}
+      <div class="ex-tabs">${tabs.map(([k, l]) => `<button class="ex-tab ${expensesTab === k ? 'on' : ''}" onclick="setExpensesTab('${k}')">${escapeHtml(l)}</button>`).join('')}</div>
+      <div class="ex-legend"><span><i class="ex-dot spent"></i>${escapeHtml(t('spentLabel'))}</span><span><i class="ex-dot plan"></i>${escapeHtml(t('exPlanned'))}</span></div>
+      <div class="ex-list">${list}</div>${ratesNote}`;
+  }
+
   /* ===== 99-boot.js ===== */
   /* =========================================================
      START-UP: wire up gestures and helpers, then build the map once the page has loaded
@@ -11479,6 +11812,7 @@
   initHandleGuard();
   placeFilters();
   initDayHold();
+  initHoldSelect();
 
   window.addEventListener('load', () => {
     initMap();
