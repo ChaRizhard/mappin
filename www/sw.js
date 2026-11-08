@@ -3,7 +3,7 @@
    - Libraries from the online fallbacks (fonts, icons, map library) are cached the first time they load.
    - Place searches, routes and opening hours fall back to their last saved answer when offline.
    - Map pieces saved with "Save map for offline" are shown when there's no connection. */
-const VERSION = 'mappin-1.4.3';
+const VERSION = 'mappin-1.4.4';
 const TILE_CACHE = 'mappin-tiles';
 const DATA_CACHE = 'mappin-data';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest',
@@ -61,6 +61,9 @@ self.addEventListener('fetch', event => {
     })());
     return;
   }
+
+  // Private trip files: always fetched fresh, never kept by the app
+  if (url.origin === self.location.origin && /\/p\/[^/]+\.enc$/.test(url.pathname)) return;
 
   // The app's other files: serve the saved copy instantly, refresh it in the background
   if (url.origin === self.location.origin) {

@@ -487,7 +487,14 @@
       importUpdateTrip: "Update this trip",
       importUpdateNote: "Brings in the file’s rows and keeps the pins, notes and costs you added in MapPin. Stops that aren’t in the file are removed.",
       importNewTrip: "Start a new trip",
-      importNewNote: "Opens the file as a new trip with its own name and checklist."
+      importNewNote: "Opens the file as a new trip with its own name and checklist.",
+      privateTripMissing: "That private trip link no longer exists.",
+      privateTripKey: "That private link is incomplete. Copy the whole link, including the part after #.",
+      tripAutoUpdated: "Your trip was updated: {a} new, {u} updated, {r} removed",
+      privateTripLabel: "Private",
+      copyLink: "Copy link",
+      linkCopied: "Link copied",
+      autoRefreshLabel: "Update automatically when MapPin opens"
     },
     ja: {
       language: "言語",
@@ -956,7 +963,14 @@
       importUpdateTrip: "この旅行を更新",
       importUpdateNote: "ファイルの行を取り込み、MapPin で追加したピン・メモ・費用は残します。ファイルにないスポットは削除されます。",
       importNewTrip: "新しい旅行にする",
-      importNewNote: "ファイル名の新しい旅行として開きます（チェックリストも別）。"
+      importNewNote: "ファイル名の新しい旅行として開きます（チェックリストも別）。",
+      privateTripMissing: "このプライベートリンクはもう存在しません。",
+      privateTripKey: "プライベートリンクが不完全です。# 以降も含めてリンク全体をコピーしてください。",
+      tripAutoUpdated: "旅行が更新されました：新規 {a}、更新 {u}、削除 {r}",
+      privateTripLabel: "プライベート",
+      copyLink: "リンクをコピー",
+      linkCopied: "リンクをコピーしました",
+      autoRefreshLabel: "MapPin を開いたときに自動で更新"
     },
     zh: {
       language: "语言",
@@ -1425,7 +1439,14 @@
       importUpdateTrip: "更新此行程",
       importUpdateNote: "导入文件中的行，并保留你在 MapPin 中添加的图钉、备注和费用。文件中没有的地点会被删除。",
       importNewTrip: "新建行程",
-      importNewNote: "将文件作为新行程打开，拥有自己的名称和清单。"
+      importNewNote: "将文件作为新行程打开，拥有自己的名称和清单。",
+      privateTripMissing: "该私人行程链接已不存在。",
+      privateTripKey: "私人链接不完整。请复制完整链接，包括 # 后面的部分。",
+      tripAutoUpdated: "你的行程已更新：新增 {a}，更新 {u}，删除 {r}",
+      privateTripLabel: "私人",
+      copyLink: "复制链接",
+      linkCopied: "已复制链接",
+      autoRefreshLabel: "打开 MapPin 时自动更新"
     },
     ko: {
       language: "언어",
@@ -1894,7 +1915,14 @@
       importUpdateTrip: "이 여행 업데이트",
       importUpdateNote: "파일의 행을 가져오고 MapPin에서 추가한 핀, 메모, 비용은 유지해요. 파일에 없는 장소는 삭제돼요.",
       importNewTrip: "새 여행 시작",
-      importNewNote: "파일을 자체 이름과 체크리스트가 있는 새 여행으로 열어요."
+      importNewNote: "파일을 자체 이름과 체크리스트가 있는 새 여행으로 열어요.",
+      privateTripMissing: "이 비공개 여행 링크는 더 이상 없어요.",
+      privateTripKey: "비공개 링크가 불완전해요. # 뒤 부분까지 링크 전체를 복사하세요.",
+      tripAutoUpdated: "여행이 업데이트됐어요: 새로 {a}, 변경 {u}, 삭제 {r}",
+      privateTripLabel: "비공개",
+      copyLink: "링크 복사",
+      linkCopied: "링크를 복사했어요",
+      autoRefreshLabel: "MapPin을 열 때 자동으로 업데이트"
     },
     es: {
       language: "Idioma",
@@ -2368,7 +2396,14 @@
       importUpdateTrip: "Actualizar este viaje",
       importUpdateNote: "Trae las filas del archivo y conserva los pines, notas y costes añadidos en MapPin. Las paradas que no estén en el archivo se eliminan.",
       importNewTrip: "Empezar un viaje nuevo",
-      importNewNote: "Abre el archivo como un viaje nuevo con su propio nombre y lista."
+      importNewNote: "Abre el archivo como un viaje nuevo con su propio nombre y lista.",
+      privateTripMissing: "Ese enlace privado ya no existe.",
+      privateTripKey: "El enlace privado está incompleto. Copia el enlace entero, incluida la parte después de #.",
+      tripAutoUpdated: "Tu viaje se actualizó: {a} nuevas, {u} actualizadas, {r} eliminadas",
+      privateTripLabel: "Privado",
+      copyLink: "Copiar enlace",
+      linkCopied: "Enlace copiado",
+      autoRefreshLabel: "Actualizar automáticamente al abrir MapPin"
     },
     fr: {
       language: "Langue",
@@ -2842,7 +2877,14 @@
       importUpdateTrip: "Mettre à jour ce voyage",
       importUpdateNote: "Récupère les lignes du fichier en gardant les repères, notes et coûts ajoutés dans MapPin. Les étapes absentes du fichier sont supprimées.",
       importNewTrip: "Nouveau voyage",
-      importNewNote: "Ouvre le fichier comme un nouveau voyage avec son nom et sa liste."
+      importNewNote: "Ouvre le fichier comme un nouveau voyage avec son nom et sa liste.",
+      privateTripMissing: "Ce lien privé n’existe plus.",
+      privateTripKey: "Le lien privé est incomplet. Copiez le lien entier, y compris la partie après #.",
+      tripAutoUpdated: "Votre voyage a été mis à jour : {a} nouvelles, {u} modifiées, {r} supprimées",
+      privateTripLabel: "Privé",
+      copyLink: "Copier le lien",
+      linkCopied: "Lien copié",
+      autoRefreshLabel: "Mettre à jour automatiquement à l’ouverture de MapPin"
     },
     de: {
       language: "Sprache",
@@ -3316,7 +3358,14 @@
       importUpdateTrip: "Diese Reise aktualisieren",
       importUpdateNote: "Übernimmt die Zeilen der Datei und behält Pins, Notizen und Kosten aus MapPin. Stopps, die nicht in der Datei stehen, werden entfernt.",
       importNewTrip: "Neue Reise beginnen",
-      importNewNote: "Öffnet die Datei als neue Reise mit eigenem Namen und eigener Checkliste."
+      importNewNote: "Öffnet die Datei als neue Reise mit eigenem Namen und eigener Checkliste.",
+      privateTripMissing: "Dieser private Reiselink existiert nicht mehr.",
+      privateTripKey: "Der private Link ist unvollständig. Kopiere den ganzen Link, auch den Teil nach #.",
+      tripAutoUpdated: "Deine Reise wurde aktualisiert: {a} neu, {u} geändert, {r} entfernt",
+      privateTripLabel: "Privat",
+      copyLink: "Link kopieren",
+      linkCopied: "Link kopiert",
+      autoRefreshLabel: "Beim Öffnen von MapPin automatisch aktualisieren"
     }
   };
 

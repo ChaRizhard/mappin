@@ -69,3 +69,7 @@ Do it once in the **Home Screen app** (iPhone) or the **installed app** (Android
 - Import Google Takeout "Saved Places.json" or a saved-list CSV: places without coordinates are looked up by name.
 - Open a pin's popup: "Show in the list" is a labelled button and the popup buttons are bigger on phones.
 - "Sample trip loaded" no longer stays on screen after importing your own trip.
+
+## 1.4.4 checks
+- Import a private trip link (…/p/<name>.enc#k=…): the trip loads, the import window shows "Private", and "Update automatically when MapPin opens" is ticked.
+- After the private trip is updated on GitHub, close and reopen MapPin: a message says what changed, with Undo.
