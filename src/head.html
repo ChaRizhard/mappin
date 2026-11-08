@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--
+  MAPPIN ROADMAP: do these before rolling out testing to other users
+  1. Switch the map to the official Google Maps JavaScript API (needs an API key + billing account).
+     The current tile URLs (mt1.google.com) are unofficial and fine for private testing only.
+  2. Then add Google Places API (New) for stars, reviews, photos and hours in the pin pop-ups.
+     Google's terms only allow Places data on a Google map, so step 1 must come first.
+     Free monthly caps apply per SKU (see developers.google.com/maps/billing/pricing).
+  3. Restrict the API key to your website's domain (HTTP referrer restriction) before sharing the link.
+  4. Public transport: use the Google Routes API (travelMode TRANSIT) for in-app transit routes and times.
+     Until then, Transit mode opens each leg in Google Maps. (Transitous, the free transit router,
+     forbids commercial use and requires open-source code, so it is not used here.)
+  Until then, place details come from free OpenStreetMap/Wikipedia data with a "Reviews & photos" link to Google.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MapPin</title>
+  <meta name="description" content="Plan trips day by day on a map: stops, routes, times, budgets and opening hours.">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="MapPin">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+  <!-- Libraries: bundled copies in vendor/ (added by "npm run vendor"); if missing, the online copies load instead -->
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'" />
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'" />
+  <link rel="stylesheet" href="vendor/inter/inter.css" onerror="this.onerror=null;this.href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'" />
+  <script src="config.js"></script>
+  <script src="vendor/papaparse.min.js"></script>
+  <script>window.Papa || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"><\/script>');</script>
+  <script src="vendor/Sortable.min.js"></script>
+  <script>window.Sortable || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"><\/script>');</script>
+

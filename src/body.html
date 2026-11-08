@@ -1,0 +1,322 @@
+<body>
+
+<div id="app-container">
+  <header>
+    <div class="brand">
+      <div class="brand-title">
+        <h1><span class="wordmark" aria-label="MapPin"><span>Map</span><svg class="wm-p" viewBox="0 0 60 104" overflow="visible" aria-hidden="true"><defs><linearGradient id="wmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient><linearGradient id="wmr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b82f6" stop-opacity="0"/><stop offset="0.35" stop-color="#3b82f6" stop-opacity="0.9"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><path class="wm-route" d="M-178 101 C-120 112 -60 90 2 99" fill="none" stroke="url(#wmr)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 13"/><ellipse cx="13" cy="100.5" rx="7" ry="1.8" fill="currentColor" opacity="0.28"/><path fill="url(#wmg)" fill-rule="evenodd" d="M6 8H32A24 24 0 0 1 32 56H20V74L13 98L6 74ZM45 32A10 10 0 1 0 25 32A10 10 0 1 0 45 32Z"/><circle cx="35" cy="32" r="3.2" fill="#fff" opacity="0.9"/></svg><span>in</span></span></h1>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="hdr-group">
+        <button class="icon-btn" id="undo-btn" onclick="undo()" data-i18n-title="undoT" disabled><i class="fa-solid fa-rotate-left"></i></button>
+        <button class="icon-btn" id="redo-btn" onclick="redo()" data-i18n-title="redo" disabled><i class="fa-solid fa-rotate-right"></i></button>
+      </div>
+      <span class="hdr-divider"></span>
+      <label class="lang-wrap" data-i18n-title="language">
+        <i class="fa-solid fa-language"></i>
+        <select class="lang-select" id="lang-select" onchange="setLanguage(this.value)"></select>
+      </label>
+      <div class="ui-switch" id="ui-theme-switch" role="switch" tabindex="0" aria-checked="true"
+           data-i18n-title="themeTitle" onclick="toggleUiTheme()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleUiTheme();}">
+        <i class="fa-solid fa-sun"></i>
+        <div class="ui-switch-track"><div class="ui-switch-knob"></div></div>
+        <i class="fa-solid fa-moon"></i>
+      </div>
+      <div class="ui-switch autosave-switch" id="autosave-switch" role="switch" tabindex="0" aria-checked="true"
+           data-i18n-title="autosaveTitle" onclick="toggleAutosave()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAutosave();}">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span class="switch-label" data-i18n="autosave">Autosave</span>
+        <div class="ui-switch-track"><div class="ui-switch-knob"></div></div>
+      </div>
+      <span class="hdr-divider"></span>
+      <button class="btn btn-ghost" onclick="shareTrip()"><i class="fa-solid fa-share-nodes"></i> <span class="btn-label" data-i18n="share">Share</span></button>
+      <div class="menu-wrap">
+        <button class="btn btn-ghost" id="app-menu-btn" onclick="toggleAppMenu(event)"><i class="fa-solid fa-bars"></i> <span class="btn-label" data-i18n="menu">Menu</span></button>
+        <div class="dropdown-menu" id="app-menu">
+          <div class="context-menu-item" onclick="closeAppMenu(); resetToBlankMap()"><i class="fa-solid fa-file-circle-plus"></i> <span data-i18n="newBlank">New map</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openLoadModal()"><i class="fa-solid fa-folder-open"></i> <span data-i18n="loadMap">Open saved map</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openSaveModal()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="saveMap">Save map</span></div>
+          <div class="menu-divider"></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-import"></i> <span data-i18n="importCsv">Import file (CSV, KML)</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openImportLink()"><i class="fa-solid fa-link"></i> <span data-i18n="importLink">Import from link</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); exportMapCSV()"><i class="fa-solid fa-file-export"></i> <span data-i18n="exportCsv">Export CSV</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openMasterColorModal()"><i class="fa-solid fa-palette"></i> <span data-i18n="coloursTitles">Colours &amp; titles</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openChecklist()"><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openExpenses()"><i class="fa-solid fa-wallet"></i> <span data-i18n="expenses">Expenses</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); printItinerary()"><i class="fa-solid fa-print"></i> <span data-i18n="printPdf">Print or save as PDF</span></div>
+          <div class="menu-divider"></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); shareTrip()"><i class="fa-solid fa-link"></i> <span data-i18n="shareLink">Copy share link</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); saveViewOffline()"><i class="fa-solid fa-download"></i> <span data-i18n="saveOfflineArea">Save this map area offline</span></div>
+          <div class="context-menu-item" id="install-menu-item" style="display:none" onclick="closeAppMenu(); installApp()"><i class="fa-solid fa-mobile-screen-button"></i> <span data-i18n="installApp">Install app</span></div>
+          <div class="menu-divider"></div>
+          <div class="context-menu-item" id="feedback-menu-item" onclick="sendFeedback()"><i class="fa-solid fa-comment-dots"></i> <span data-i18n="sendFeedback">Send feedback</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openTour()"><i class="fa-solid fa-circle-question"></i> <span data-i18n="tour">Welcome tour</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openSettings()"><i class="fa-solid fa-gear"></i> <span data-i18n="settings">Settings</span></div>
+        </div>
+      </div>
+      <input type="file" id="file-input" accept=".csv,.txt,.kml,.geojson,.json" onchange="handleFileUpload(event)">
+    </div>
+  </header>
+  <div id="offline-banner" data-i18n="offlineBanner">You're offline. Your itinerary still works. Search, routes and new map areas need a connection.</div>
+
+  <div class="main-content">
+    <sidebar id="sidebar">
+      <div class="sheet-handle" id="sheet-handle" data-i18n-title="expandList"><span></span></div>
+      <div id="view-banner"><span><i class="fa-solid fa-eye"></i> <span data-i18n="viewOnlyBanner">Viewing a shared trip. Changes aren't saved.</span></span>
+        <button class="btn btn-primary" onclick="keepSharedCopy()" data-i18n="keepCopy">Keep a copy</button>
+        <button class="btn btn-secondary" onclick="backToMyTrip()" data-i18n="backToMine">Back to my trip</button></div>
+      <div class="sidebar-header">
+        <div class="sidebar-title-row">
+          <span class="sidebar-title"><i class="fa-solid fa-route"></i> <span data-i18n="dayStops">Itinerary</span></span>
+          <div class="header-right-tools">
+            <button class="checklist-pill" id="checklist-pill" onclick="openChecklist()"></button>
+            <span class="sync-pill" id="sync-pill"></span>
+            <span class="geo-pill" id="geo-status"><i class="fa-solid fa-spinner fa-spin"></i> <span></span></span>
+            <span class="budget-pill" id="budget-pill" role="button" tabindex="0" onclick="openExpenses()"></span>
+            <span class="count-pill" id="activity-count">0</span>
+          </div>
+        </div>
+
+        <!-- Search Location Input -->
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <div class="search-field">
+              <input type="search" id="search-input" class="search-input" data-i18n-ph="searchPlaceholder" placeholder="Search places or addresses…" enterkeyhint="search" autocomplete="off"
+                     oninput="handleSearchInput(event); updateSearchClear()" onkeyup="handleSearchKey(event)" onfocus="handleSearchFocus()">
+              <button class="search-clear" id="search-clear" type="button" onclick="clearSearch()" data-i18n-title="clearSearch" aria-label="Clear search"><i class="fa-solid fa-circle-xmark"></i></button>
+            </div>
+            <button class="btn btn-primary" style="padding: 6px 12px;" onclick="executeSearch()" data-i18n-title="searchArea"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </div>
+          <div class="search-results-list" id="search-results"></div>
+          <div class="relocate-banner" id="relocate-banner">
+            <span id="relocate-text"></span>
+            <button onclick="cancelRelocate()" data-i18n-title="cancel"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+
+        <div class="filters-row">
+          <label class="sort-wrap" data-i18n-title="sortBy">
+            <i class="fa-solid fa-arrow-down-wide-short"></i>
+            <select class="select-input sort-select" id="sort-select" onchange="sortItinerary(); updateFilterBadge()">
+              <option value="address" data-i18n="sortAddress">Address</option>
+              <option value="date" data-i18n="sortDate">Date</option>
+              <option value="day" selected data-i18n="sortDay">Day</option>
+              <option value="name" data-i18n="sortName">Name</option>
+              <option value="time" data-i18n="sortTime">Time</option>
+            </select>
+          </label>
+          <div class="cat-chips" id="cat-chips"></div>
+          <select id="category-select" style="display:none"><option value="all">All categories</option></select>
+        </div>
+
+        <!-- Day Chips Row -->
+        <div class="day-chips-row">
+          <div class="day-chips" id="day-chips-container"></div>
+          <button class="filter-btn" id="filter-btn" style="display:none" onclick="openFilters()" data-i18n-title="filters"><i class="fa-solid fa-sliders"></i><span class="fb-count"></span></button>
+        </div>
+      </div>
+      <div class="select-bar" id="select-bar">
+        <span class="select-count" id="select-count"></span>
+        <span id="select-bar-actions" style="display:flex; gap:8px; flex-wrap:wrap;"></span>
+        <span class="select-hint" id="select-hint"></span>
+      </div>
+      <div class="timeline-container" id="timeline"></div>
+    </sidebar>
+
+    <div class="map-wrap">
+    <div id="map"></div>
+
+    <div id="today-panel" style="display:none"></div>
+
+    <button class="locate-btn" id="locate-btn" onclick="locateMe()" data-i18n-title="locateMe"><i class="fa-solid fa-location-crosshairs"></i></button>
+    <button class="locate-btn fit-btn" id="fit-btn" onclick="fitAllPins()" data-i18n-title="showAllPins"><i class="fa-solid fa-expand"></i></button>
+
+    <div class="map-controls-overlay">
+      <button id="layers-btn" onclick="toggleLayers(event)" data-i18n-title="mapLayers" aria-label="Map type and routes"><i class="fa-solid fa-layer-group"></i></button>
+      <div class="layers-panel" id="layers-panel">
+      <div class="lp-title" data-i18n="mapTypeTitle">Map type</div>
+      <div class="map-controls-row">
+        <button class="map-control-btn active" id="btn-light" onclick="switchTileLayer('light')"><i class="fa-solid fa-sun"></i> <span class="btn-label" data-i18n="mapLight">Light</span></button>
+        <button class="map-control-btn" id="btn-dark" onclick="switchTileLayer('dark')"><i class="fa-solid fa-moon"></i> <span class="btn-label" data-i18n="mapDark">Dark</span></button>
+        <button class="map-control-btn" id="btn-sat" onclick="switchTileLayer('sat')"><i class="fa-solid fa-globe"></i> <span class="btn-label" data-i18n="mapSat">Satellite</span></button>
+      </div>
+      <div class="lp-title" data-i18n="routes">Routes</div>
+      <div class="map-controls-row routes-row">
+        <span class="ctl-label" data-i18n="routes">Routes</span>
+        <button class="map-control-btn active" id="route-straight" onclick="setRouteMode('straight')" data-i18n-title="routeStraight"><i class="fa-solid fa-slash"></i> <span class="btn-label" data-i18n="routeStraight">Straight</span></button>
+        <button class="map-control-btn" id="route-foot" onclick="setRouteMode('foot')" data-i18n-title="routeWalk"><i class="fa-solid fa-person-walking"></i> <span class="btn-label" data-i18n="routeWalk">Walk</span></button>
+        <button class="map-control-btn" id="route-car" onclick="setRouteMode('car')" data-i18n-title="routeDrive"><i class="fa-solid fa-car"></i> <span class="btn-label" data-i18n="routeDrive">Drive</span></button>
+        <button class="map-control-btn" id="route-transit" onclick="setRouteMode('transit')" data-i18n-title="routeTransitTitle"><i class="fa-solid fa-train-subway"></i> <span class="btn-label" data-i18n="routeTransit">Transit</span></button>
+      </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- Context Menu for Multi-select Grouping -->
+<div id="context-menu">
+  <div class="context-menu-item" onclick="groupSelectedStops()"><i class="fa-solid fa-object-group"></i> <span data-i18n="groupSelected">Group selected</span></div>
+  <div class="context-menu-item" onclick="ungroupSelectedStops()"><i class="fa-solid fa-object-ungroup"></i> <span data-i18n="ungroupSelected">Ungroup selected</span></div>
+</div>
+
+<!-- Day burger menu -->
+<div id="day-menu"></div>
+
+<!-- Calendar pop-over -->
+<div id="date-popover"></div>
+
+<!-- Print / PDF view (filled when printing) -->
+<div id="print-view"></div>
+
+<!-- Toasts -->
+<div id="toast-host"></div>
+
+<!-- Single-Item Edit Modal (Day, Group, Day group or Stop) -->
+<div class="modal-overlay" id="single-item-modal" onclick="handleOutsideModalClick(event, 'single-item-modal')">
+  <div class="modal-box" style="width: 440px;">
+    <div class="modal-title">
+      <span id="single-modal-header-title"></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeSingleItemModal()"></i>
+    </div>
+    <div id="single-modal-body"></div>
+    <div class="modal-actions-footer">
+      <button class="btn btn-outline" id="single-preview-btn" onclick="previewSingleItemModal()"><i class="fa-solid fa-eye"></i> <span data-i18n="previewBtn">Preview</span></button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" onclick="closeSingleItemModal()" data-i18n="cancel">Cancel</button>
+      <button class="btn btn-success" onclick="saveSingleItemModal()"><i class="fa-solid fa-check"></i> <span data-i18n="save">Save</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Master Paint Brush Modal (Edit All Days & Groups) -->
+<div class="modal-overlay" id="color-modal" onclick="handleOutsideModalClick(event, 'color-modal')">
+  <div class="modal-box" style="width: 520px;">
+    <div class="modal-title">
+      <span data-i18n="masterEditor">Edit days &amp; groups</span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeMasterColorModal()"></i>
+    </div>
+    <div id="color-picker-list"></div>
+    <div class="modal-actions-footer">
+      <button class="btn btn-outline" id="master-preview-btn" onclick="previewMasterChanges()"><i class="fa-solid fa-eye"></i> <span data-i18n="previewBtn">Preview</span></button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" onclick="closeMasterColorModal()" data-i18n="cancel">Cancel</button>
+      <button class="btn btn-success" onclick="saveMasterColorModalChanges()"><i class="fa-solid fa-check"></i> <span data-i18n="saveAll">Save all</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="modal-overlay" id="checklist-modal" onclick="if(event.target.id==='checklist-modal')closeChecklist()">
+  <div class="modal-box" style="width: 460px;">
+    <div class="modal-title">
+      <span><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeChecklist()"></i>
+    </div>
+    <div id="checklist-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="import-link-modal" onclick="if(event.target.id==='import-link-modal')closeImportLink()">
+  <div class="modal-box" style="width: 480px;">
+    <div class="modal-title">
+      <span><i class="fa-solid fa-link"></i> <span data-i18n="importLink">Import from link</span></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeImportLink()"></i>
+    </div>
+    <div id="import-link-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="expenses-modal" onclick="if(event.target.id==='expenses-modal')closeExpenses()">
+  <div class="modal-box" style="width: 480px;">
+    <div class="modal-title">
+      <span><i class="fa-solid fa-wallet"></i> <span data-i18n="expenses">Expenses</span></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeExpenses()"></i>
+    </div>
+    <div id="expenses-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="filter-modal" onclick="if(event.target.id==='filter-modal')closeModalById('filter-modal')">
+  <div class="modal-box" style="width: 420px;">
+    <div class="modal-title"><span><i class="fa-solid fa-sliders"></i> <span data-i18n="filters">Sort and filter</span></span><i class="fa-solid fa-xmark modal-close-x" onclick="closeModalById('filter-modal')"></i></div>
+    <div id="filter-body"></div>
+    <div class="modal-actions-footer">
+      <button class="btn btn-secondary" onclick="resetFilters()" data-i18n="resetFilters">Reset</button>
+      <button class="btn btn-primary" onclick="closeModalById('filter-modal')" data-i18n="done">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="calendar-modal" onclick="if(event.target.id==='calendar-modal')closeModalById('calendar-modal')">
+  <div class="modal-box" style="width: 440px;">
+    <div class="modal-title"><span id="calendar-title">Add to calendar</span><i class="fa-solid fa-xmark modal-close-x" onclick="closeModalById('calendar-modal')"></i></div>
+    <div id="calendar-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="tour-modal">
+  <div class="modal-box" style="width: 400px;"><div id="tour-body"></div></div>
+</div>
+
+<div class="modal-overlay" id="share-modal" onclick="handleOutsideModalClick(event, 'share-modal')">
+  <div class="modal-box" style="width: 420px;">
+    <div class="modal-title">
+      <span data-i18n="shareTitle">Share trip</span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="document.getElementById('share-modal').style.display='none'"></i>
+    </div>
+    <button class="share-choice" onclick="chooseShare(false)"><i class="fa-solid fa-pen-to-square"></i><span><b data-i18n="shareEditable">Editable copy</b><small data-i18n="shareEditableHint">They get their own copy to change.</small></span></button>
+    <button class="share-choice" onclick="chooseShare(true)"><i class="fa-solid fa-eye"></i><span><b data-i18n="shareView">View only</b><small data-i18n="shareViewHint">They can look around and use Today mode. Nothing is saved on their device.</small></span></button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settings-modal" onclick="handleOutsideModalClick(event, 'settings-modal')">
+  <div class="modal-box" style="width: 480px;">
+    <div class="modal-title">
+      <span data-i18n="settings">Settings</span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeSettings()"></i>
+    </div>
+    <div id="settings-body"></div>
+    <div class="modal-actions-footer">
+      <button class="btn btn-secondary" onclick="closeSettings()" data-i18n="close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save Map Modal -->
+<div class="modal-overlay" id="save-modal" onclick="handleOutsideModalClick(event, 'save-modal')">
+  <div class="modal-box" style="width: 380px;">
+    <div class="modal-title">
+      <span data-i18n="saveMap">Save map</span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeSaveModal()"></i>
+    </div>
+    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;" data-i18n="enterMapTitle">Enter a title for this map itinerary:</p>
+    <input type="text" id="save-map-title-input" class="edit-form-input" placeholder="e.g. Japan Autumn Trip 2026">
+    <div class="modal-actions-footer">
+      <button class="btn btn-secondary" onclick="closeSaveModal()" data-i18n="cancel">Cancel</button>
+      <button class="btn btn-success" onclick="confirmSaveMap()" data-i18n="saveMap">Save map</button>
+    </div>
+  </div>
+</div>
+
+<!-- Load Saved Maps Modal -->
+<div class="modal-overlay" id="load-modal" onclick="handleOutsideModalClick(event, 'load-modal')">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span data-i18n="loadMap">Open saved map</span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeLoadModal()"></i>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+      <button class="btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="deleteSelectedSavedMaps()"><i class="fa-solid fa-trash"></i> <span data-i18n="deleteSelected">Delete selected</span></button>
+    </div>
+    <div id="saved-maps-container"></div>
+    <div class="modal-actions-footer">
+      <button class="btn btn-secondary" onclick="closeLoadModal()" data-i18n="cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>window.L || document.write('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');</script>
+

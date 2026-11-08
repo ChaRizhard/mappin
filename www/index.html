@@ -310,7 +310,9 @@
     }
     .activity-card:last-child { margin-bottom: 0; }
     .activity-card:active { cursor: grabbing; }
-    .activity-card:hover, .activity-card.highlighted { background: var(--surface-2); transform: translateX(4px); border-color: var(--accent-blue); }
+    .activity-card.highlighted { background: var(--surface-2); transform: translateX(4px); border-color: var(--accent-blue); }
+    /* Only real mouse pointers hover: on a phone a tap would leave the card "hovered" until you tap somewhere else */
+    @media (hover: hover) and (pointer: fine) { .activity-card:hover { background: var(--surface-2); transform: translateX(4px); border-color: var(--accent-blue); } }
     .activity-card.selected-multi { border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); }
     @keyframes cardFlash { 0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); } 30% { box-shadow: 0 0 0 4px rgba(59,130,246,0.55); } }
     .activity-card.flash { animation: cardFlash 0.9s ease 2; border-color: var(--accent-blue); }
@@ -1356,6 +1358,26 @@
     .ex-stop-nums span { font-size: 11px; color: var(--text-muted); }
     .ex-empty { text-align: center; padding: 18px 0; }
     .ex-rates { margin-top: 10px; }
+    /* 1.4.2: Import from link */
+    .il-current { background: var(--tint); border-radius: 12px; padding: 12px; margin-bottom: 14px; }
+    .il-cur-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+    .il-cur-url { font-size: 13px; color: var(--text-main); word-break: break-all; margin-top: 2px; }
+    .il-cur-when { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .il-msg { color: #ef4444; font-size: 13px; margin: 8px 0 0; line-height: 1.4; }
+    .il-help { margin: 14px 0 0; padding-left: 18px; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+    .il-help li { margin-bottom: 4px; }
+    #import-link-body .edit-form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    /* 1.4.3: "Show in list" is a labelled button in pin popups; bigger popup buttons on touch screens */
+    .pin-toggle-btn.wide { width: auto; padding: 0 12px; gap: 7px; font-size: 13px; font-weight: 600; margin-right: auto; }
+    .pin-toggle-btn.wide::after { display: none; }
+    @media (pointer: coarse) { .mp-popup .pin-toggle-btn { height: 40px; min-width: 40px; border-radius: 10px; } .pin-toggle-btn.wide { font-size: 14px; } }
+    /* Choice sheet (e.g. update this trip or start a new one) */
+    .choice-list { display: flex; flex-direction: column; gap: 8px; }
+    .choice-btn { text-align: left; border: 1px solid var(--panel-border); background: var(--tint); color: var(--text-main); border-radius: 12px; padding: 12px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; font: inherit; }
+    .choice-btn b { font-size: 15px; }
+    .choice-btn span { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+    .choice-btn.primary { border-color: var(--accent-blue); background: color-mix(in srgb, var(--accent-blue) 14%, transparent); }
+    .choice-cancel { align-self: center; margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -1398,7 +1420,8 @@
           <div class="context-menu-item" onclick="closeAppMenu(); openLoadModal()"><i class="fa-solid fa-folder-open"></i> <span data-i18n="loadMap">Open saved map</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openSaveModal()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="saveMap">Save map</span></div>
           <div class="menu-divider"></div>
-          <div class="context-menu-item" onclick="closeAppMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-import"></i> <span data-i18n="importCsv">Import CSV</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); document.getElementById('file-input').click()"><i class="fa-solid fa-file-import"></i> <span data-i18n="importCsv">Import file (CSV, KML)</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openImportLink()"><i class="fa-solid fa-link"></i> <span data-i18n="importLink">Import from link</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); exportMapCSV()"><i class="fa-solid fa-file-export"></i> <span data-i18n="exportCsv">Export CSV</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openMasterColorModal()"><i class="fa-solid fa-palette"></i> <span data-i18n="coloursTitles">Colours &amp; titles</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openChecklist()"><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></div>
@@ -1414,7 +1437,7 @@
           <div class="context-menu-item" onclick="closeAppMenu(); openSettings()"><i class="fa-solid fa-gear"></i> <span data-i18n="settings">Settings</span></div>
         </div>
       </div>
-      <input type="file" id="file-input" accept=".csv,.txt" onchange="handleFileUpload(event)">
+      <input type="file" id="file-input" accept=".csv,.txt,.kml,.geojson,.json" onchange="handleFileUpload(event)">
     </div>
   </header>
   <div id="offline-banner" data-i18n="offlineBanner">You're offline. Your itinerary still works. Search, routes and new map areas need a connection.</div>
@@ -1577,6 +1600,16 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="import-link-modal" onclick="if(event.target.id==='import-link-modal')closeImportLink()">
+  <div class="modal-box" style="width: 480px;">
+    <div class="modal-title">
+      <span><i class="fa-solid fa-link"></i> <span data-i18n="importLink">Import from link</span></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeImportLink()"></i>
+    </div>
+    <div id="import-link-body"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="expenses-modal" onclick="if(event.target.id==='expenses-modal')closeExpenses()">
   <div class="modal-box" style="width: 480px;">
     <div class="modal-title">
@@ -1693,7 +1726,7 @@
       saveMap: "Save map",
       loadMap: "Open saved map",
       exportCsv: "Export CSV",
-      importCsv: "Import CSV",
+      importCsv: "Import file (CSV, KML)",
       expandList: "Expand or shrink the list",
       dayStops: "Itinerary",
       stopsCount: "{n} stops",
@@ -2127,7 +2160,39 @@
       exBudgetPh: "Optional",
       exStops: "Stops",
       exEmpty: "No costs yet. Add a cost (planned) or what you spent to any stop and it shows up here.",
-      exConverted: "Shown in {c} at today’s exchange rates."
+      exConverted: "Shown in {c} at today’s exchange rates.",
+      importLink: "Import from link",
+      importLinkLabel: "Paste a link to a Google Sheet, a CSV file or a MapPin share link",
+      importLinkOther: "Or import a different link (starts a new trip)",
+      importLinkGo: "Import",
+      importLinkLoading: "Loading…",
+      importLinkCurrent: "This trip comes from",
+      importLinkLast: "Last updated {d}",
+      refreshFromLink: "Refresh from link",
+      importLinkForget: "Unlink",
+      refreshHint: "Refreshing brings in the latest rows. Stops keep the pins, notes and costs you added in MapPin when the sheet leaves them blank. Stops you only added in MapPin are removed (you can undo).",
+      refreshConfirm: "Update this trip with what’s in the link now? Stops you only added in MapPin will be removed. You can undo.",
+      importReplaceConfirm: "Replace the current trip with this one? You can undo.",
+      importedFromLink: "Imported {n} stops",
+      refreshedFromLink: "Updated: {a} new, {u} updated, {r} removed",
+      importLinkEmpty: "Paste a link first.",
+      importLinkBad: "That doesn’t look like a web link.",
+      importLinkDrive: "Google Drive file links can’t be read by apps. Open the file as a Google Sheet and use its link instead.",
+      importLinkMaps: "Google Maps links point to a place, not a trip. Search for the place in MapPin to add it.",
+      importLinkBlocked: "Couldn’t read that link. The site may not allow apps to read it; a Google Sheet or a direct CSV link works best.",
+      importLinkPrivate: "That link needs a sign-in.",
+      importLinkSheetShare: "In Google Sheets, tap Share and set General access to “Anyone with the link”.",
+      importLinkEmptySheet: "The link has no rows to import.",
+      importLinkHelpSheet: "Google Sheets: Share → General access → Anyone with the link, then copy the link. Each tab has its own link.",
+      importLinkHelpCsv: "CSV files: use a direct link (GitHub, Dropbox or your own website).",
+      importLinkHelpShare: "MapPin share links open the shared trip.",
+      importFileBad: "Couldn’t read that file. MapPin opens CSV, KML (Google My Maps) and GeoJSON (Google Takeout) files.",
+      importFileTitle: "Import this file",
+      importFileAsk: "You already have a trip open.",
+      importUpdateTrip: "Update this trip",
+      importUpdateNote: "Brings in the file’s rows and keeps the pins, notes and costs you added in MapPin. Stops that aren’t in the file are removed.",
+      importNewTrip: "Start a new trip",
+      importNewNote: "Opens the file as a new trip with its own name and checklist."
     },
     ja: {
       language: "言語",
@@ -2136,7 +2201,7 @@
       saveMap: "マップを保存",
       loadMap: "保存したマップ",
       exportCsv: "CSV書き出し",
-      importCsv: "CSV読み込み",
+      importCsv: "ファイルをインポート（CSV・KML）",
       expandList: "リストを広げる / 縮める",
       dayStops: "日別スポット",
       stopsCount: "{n}件",
@@ -2564,7 +2629,39 @@
       exBudgetPh: "任意",
       exStops: "スポット",
       exEmpty: "まだ費用がありません。スポットに費用（予定）や実際の支出を入れるとここに表示されます。",
-      exConverted: "本日のレートで {c} に換算して表示しています。"
+      exConverted: "本日のレートで {c} に換算して表示しています。",
+      importLink: "リンクからインポート",
+      importLinkLabel: "Google スプレッドシート、CSV ファイル、MapPin 共有リンクを貼り付け",
+      importLinkOther: "別のリンクをインポート（新しい旅行になります）",
+      importLinkGo: "インポート",
+      importLinkLoading: "読み込み中…",
+      importLinkCurrent: "この旅行の元のリンク",
+      importLinkLast: "最終更新 {d}",
+      refreshFromLink: "リンクから更新",
+      importLinkForget: "リンクを解除",
+      refreshHint: "最新の行を取り込みます。シートが空欄の項目は MapPin で追加したピン・メモ・費用を残します。MapPin だけで追加したスポットは削除されます（元に戻せます）。",
+      refreshConfirm: "リンクの現在の内容でこの旅行を更新しますか？MapPin だけで追加したスポットは削除されます。元に戻せます。",
+      importReplaceConfirm: "今の旅行をこれで置き換えますか？元に戻せます。",
+      importedFromLink: "{n} 件のスポットをインポートしました",
+      refreshedFromLink: "更新：新規 {a}、更新 {u}、削除 {r}",
+      importLinkEmpty: "先にリンクを貼り付けてください。",
+      importLinkBad: "ウェブのリンクではないようです。",
+      importLinkDrive: "Google ドライブのファイルリンクはアプリから読めません。Google スプレッドシートで開いてそのリンクを使ってください。",
+      importLinkMaps: "Google マップのリンクは場所を指すもので、旅行ではありません。MapPin で場所を検索して追加してください。",
+      importLinkBlocked: "リンクを読めませんでした。サイトがアプリからの読み込みを許可していない可能性があります。Google スプレッドシートか CSV の直接リンクがおすすめです。",
+      importLinkPrivate: "そのリンクはサインインが必要です。",
+      importLinkSheetShare: "Google スプレッドシートで「共有」を開き、一般的なアクセスを「リンクを知っている全員」にしてください。",
+      importLinkEmptySheet: "インポートできる行がありません。",
+      importLinkHelpSheet: "Google スプレッドシート：共有 → 一般的なアクセス → リンクを知っている全員 にしてリンクをコピー。タブごとにリンクがあります。",
+      importLinkHelpCsv: "CSV ファイル：直接リンク（GitHub、Dropbox、自分のサイト）を使ってください。",
+      importLinkHelpShare: "MapPin の共有リンクは共有された旅行を開きます。",
+      importFileBad: "ファイルを読めませんでした。CSV、KML（Google マイマップ）、GeoJSON（Google データエクスポート）に対応しています。",
+      importFileTitle: "このファイルをインポート",
+      importFileAsk: "すでに旅行を開いています。",
+      importUpdateTrip: "この旅行を更新",
+      importUpdateNote: "ファイルの行を取り込み、MapPin で追加したピン・メモ・費用は残します。ファイルにないスポットは削除されます。",
+      importNewTrip: "新しい旅行にする",
+      importNewNote: "ファイル名の新しい旅行として開きます（チェックリストも別）。"
     },
     zh: {
       language: "语言",
@@ -2573,7 +2670,7 @@
       saveMap: "保存地图",
       loadMap: "已保存的地图",
       exportCsv: "导出 CSV",
-      importCsv: "导入 CSV",
+      importCsv: "导入文件（CSV、KML）",
       expandList: "展开 / 收起列表",
       dayStops: "每日站点",
       stopsCount: "{n} 个站点",
@@ -3001,7 +3098,39 @@
       exBudgetPh: "可选",
       exStops: "地点",
       exEmpty: "还没有费用。为任意地点填写费用（计划）或实际花费，就会显示在这里。",
-      exConverted: "按今日汇率以 {c} 显示。"
+      exConverted: "按今日汇率以 {c} 显示。",
+      importLink: "从链接导入",
+      importLinkLabel: "粘贴 Google 表格、CSV 文件或 MapPin 分享链接",
+      importLinkOther: "或导入其他链接（会开始新的行程）",
+      importLinkGo: "导入",
+      importLinkLoading: "正在加载…",
+      importLinkCurrent: "此行程来自",
+      importLinkLast: "上次更新 {d}",
+      refreshFromLink: "从链接更新",
+      importLinkForget: "取消关联",
+      refreshHint: "更新会导入最新的行。表格留空的地方，会保留你在 MapPin 中添加的图钉、备注和费用。仅在 MapPin 中添加的地点会被删除（可撤销）。",
+      refreshConfirm: "用链接现在的内容更新此行程？仅在 MapPin 中添加的地点会被删除。可以撤销。",
+      importReplaceConfirm: "用这个替换当前行程？可以撤销。",
+      importedFromLink: "已导入 {n} 个地点",
+      refreshedFromLink: "已更新：新增 {a}，更新 {u}，删除 {r}",
+      importLinkEmpty: "请先粘贴链接。",
+      importLinkBad: "这看起来不像网页链接。",
+      importLinkDrive: "应用无法读取 Google 云端硬盘文件链接。请用 Google 表格打开该文件并使用其链接。",
+      importLinkMaps: "Google 地图链接指向的是地点，不是行程。请在 MapPin 中搜索该地点来添加。",
+      importLinkBlocked: "无法读取该链接。网站可能不允许应用读取；建议使用 Google 表格或 CSV 直链。",
+      importLinkPrivate: "该链接需要登录。",
+      importLinkSheetShare: "在 Google 表格中点“共享”，将一般访问权限设为“知道链接的任何人”。",
+      importLinkEmptySheet: "链接中没有可导入的行。",
+      importLinkHelpSheet: "Google 表格：共享 → 一般访问权限 → 知道链接的任何人，然后复制链接。每个工作表都有自己的链接。",
+      importLinkHelpCsv: "CSV 文件：使用直链（GitHub、Dropbox 或你自己的网站）。",
+      importLinkHelpShare: "MapPin 分享链接会打开分享的行程。",
+      importFileBad: "无法读取该文件。MapPin 支持 CSV、KML（Google 我的地图）和 GeoJSON（Google 数据导出）文件。",
+      importFileTitle: "导入此文件",
+      importFileAsk: "你已经打开了一个行程。",
+      importUpdateTrip: "更新此行程",
+      importUpdateNote: "导入文件中的行，并保留你在 MapPin 中添加的图钉、备注和费用。文件中没有的地点会被删除。",
+      importNewTrip: "新建行程",
+      importNewNote: "将文件作为新行程打开，拥有自己的名称和清单。"
     },
     ko: {
       language: "언어",
@@ -3010,7 +3139,7 @@
       saveMap: "지도 저장",
       loadMap: "저장된 지도",
       exportCsv: "CSV 내보내기",
-      importCsv: "CSV 가져오기",
+      importCsv: "파일 가져오기 (CSV, KML)",
       expandList: "목록 펼치기 / 접기",
       dayStops: "일자별 장소",
       stopsCount: "{n}곳",
@@ -3438,7 +3567,39 @@
       exBudgetPh: "선택",
       exStops: "장소",
       exEmpty: "아직 비용이 없어요. 장소에 비용(계획)이나 실제 지출을 입력하면 여기에 보여요.",
-      exConverted: "오늘 환율로 {c} 기준 표시."
+      exConverted: "오늘 환율로 {c} 기준 표시.",
+      importLink: "링크에서 가져오기",
+      importLinkLabel: "Google 시트, CSV 파일 또는 MapPin 공유 링크를 붙여넣으세요",
+      importLinkOther: "다른 링크 가져오기 (새 여행이 돼요)",
+      importLinkGo: "가져오기",
+      importLinkLoading: "불러오는 중…",
+      importLinkCurrent: "이 여행의 원본 링크",
+      importLinkLast: "마지막 업데이트 {d}",
+      refreshFromLink: "링크에서 새로고침",
+      importLinkForget: "연결 해제",
+      refreshHint: "최신 행을 가져와요. 시트가 비어 있는 항목은 MapPin에서 추가한 핀, 메모, 비용을 유지해요. MapPin에서만 추가한 장소는 삭제돼요(되돌릴 수 있어요).",
+      refreshConfirm: "링크의 현재 내용으로 이 여행을 업데이트할까요? MapPin에서만 추가한 장소는 삭제돼요. 되돌릴 수 있어요.",
+      importReplaceConfirm: "지금 여행을 이걸로 바꿀까요? 되돌릴 수 있어요.",
+      importedFromLink: "장소 {n}개를 가져왔어요",
+      refreshedFromLink: "업데이트: 새로 {a}, 변경 {u}, 삭제 {r}",
+      importLinkEmpty: "먼저 링크를 붙여넣으세요.",
+      importLinkBad: "웹 링크가 아닌 것 같아요.",
+      importLinkDrive: "Google 드라이브 파일 링크는 앱에서 읽을 수 없어요. Google 시트로 열어서 그 링크를 사용하세요.",
+      importLinkMaps: "Google 지도 링크는 여행이 아니라 장소를 가리켜요. MapPin에서 장소를 검색해 추가하세요.",
+      importLinkBlocked: "링크를 읽을 수 없어요. 사이트가 앱의 읽기를 허용하지 않을 수 있어요. Google 시트나 CSV 직접 링크가 가장 좋아요.",
+      importLinkPrivate: "로그인이 필요한 링크예요.",
+      importLinkSheetShare: "Google 시트에서 공유를 누르고 일반 액세스를 “링크가 있는 모든 사용자”로 설정하세요.",
+      importLinkEmptySheet: "가져올 행이 없어요.",
+      importLinkHelpSheet: "Google 시트: 공유 → 일반 액세스 → 링크가 있는 모든 사용자로 설정한 뒤 링크를 복사하세요. 탭마다 링크가 달라요.",
+      importLinkHelpCsv: "CSV 파일: 직접 링크(GitHub, Dropbox, 내 웹사이트)를 사용하세요.",
+      importLinkHelpShare: "MapPin 공유 링크는 공유된 여행을 열어요.",
+      importFileBad: "파일을 읽을 수 없어요. CSV, KML(Google 내 지도), GeoJSON(Google 테이크아웃) 파일을 열 수 있어요.",
+      importFileTitle: "이 파일 가져오기",
+      importFileAsk: "이미 열려 있는 여행이 있어요.",
+      importUpdateTrip: "이 여행 업데이트",
+      importUpdateNote: "파일의 행을 가져오고 MapPin에서 추가한 핀, 메모, 비용은 유지해요. 파일에 없는 장소는 삭제돼요.",
+      importNewTrip: "새 여행 시작",
+      importNewNote: "파일을 자체 이름과 체크리스트가 있는 새 여행으로 열어요."
     },
     es: {
       language: "Idioma",
@@ -3447,7 +3608,7 @@
       saveMap: "Guardar mapa",
       loadMap: "Mapas guardados",
       exportCsv: "Exportar CSV",
-      importCsv: "Importar CSV",
+      importCsv: "Importar archivo (CSV, KML)",
       expandList: "Ampliar / reducir la lista",
       dayStops: "Paradas por día",
       stopsCount: "{n} paradas",
@@ -3880,7 +4041,39 @@
       exBudgetPh: "Opcional",
       exStops: "Paradas",
       exEmpty: "Aún no hay costes. Añade un coste (previsto) o lo que gastaste en cualquier parada y aparecerá aquí.",
-      exConverted: "En {c} al tipo de cambio de hoy."
+      exConverted: "En {c} al tipo de cambio de hoy.",
+      importLink: "Importar desde enlace",
+      importLinkLabel: "Pega un enlace a una hoja de Google, un archivo CSV o un enlace de MapPin",
+      importLinkOther: "O importa otro enlace (empieza un viaje nuevo)",
+      importLinkGo: "Importar",
+      importLinkLoading: "Cargando…",
+      importLinkCurrent: "Este viaje viene de",
+      importLinkLast: "Última actualización: {d}",
+      refreshFromLink: "Actualizar desde el enlace",
+      importLinkForget: "Desvincular",
+      refreshHint: "Al actualizar se traen las filas más recientes. Si la hoja deja algo en blanco, se conservan los pines, notas y costes añadidos en MapPin. Las paradas añadidas solo en MapPin se eliminan (puedes deshacer).",
+      refreshConfirm: "¿Actualizar este viaje con lo que hay ahora en el enlace? Las paradas añadidas solo en MapPin se eliminarán. Puedes deshacer.",
+      importReplaceConfirm: "¿Sustituir el viaje actual por este? Puedes deshacer.",
+      importedFromLink: "{n} paradas importadas",
+      refreshedFromLink: "Actualizado: {a} nuevas, {u} actualizadas, {r} eliminadas",
+      importLinkEmpty: "Pega primero un enlace.",
+      importLinkBad: "Eso no parece un enlace web.",
+      importLinkDrive: "Las apps no pueden leer enlaces de archivos de Google Drive. Abre el archivo como hoja de Google y usa su enlace.",
+      importLinkMaps: "Los enlaces de Google Maps señalan un lugar, no un viaje. Busca el lugar en MapPin para añadirlo.",
+      importLinkBlocked: "No se pudo leer el enlace. Puede que el sitio no permita que las apps lo lean; una hoja de Google o un enlace directo a un CSV funcionan mejor.",
+      importLinkPrivate: "Ese enlace requiere iniciar sesión.",
+      importLinkSheetShare: "En Hojas de cálculo de Google, toca Compartir y pon el acceso general en «Cualquier persona con el enlace».",
+      importLinkEmptySheet: "El enlace no tiene filas para importar.",
+      importLinkHelpSheet: "Hojas de Google: Compartir → Acceso general → Cualquier persona con el enlace, y copia el enlace. Cada pestaña tiene el suyo.",
+      importLinkHelpCsv: "Archivos CSV: usa un enlace directo (GitHub, Dropbox o tu propia web).",
+      importLinkHelpShare: "Los enlaces de MapPin abren el viaje compartido.",
+      importFileBad: "No se pudo leer el archivo. MapPin abre archivos CSV, KML (Google My Maps) y GeoJSON (Google Takeout).",
+      importFileTitle: "Importar este archivo",
+      importFileAsk: "Ya tienes un viaje abierto.",
+      importUpdateTrip: "Actualizar este viaje",
+      importUpdateNote: "Trae las filas del archivo y conserva los pines, notas y costes añadidos en MapPin. Las paradas que no estén en el archivo se eliminan.",
+      importNewTrip: "Empezar un viaje nuevo",
+      importNewNote: "Abre el archivo como un viaje nuevo con su propio nombre y lista."
     },
     fr: {
       language: "Langue",
@@ -3889,7 +4082,7 @@
       saveMap: "Enregistrer",
       loadMap: "Cartes enregistrées",
       exportCsv: "Exporter CSV",
-      importCsv: "Importer CSV",
+      importCsv: "Importer un fichier (CSV, KML)",
       expandList: "Agrandir / réduire la liste",
       dayStops: "Étapes par jour",
       stopsCount: "{n} étapes",
@@ -4322,7 +4515,39 @@
       exBudgetPh: "Facultatif",
       exStops: "Étapes",
       exEmpty: "Aucun coût pour l’instant. Ajoutez un coût (prévu) ou une dépense à une étape et il apparaîtra ici.",
-      exConverted: "Affiché en {c} au taux du jour."
+      exConverted: "Affiché en {c} au taux du jour.",
+      importLink: "Importer depuis un lien",
+      importLinkLabel: "Collez un lien vers une feuille Google, un fichier CSV ou un lien de partage MapPin",
+      importLinkOther: "Ou importez un autre lien (nouveau voyage)",
+      importLinkGo: "Importer",
+      importLinkLoading: "Chargement…",
+      importLinkCurrent: "Ce voyage provient de",
+      importLinkLast: "Dernière mise à jour : {d}",
+      refreshFromLink: "Actualiser depuis le lien",
+      importLinkForget: "Dissocier",
+      refreshHint: "L’actualisation récupère les lignes les plus récentes. Quand la feuille laisse un champ vide, les repères, notes et coûts ajoutés dans MapPin sont conservés. Les étapes ajoutées seulement dans MapPin sont supprimées (annulable).",
+      refreshConfirm: "Mettre à jour ce voyage avec le contenu actuel du lien ? Les étapes ajoutées seulement dans MapPin seront supprimées. Vous pouvez annuler.",
+      importReplaceConfirm: "Remplacer le voyage actuel par celui-ci ? Vous pouvez annuler.",
+      importedFromLink: "{n} étapes importées",
+      refreshedFromLink: "Mis à jour : {a} nouvelles, {u} modifiées, {r} supprimées",
+      importLinkEmpty: "Collez d’abord un lien.",
+      importLinkBad: "Cela ne ressemble pas à un lien web.",
+      importLinkDrive: "Les liens de fichiers Google Drive ne sont pas lisibles par les apps. Ouvrez le fichier comme feuille Google et utilisez son lien.",
+      importLinkMaps: "Un lien Google Maps désigne un lieu, pas un voyage. Cherchez le lieu dans MapPin pour l’ajouter.",
+      importLinkBlocked: "Impossible de lire ce lien. Le site n’autorise peut-être pas les apps à le lire ; une feuille Google ou un lien CSV direct fonctionne mieux.",
+      importLinkPrivate: "Ce lien demande une connexion.",
+      importLinkSheetShare: "Dans Google Sheets, touchez Partager et réglez l’accès général sur « Tous les utilisateurs disposant du lien ».",
+      importLinkEmptySheet: "Le lien ne contient aucune ligne à importer.",
+      importLinkHelpSheet: "Google Sheets : Partager → Accès général → Tous les utilisateurs disposant du lien, puis copiez le lien. Chaque onglet a son lien.",
+      importLinkHelpCsv: "Fichiers CSV : utilisez un lien direct (GitHub, Dropbox ou votre site).",
+      importLinkHelpShare: "Les liens de partage MapPin ouvrent le voyage partagé.",
+      importFileBad: "Impossible de lire ce fichier. MapPin ouvre les fichiers CSV, KML (Google My Maps) et GeoJSON (Google Takeout).",
+      importFileTitle: "Importer ce fichier",
+      importFileAsk: "Un voyage est déjà ouvert.",
+      importUpdateTrip: "Mettre à jour ce voyage",
+      importUpdateNote: "Récupère les lignes du fichier en gardant les repères, notes et coûts ajoutés dans MapPin. Les étapes absentes du fichier sont supprimées.",
+      importNewTrip: "Nouveau voyage",
+      importNewNote: "Ouvre le fichier comme un nouveau voyage avec son nom et sa liste."
     },
     de: {
       language: "Sprache",
@@ -4331,7 +4556,7 @@
       saveMap: "Karte speichern",
       loadMap: "Gespeicherte Karten",
       exportCsv: "CSV exportieren",
-      importCsv: "CSV importieren",
+      importCsv: "Datei importieren (CSV, KML)",
       expandList: "Liste vergrößern / verkleinern",
       dayStops: "Stopps pro Tag",
       stopsCount: "{n} Stopps",
@@ -4764,7 +4989,39 @@
       exBudgetPh: "Optional",
       exStops: "Stopps",
       exEmpty: "Noch keine Kosten. Trage bei einem Stopp Kosten (geplant) oder Ausgaben ein, dann erscheinen sie hier.",
-      exConverted: "In {c} zum heutigen Kurs."
+      exConverted: "In {c} zum heutigen Kurs.",
+      importLink: "Aus Link importieren",
+      importLinkLabel: "Füge einen Link zu einer Google-Tabelle, einer CSV-Datei oder einen MapPin-Teilen-Link ein",
+      importLinkOther: "Oder einen anderen Link importieren (neue Reise)",
+      importLinkGo: "Importieren",
+      importLinkLoading: "Wird geladen…",
+      importLinkCurrent: "Diese Reise stammt aus",
+      importLinkLast: "Zuletzt aktualisiert: {d}",
+      refreshFromLink: "Aus Link aktualisieren",
+      importLinkForget: "Verknüpfung lösen",
+      refreshHint: "Beim Aktualisieren kommen die neuesten Zeilen. Wo die Tabelle leer ist, bleiben Pins, Notizen und Kosten aus MapPin erhalten. Nur in MapPin hinzugefügte Stopps werden entfernt (rückgängig möglich).",
+      refreshConfirm: "Diese Reise mit dem aktuellen Inhalt des Links aktualisieren? Nur in MapPin hinzugefügte Stopps werden entfernt. Rückgängig möglich.",
+      importReplaceConfirm: "Die aktuelle Reise hierdurch ersetzen? Rückgängig möglich.",
+      importedFromLink: "{n} Stopps importiert",
+      refreshedFromLink: "Aktualisiert: {a} neu, {u} geändert, {r} entfernt",
+      importLinkEmpty: "Füge zuerst einen Link ein.",
+      importLinkBad: "Das sieht nicht wie ein Weblink aus.",
+      importLinkDrive: "Google-Drive-Dateilinks können Apps nicht lesen. Öffne die Datei als Google-Tabelle und nutze deren Link.",
+      importLinkMaps: "Google-Maps-Links zeigen auf einen Ort, nicht auf eine Reise. Suche den Ort in MapPin, um ihn hinzuzufügen.",
+      importLinkBlocked: "Der Link ließ sich nicht lesen. Die Seite erlaubt Apps das Lesen vielleicht nicht; eine Google-Tabelle oder ein direkter CSV-Link funktioniert am besten.",
+      importLinkPrivate: "Für diesen Link ist eine Anmeldung nötig.",
+      importLinkSheetShare: "Tippe in Google Tabellen auf Freigeben und stelle den allgemeinen Zugriff auf „Jeder mit dem Link“.",
+      importLinkEmptySheet: "Der Link enthält keine Zeilen zum Importieren.",
+      importLinkHelpSheet: "Google Tabellen: Freigeben → Allgemeiner Zugriff → Jeder mit dem Link, dann den Link kopieren. Jedes Tabellenblatt hat einen eigenen Link.",
+      importLinkHelpCsv: "CSV-Dateien: nutze einen direkten Link (GitHub, Dropbox oder deine Website).",
+      importLinkHelpShare: "MapPin-Teilen-Links öffnen die geteilte Reise.",
+      importFileBad: "Die Datei ließ sich nicht lesen. MapPin öffnet CSV-, KML- (Google My Maps) und GeoJSON-Dateien (Google Takeout).",
+      importFileTitle: "Diese Datei importieren",
+      importFileAsk: "Es ist bereits eine Reise geöffnet.",
+      importUpdateTrip: "Diese Reise aktualisieren",
+      importUpdateNote: "Übernimmt die Zeilen der Datei und behält Pins, Notizen und Kosten aus MapPin. Stopps, die nicht in der Datei stehen, werden entfernt.",
+      importNewTrip: "Neue Reise beginnen",
+      importNewNote: "Öffnet die Datei als neue Reise mit eigenem Namen und eigener Checkliste."
     }
   };
 
@@ -4935,6 +5192,7 @@
     if (phoneLayoutMQ.addEventListener) phoneLayoutMQ.addEventListener('change', placeHeader);
 
     map = L.map('map', { zoomControl: false }).setView([35.6762, 139.6503], 12);
+    initDeferredFit();
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     switchTileLayer('light');
 
@@ -5349,16 +5607,110 @@
   /* =========================================================
      CSV IMPORT (works with any column naming / any country)
      ========================================================= */
-  function handleFileUpload(e) {
+  // Files: CSV (any columns, incl. Google Takeout saved lists), KML (Google My Maps export: each layer
+  // becomes a day) and GeoJSON (Google Takeout "Saved Places.json").
+  async function handleFileUpload(e) {
     const file = e.target.files[0];
-    if (file) {
-      Papa.parse(file, {
-        header: true, skipEmptyLines: true,
-        complete: res => processParsedData(res.data)
-      });
-    }
     e.target.value = ''; // allow re-importing the same file
+    if (!file) return;
+    let rows, title = file.name.replace(/\.(csv|txt|kml|geojson|json)$/i, '').replace(/[_-]+/g, ' ').trim();
+    try {
+      const text = await file.text();
+      const parsed = parseTripFileText(text, file.name);
+      rows = parsed.rows;
+      if (parsed.title) title = parsed.title;
+    } catch (err) { showToast(t('importFileBad'), { ms: 5000 }); return; }
+    if (!rows || !rows.length) { showToast(t('importLinkEmptySheet'), { ms: 4000 }); return; }
+    let mode = 'new';
+    if (rawData.length) {
+      mode = await askChoice(t('importFileTitle'), t('importFileAsk'), [
+        { value: 'update', label: t('importUpdateTrip'), note: t('importUpdateNote'), primary: true },
+        { value: 'new', label: t('importNewTrip'), note: t('importNewNote') }]);
+      if (!mode) return;
+    }
+    clearToasts();
+    if (mode === 'update') {
+      const st = processParsedData(rows, { refresh: true });
+      showToast(t('refreshedFromLink', { a: st.added, u: st.updated, r: st.removed }), { ms: 6000, actionLabel: t('undoBtn'), onAction: undo });
+    } else {
+      processParsedData(rows, { title });
+      if (rawData.length) showToast(t('importedFromLink', { n: rows.length }), { ms: 3500 });
+    }
   }
+
+  function parseTripFileText(text, name = '') {
+    const head = text.slice(0, 600).trim();
+    if (/\.kml$/i.test(name) || /^<\?xml[\s\S]*<kml|^<kml/i.test(head)) return parseKmlText(text);
+    if (/\.(geo)?json$/i.test(name) || /^[{[]/.test(head)) return parseGeoJsonText(text);
+    const res = Papa.parse(text, { header: true, skipEmptyLines: true });
+    return { rows: (res.data || []).filter(r => r && Object.values(r).some(v => String(v || '').trim())) };
+  }
+
+  const stripHtml = h => String(h || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+
+  function parseKmlText(text) {
+    const doc = new DOMParser().parseFromString(text, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length) throw new Error('bad kml');
+    const kid = (el, tag) => { for (const c of el.children) if (c.localName === tag) return c; return null; };
+    const txt = (el, tag) => { const c = el && kid(el, tag); return c ? c.textContent.trim() : ''; };
+    const docEl = doc.getElementsByTagNameNS('*', 'Document')[0];
+    const rows = [];
+    const folders = Array.from(doc.getElementsByTagNameNS('*', 'Folder'));
+    const addPlacemark = (pm, day, dayTitle) => {
+      const pt = pm.getElementsByTagNameNS('*', 'Point')[0];
+      const coords = pt ? (pt.getElementsByTagNameNS('*', 'coordinates')[0] || {}).textContent : '';
+      const addr = txt(pm, 'address');
+      if (!coords && !addr) return; // lines and shapes aren't stops
+      const [lng, lat] = String(coords || '').trim().split(/[\s,]+/).map(Number);
+      rows.push({ Day: day, 'Day title': dayTitle || '', Name: txt(pm, 'name') || '', Notes: stripHtml(txt(pm, 'description')),
+        Address: addr, Latitude: isFinite(lat) && (lat || lng) ? lat : '', Longitude: isFinite(lng) && (lat || lng) ? lng : '' });
+    };
+    if (folders.length) {
+      folders.forEach((f, i) => Array.from(f.getElementsByTagNameNS('*', 'Placemark')).filter(pm => pm.parentElement === f)
+        .forEach(pm => addPlacemark(pm, i + 1, txt(f, 'name'))));
+    }
+    Array.from(doc.getElementsByTagNameNS('*', 'Placemark')).filter(pm => !pm.parentElement || pm.parentElement.localName !== 'Folder')
+      .forEach(pm => addPlacemark(pm, folders.length ? folders.length + 1 : 1, ''));
+    return { rows, title: docEl ? txt(docEl, 'name') : '' };
+  }
+
+  function parseGeoJsonText(text) {
+    const j = JSON.parse(text);
+    const feats = Array.isArray(j) ? j : j.type === 'Feature' ? [j] : (j.features || []);
+    const rows = feats.map(f => {
+      const p = f.properties || {}, loc = p.location || {};
+      const c = f.geometry && f.geometry.type === 'Point' ? f.geometry.coordinates || [] : [];
+      const lng = Number(c[0]), lat = Number(c[1]);
+      const has = isFinite(lat) && isFinite(lng) && (lat || lng); // Takeout writes 0,0 when it doesn't know
+      return { Day: p.day || p.Day || 1, Name: p.Title || p.title || p.name || p.Name || loc.name || '',
+        Address: loc.address || p.address || p.Address || '', Notes: p.Comment || p.comment || p.description || p.notes || p.Note || '',
+        Link: p.google_maps_url || p.url || p.URL || '', Latitude: has ? lat : '', Longitude: has ? lng : '' };
+    }).filter(r => r.Name || r.Address || r.Latitude !== '');
+    return { rows, title: (j.name || (j.properties && j.properties.name) || '') };
+  }
+
+  // A small sheet with a few choices; resolves to the chosen value, or null when dismissed
+  function askChoice(title, message, choices) {
+    return new Promise(resolve => {
+      let ov = $('choice-modal');
+      if (!ov) { ov = document.createElement('div'); ov.id = 'choice-modal'; ov.className = 'modal-overlay'; document.body.appendChild(ov); }
+      const done = v => { ov.style.display = 'none'; ov.onclick = null; resolve(v); };
+      ov.innerHTML = `<div class="modal-box" style="width:420px">
+        <div class="modal-title"><span>${escapeHtml(title)}</span><i class="fa-solid fa-xmark modal-close-x" data-v=""></i></div>
+        ${message ? `<p class="settings-note" style="margin-top:0">${escapeHtml(message)}</p>` : ''}
+        <div class="choice-list">${choices.map(c => `<button class="choice-btn ${c.primary ? 'primary' : ''}" data-v="${escapeHtml(c.value)}">
+          <b>${escapeHtml(c.label)}</b>${c.note ? `<span>${escapeHtml(c.note)}</span>` : ''}</button>`).join('')}
+          <button class="btn btn-ghost choice-cancel" data-v="">${escapeHtml(t('cancel'))}</button></div></div>`;
+      ov.onclick = ev => {
+        if (ev.target === ov) return done(null);
+        const b = ev.target.closest('[data-v]');
+        if (b) done(b.getAttribute('data-v') || null);
+      };
+      ov.style.display = 'flex';
+    });
+  }
+  function clearToasts() { document.querySelectorAll('#toast-host .toast').forEach(el => el.remove()); }
 
   const COLUMN_ALIASES = {
     name: ['name', 'activityname', 'activity', 'title', 'stopname', 'placename', 'place', 'stop', 'poi', 'attraction', 'venue', 'location'],
@@ -5383,7 +5735,8 @@
     bookinglink: ['bookinglink', 'bookingurl', 'ticketlink', 'ticketurl'],
     stay: ['staymin', 'stay', 'duration', 'durationmin', 'stayminutes', 'minutes', 'length'],
     fixed: ['fixedtime', 'fixed', 'booked', 'reservation', 'reserved'],
-    openinghours: ['openinghours', 'openinghour', 'openhours']
+    openinghours: ['openinghours', 'openinghour', 'openhours'],
+    daytitle: ['daytitle', 'dayname', 'daylabel', 'daytheme']
   };
 
   function normKey(k) { return String(k || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -5397,7 +5750,7 @@
       for (const alias of COLUMN_ALIASES[field]) if (alias in normMap) return normMap[alias];
       return null;
     };
-    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours'].forEach(f => {
+    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
       let col = resolve(f);
       if (col && f === 'address' && used.name === col) {
         col = COLUMN_ALIASES.address.filter(a => a !== 'location').map(a => normMap[a]).find(Boolean) || null;
@@ -5433,7 +5786,7 @@
     const q = decoded.match(/[?&](?:query|q|destination)=([^&]+)/);
     if (q && !/^-?\d+\.\d+\s*,\s*-?\d+\.\d+$/.test(q[1])) out.query = q[1].replace(/\+/g, ' ').trim();
     if (!out.query) {
-      const p = decoded.match(/\/place\/([^/@?]+)/);
+      const p = decoded.match(/\/(?:place|search)\/([^/@?]+)/);
       if (p) out.query = p[1].replace(/\+/g, ' ').trim();
     }
     return out;
@@ -5443,7 +5796,10 @@
     return rawTitle.replace(/^(?:Day\s*\d+|D\d+)\s*[-:]*\s*(?:\d{1,2}:\d{2})?\s*[-:]*\s*/i, '').trim() || rawTitle;
   }
 
-  function processParsedData(data) {
+  // opts.title: name for the new trip. opts.refresh: update the current trip from its link instead
+  // (stops that match by name keep their id, place, notes and costs entered in MapPin; title, checklist,
+  // budget, groups and day names stay). opts.sourceUrl: remembered so the trip can be refreshed later.
+  function processParsedData(data, opts = {}) {
     importGeneration++;
     geoQueue = [];
     cityAnchors = {};
@@ -5476,6 +5832,7 @@
       const pending = isNaN(lat) || isNaN(lng);
 
       const catRaw = get(item, 'category');
+      const dayTitle = get(item, 'daytitle');
       const category = catRaw || (cleanTitle.toLowerCase().includes('hotel') ? 'Hotel' : 'Activity');
       let time = get(item, 'time');
       if (!time) { const tm = rawTitle.match(/\b(\d{1,2}:\d{2})\b/); if (tm) time = tm[1]; }
@@ -5493,7 +5850,8 @@
         stay: (() => { const v = parseInt(get(item, 'stay')); return isNaN(v) ? null : v; })(),
         fixedTime: /^(y|yes|true|1|x|✓|✔|booked|fixed)$/i.test(get(item, 'fixed')),
         hours: get(item, 'openinghours') || undefined,
-        hoursChecked: !!get(item, 'openinghours')
+        hoursChecked: !!get(item, 'openinghours'),
+        _dayTitle: dayTitle, _catGiven: !!catRaw
       };
     });
 
@@ -5517,11 +5875,34 @@
     Object.keys(perDay).forEach(d => { if (perDay[d].size === 1) newDayDates[d] = [...perDay[d]][0]; });
     rows.forEach(r => { if (newDayDates[r.day] && r.date === newDayDates[r.day]) r.date = ''; });
 
+    const sheetDayTitles = {};
+    rows.forEach(r => { if (r._dayTitle && !sheetDayTitles[r.day]) sheetDayTitles[r.day] = r._dayTitle; });
+
+    if (opts.refresh) {
+      const stats = mergeIntoCurrentTrip(rows, sheetDayTitles, newDayDates);
+      rows.forEach(r => { delete r._dayTitle; delete r._catGiven; });
+      clearPreviewPin(); clearAreaResults(); lastRemovedPin = null;
+      if (opts.sourceUrl) { TRIP.sourceUrl = opts.sourceUrl; TRIP.sourceAt = Date.now(); }
+      rawData.filter(r => r.pending).forEach(r => enqueueGeocode(r));
+      updateGeoStatus();
+      populateFilters();
+      renderItinerary();
+      return stats;
+    }
+    rows.forEach(r => { delete r._dayTitle; delete r._catGiven; });
+
     rawData = rows;
-    DAY_TITLES = {}; DAY_COLOR_MAP = {}; DAY_DATES = newDayDates; EXTRA_DAYS = new Set(); collapsedDays = new Set();
+    DAY_TITLES = sheetDayTitles; DAY_COLOR_MAP = {}; DAY_DATES = newDayDates; EXTRA_DAYS = new Set(); collapsedDays = new Set();
     GROUPS = {}; stopToGroup = {}; DAY_GROUPS = {}; dayToGroup = {}; collapsedDayGroups = new Set();
+    // A new file is a new trip: it gets its own name, checklist and budget, and never overwrites the
+    // previous trip's cloud copy (Undo brings the previous trip back)
+    TRIP = { cloudId: null, title: opts.title || '' };
+    if (opts.sourceUrl) { TRIP.sourceUrl = opts.sourceUrl; TRIP.sourceAt = Date.now(); }
+    CHECKLIST = [];
+    if (typeof updateChecklistPill === 'function') updateChecklistPill();
     selectedStopIds.clear(); selectedDays.clear();
     clearPreviewPin(); clearAreaResults(); lastRemovedPin = null;
+    activeDay = 'all';
     pendingFitAll = true; userMovedMap = false;
 
     rawData.filter(r => r.pending).forEach(r => enqueueGeocode(r));
@@ -5529,6 +5910,49 @@
 
     populateFilters();
     renderItinerary();
+    return { added: rows.length, removed: 0, updated: 0 };
+  }
+
+  /* ---------- Refreshing a trip from its link: keep what was added in MapPin where the sheet is blank ---------- */
+  const KEEP_IF_BLANK = ['desc', 'time', 'cost', 'spent', 'currency', 'bookingRef', 'bookingUrl', 'stay', 'hours', 'hoursChecked', 'customColour', 'link', 'city', 'country', 'address'];
+  function mergeIntoCurrentTrip(rows, sheetDayTitles, sheetDayDates) {
+    const keyOf = r => normKey(r.cleanTitle || r.title);
+    const pool = {};
+    rawData.forEach(o => { (pool[keyOf(o)] = pool[keyOf(o)] || []).push(o); });
+    let nextId = rawData.reduce((m, o) => Math.max(m, Number(o.id) || 0), 0) + 1;
+    let updated = 0, added = 0;
+    const kept = new Set();
+    rows.forEach(r => {
+      const list = pool[keyOf(r)];
+      const old = list && (list.find(o => o.day === r.day) || list[0]);
+      if (!old) { r.id = nextId++; added++; return; }
+      list.splice(list.indexOf(old), 1);
+      kept.add(old.id);
+      updated++;
+      r.id = old.id;
+      KEEP_IF_BLANK.forEach(k => {
+        const v = r[k];
+        if ((v === undefined || v === null || v === '' || v === false) && old[k] !== undefined && old[k] !== null && old[k] !== '') r[k] = old[k];
+      });
+      if (!r._catGiven && old.category) r.category = old.category;
+      // Same place as before: keep its pin (and any fine-tuning) instead of looking it up again
+      const sameAddress = !r.address || !old.address || normKey(r.address) === normKey(old.address);
+      if (r.pending && hasCoords(old) && sameAddress) {
+        r.lat = old.lat; r.lng = old.lng; r.pending = false; r.approx = old.approx; r.notFound = false; r.cityKey = old.cityKey;
+      }
+      ['done', 'locked', 'osmTags', 'osmRef', 'photo', 'fixedTime'].forEach(k => { if (old[k] !== undefined && r[k] === undefined) r[k] = old[k]; });
+      if (old.done) r.done = true;
+    });
+    const removed = rawData.filter(o => !kept.has(o.id)).length;
+    rawData = rows;
+    Object.keys(sheetDayTitles).forEach(d => { DAY_TITLES[d] = sheetDayTitles[d]; });
+    Object.keys(sheetDayDates).forEach(d => { DAY_DATES[d] = sheetDayDates[d]; });
+    // Groups only keep stops that are still there
+    const ids = new Set(rawData.map(r => r.id));
+    Object.keys(stopToGroup).forEach(id => { if (!ids.has(Number(id))) delete stopToGroup[id]; });
+    if (typeof pruneEmptyGroups === 'function') pruneEmptyGroups();
+    selectedStopIds.clear(); selectedDays.clear();
+    return { added, removed, updated };
   }
 
   /* ===== 04-geocoding.js ===== */
@@ -6386,8 +6810,9 @@
           card.setAttribute('data-id', item.id);
           card.onmousedown = (e) => handleCardClick(e, item.id);
           card.oncontextmenu = (e) => handleCardContextMenu(e, item.id);
-          card.onmouseenter = () => highlightSinglePin(item.id, true);
-          card.onmouseleave = () => highlightSinglePin(item.id, false);
+          // Mouse only: taps fire pretend mouse events that never "leave", which left cards highlighted on phones
+          card.onpointerenter = ev => { if (ev.pointerType === 'mouse') highlightSinglePin(item.id, true); };
+          card.onpointerleave = ev => { if (ev.pointerType === 'mouse') highlightSinglePin(item.id, false); };
           card.ondblclick = (e) => {
             if (Date.now() - lastCardFlyAt < 700) return; // already handled by the double-tap on a phone
             if (selectMode || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
@@ -6449,8 +6874,8 @@
     timeline.appendChild(makeAddDayButton());
 
     if (located.length > 0) {
-      if (pendingFitAll) { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 }); pendingFitAll = false; }
-      else if (activeDay !== 'all') map.fitBounds(bounds, { padding: [50, 50] });
+      if (pendingFitAll) { fitSafe(bounds); pendingFitAll = false; }
+      else if (activeDay !== 'all') fitSafe(bounds, { maxZoom: 18 });
     }
     renderTripSummary();
     scheduleAutosave();
@@ -6550,11 +6975,16 @@
     marker.lng = item.lng;
     marker.clusterKey = key;
 
-    marker.on('mouseover', () => { highlightSinglePin(item.id, true); if (isClustered) fanOutCluster(key); });
-    marker.on('mouseout', () => { highlightSinglePin(item.id, false); if (isClustered) scheduleCollapse(key); });
-    // Clicking a pin opens its day (and day group) if collapsed; double-click scrolls the list to its card
-    marker.on('click', () => revealStop(item.id, false));
-    marker.on('dblclick', () => revealStop(item.id, true));
+    marker.on('mouseover', () => { if (!lastPointerTouch) highlightSinglePin(item.id, true); if (isClustered) fanOutCluster(key); });
+    marker.on('mouseout', () => { if (!lastPointerTouch) highlightSinglePin(item.id, false); if (isClustered) scheduleCollapse(key); });
+    // Tapping a pin opens its day (and day group) if collapsed; a second tap straight after takes the list
+    // to its card (see initPinDoubleTap: the popup can slide the map between the two taps)
+    marker.on('click', e => {
+      const oe = e.originalEvent;
+      lastPinTap = { id: item.id, at: Date.now(), x: oe ? oe.clientX : 0, y: oe ? oe.clientY : 0 };
+      revealStop(item.id, false);
+    });
+    marker.on('dblclick', e => { if (e.originalEvent) L.DomEvent.stop(e.originalEvent); });
 
     marker.on('dragstart', () => { isDragging = true; collapseCluster(key); map.closePopup(); });
     marker.on('dragend', e => {
@@ -6577,7 +7007,7 @@
         ${hoursWarning(item) ? `<div style="margin:-2px 0 8px">${hoursWarningHtml(item)}</div>` : ''}
         <div class="place-details" id="pd-stop-${item.id}"><div class="pd-loading"><i class="fa-solid fa-spinner fa-spin"></i> ${escapeHtml(t('loadingDetails'))}</div></div>
         <div class="popup-actions-footer">
-          <button class="pin-toggle-btn show-in-list" data-tooltip="${escapeHtml(t('showInList'))}" aria-label="${escapeHtml(t('showInList'))}" onclick="map.closePopup(); revealStop(${item.id}, true)"><i class="fa-solid fa-list-ol"></i></button>
+          <button class="pin-toggle-btn show-in-list wide" aria-label="${escapeHtml(t('showInList'))}" onclick="map.closePopup(); revealStop(${item.id}, true)"><i class="fa-solid fa-list-ol"></i><span>${escapeHtml(t('showInList'))}</span></button>
           <button class="pin-toggle-btn lock" data-tooltip="${escapeHtml(item.locked ? t('unlockPin') : t('lockPin'))}" aria-label="${escapeHtml(item.locked ? t('unlockPin') : t('lockPin'))}" onclick="togglePinLockFor(${item.id})"><i class="fa-solid ${item.locked ? 'fa-lock' : 'fa-lock-open'}"></i></button>
           <button class="pin-toggle-btn remove" data-tooltip="${escapeHtml(t('removePin'))}" aria-label="${escapeHtml(t('removePin'))}" onclick="removePinFromPopup(${item.id})">${TRASH_SVG}</button>
         </div>
@@ -6818,17 +7248,47 @@
   }
 
   // Pin click: open its day if collapsed. Pin double-click: also scroll the list to its card.
+  let lastPinTap = { id: null, at: 0, x: 0, y: 0 };
+  // Double tap (or double-click) a pin: the list goes to its card. The second tap is caught by where it lands,
+  // because the pin's popup may already be sliding the map (the tap would otherwise hit another pin or the map).
+  function initPinDoubleTap() {
+    document.addEventListener('pointerdown', e => {
+      if (lastPinTap.id === null || Date.now() - lastPinTap.at > 420) return;
+      const mapEl = $('map');
+      if (!mapEl || !mapEl.contains(e.target) || e.target.closest('.leaflet-popup')) return;
+      if (Math.hypot(e.clientX - lastPinTap.x, e.clientY - lastPinTap.y) > 44) return;
+      const id = lastPinTap.id;
+      lastPinTap = { id: null, at: 0, x: 0, y: 0 };
+      e.stopPropagation(); if (e.cancelable) e.preventDefault();
+      swallowClickOnly();
+      if (map.doubleClickZoom) { map.doubleClickZoom.disable(); setTimeout(() => map.doubleClickZoom.enable(), 500); }
+      revealStop(id, true);
+      // Open (again) once the list sheet has settled, so the popup fits in the smaller map
+      setTimeout(() => { const m = markers.find(mm => mm.id === id); if (m) { if (m.isPopupOpen()) m.closePopup(); m.openPopup(); } }, 380);
+    }, true);
+  }
   function revealStop(id, scroll) {
     const item = rawData.find(d => d.id === id);
     if (!item) return;
+    if (scroll) {
+      if (todayMode) exitToday();
+      // The card may be hidden by a day chip or a filter: show its day
+      if (activeDay !== 'all' && activeDay !== item.day) setDayChip(item.day);
+      else if (!$(`card-${id}`) && typeof resetFilters === 'function') resetFilters();
+    }
     revealDay(item.day);
     const card = $(`card-${id}`);
     if (!card) return;
     if (scroll) {
-      if (isPortraitPhone()) setSheet('max');
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
-      setTimeout(() => card.classList.remove('flash'), 1900);
+      // Half-open sheet on phones held upright, so the pin stays in view above the card
+      const wait = isPortraitPhone() && sheetState !== 'mid' && sheetState !== 'max' ? (setSheet('mid'), 340) : 0;
+      setTimeout(() => {
+        const c = $(`card-${id}`);
+        if (!c) return;
+        c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash');
+        setTimeout(() => c.classList.remove('flash'), 1900);
+      }, wait);
     }
   }
 
@@ -8720,7 +9180,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.1';
+  const APP_VERSION = '1.4.3';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -9572,7 +10032,7 @@
       const rows = await sbFetch(`/rest/v1/trips?id=eq.${encodeURIComponent(id)}&select=id,title,data`);
       const row = rows && rows[0];
       if (!row) return;
-      if (rawData.length && TRIP.cloudId !== id && !confirm(t('sharedTripOpen'))) return;
+      if (rawData.length && TRIP.cloudId !== id && !confirm(t('importReplaceConfirm'))) return;
       openTripState(row.data, { cloudId: row.id, title: row.title });
       lastSyncedSnap = histSnapshot();
       updateSyncPill('synced');
@@ -10077,7 +10537,7 @@
   }
 
   function loadSampleTrip() {
-    if (rawData.length && !confirm(t('sharedTripOpen'))) return;
+    if (rawData.length && !confirm(t('importReplaceConfirm'))) return;
     const d1 = nextSaturdayIso(0), d2 = nextSaturdayIso(1);
     const row = (day, date, time, name, cat, lat, lng, address, notes, cost, stay, fixed) =>
       ({ Name: name, Day: `Day ${day}`, Date: date, Time: time, Category: cat, Latitude: lat, Longitude: lng, Address: address, Notes: notes, Cost: cost, 'Stay (min)': stay, 'Fixed time': fixed ? 'yes' : '' });
@@ -10674,6 +11134,7 @@
     if (id === 'settings-modal') closeSettings();
     else if (id === 'checklist-modal') closeChecklist();
     else if (id === 'expenses-modal') closeExpenses();
+    else if (id === 'import-link-modal') closeImportLink();
     else if (id === 'single-item-modal') closeSingleItemModal();
     else if (id === 'color-modal') closeMasterColorModal();
     else if (id === 'tour-modal') closeTour();
@@ -11305,17 +11766,38 @@
      live edits, filter sheet, tips
      ========================================================= */
 
-  /* ---------- Show every pin ---------- */
+  /* ---------- Show every pin ----------
+     The map area shrinks while the list sheet is pulled up. Fitting pins into a sliver of map used to jump
+     to street level somewhere in the middle (e.g. right after importing a CSV with the sheet open), so the
+     padding scales with the map, and a fit that can't be done yet waits until the map has room. */
+  let deferredFit = null;
+  function fitSafe(bounds, opts = {}) {
+    if (!map || !bounds || !bounds.isValid()) return;
+    const sz = map.getSize();
+    if (sz.x < 140 || sz.y < 140) { deferredFit = { bounds, maxZoom: opts.maxZoom || 15 }; return; }
+    deferredFit = null;
+    const pad = Math.round(Math.max(16, Math.min(50, Math.min(sz.x, sz.y) * 0.12)));
+    const o = { padding: [pad, pad], maxZoom: opts.maxZoom || 15 };
+    const sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
+    if (sw.equals(ne)) { map.setView(sw, Math.min(15, o.maxZoom), { animate: !!opts.animate }); return; }
+    if (opts.animate && map.flyToBounds) map.flyToBounds(bounds, Object.assign(o, { duration: 0.7 }));
+    else map.fitBounds(bounds, o);
+  }
+  function initDeferredFit() {
+    if (!map) return;
+    map.on('resize', () => {
+      if (!deferredFit) return;
+      const sz = map.getSize();
+      if (sz.x >= 140 && sz.y >= 140) { const f = deferredFit; deferredFit = null; fitSafe(f.bounds, { maxZoom: f.maxZoom }); }
+    });
+  }
   function fitAllPins(opts = {}) {
     if (!map) return;
     const pts = rawData.filter(hasCoords).map(s => [s.lat, s.lng]);
     if (!pts.length) { if (!opts.instant) showToast(t('noPinsYet'), { ms: 2500 }); return; }
     cancelPendingFly(); map.stop(); map.closePopup(); // stop any fly to a stop that's still going
     userMovedMap = true;
-    if (pts.length === 1) { map.setView(pts[0], 15); return; }
-    const b = L.latLngBounds(pts);
-    if (opts.instant || !map.flyToBounds) map.fitBounds(b, { padding: [50, 50], maxZoom: 15 });
-    else map.flyToBounds(b, { padding: [50, 50], maxZoom: 15, duration: 0.7 });
+    fitSafe(L.latLngBounds(pts), { animate: !opts.instant });
   }
 
   /* ---------- Dates move things where they belong ---------- */
@@ -11787,6 +12269,141 @@
       <div class="ex-list">${list}</div>${ratesNote}`;
   }
 
+  /* ===== 31-import-link.js ===== */
+  /* =========================================================
+     1.4.2: Import from a link, and refresh a trip from that link later.
+     Works with a Google Sheet ("Anyone with the link can view"), a published Google Sheet,
+     any CSV link the site allows apps to read (GitHub, Dropbox, your own site) and MapPin share links.
+     ========================================================= */
+
+  // Turn what people paste into something MapPin can read
+  function importLinkTarget(raw) {
+    let s = String(raw || '').trim();
+    if (!s) return { error: 'importLinkEmpty' };
+    if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+    let u;
+    try { u = new URL(s); } catch (e) { return { error: 'importLinkBad' }; }
+    const host = u.hostname.replace(/^www\./, '');
+    // MapPin share links carry the trip itself
+    if (/(^|[#&])(trip|s)=/.test(u.hash.slice(1))) return { kind: 'share', url: u.href };
+    if (host === 'docs.google.com' && /\/spreadsheets\//.test(u.pathname)) {
+      const gid = (u.hash.match(/gid=(\d+)/) || u.search.match(/gid=(\d+)/) || [])[1];
+      const pub = u.pathname.match(/\/spreadsheets\/d\/e\/([^/]+)/);
+      if (pub) return { kind: 'csv', url: `https://docs.google.com/spreadsheets/d/e/${pub[1]}/pub?output=csv${gid ? `&gid=${gid}` : ''}`, sheet: true };
+      const id = (u.pathname.match(/\/spreadsheets\/d\/([^/]+)/) || [])[1];
+      if (id) return { kind: 'csv', url: `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv${gid ? `&gid=${gid}` : ''}`, sheet: true };
+    }
+    if (host === 'drive.google.com') return { error: 'importLinkDrive' };
+    if (/(^|\.)google\.[a-z.]+$/.test(host) && /\/maps/.test(u.pathname) || host === 'maps.app.goo.gl' || host === 'goo.gl') return { error: 'importLinkMaps' };
+    if (host === 'dropbox.com') { u.hostname = 'dl.dropboxusercontent.com'; u.searchParams.delete('dl'); return { kind: 'csv', url: u.href }; }
+    if (host === 'github.com' && /\/blob\//.test(u.pathname)) return { kind: 'csv', url: `https://raw.githubusercontent.com${u.pathname.replace('/blob/', '/')}` };
+    return { kind: 'csv', url: u.href };
+  }
+
+  async function fetchCsvText(url) {
+    const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = setTimeout(() => ctl && ctl.abort(), 15000);
+    let res;
+    try { res = await fetch(url, { credentials: 'omit', cache: 'no-store', signal: ctl ? ctl.signal : undefined }); }
+    catch (e) { throw new Error(navigator.onLine ? 'importLinkBlocked' : 'offlineNeedsNet'); }
+    finally { clearTimeout(timer); }
+    if (!res.ok) throw new Error(res.status === 401 || res.status === 403 ? 'importLinkPrivate' : 'importLinkBlocked');
+    const text = await res.text();
+    if (/^\s*<(!doctype|html)/i.test(text)) throw new Error('importLinkPrivate'); // a sign-in page, not a table
+    return text;
+  }
+
+  function openImportLink() {
+    closeMenus(); closeAppMenu();
+    renderImportLink();
+    $('import-link-modal').style.display = 'flex';
+    setTimeout(() => { const i = $('il-url'); if (i && !isPhoneWidth()) i.focus(); }, 60);
+  }
+  function closeImportLink() { $('import-link-modal').style.display = 'none'; }
+
+  function renderImportLink(msg) {
+    const body = $('import-link-body');
+    if (!body) return;
+    const src = TRIP.sourceUrl;
+    body.innerHTML = `
+      ${src ? `<div class="il-current">
+        <div class="il-cur-label">${escapeHtml(t('importLinkCurrent'))}</div>
+        <div class="il-cur-url">${escapeHtml(src)}</div>
+        ${TRIP.sourceAt ? `<div class="il-cur-when">${escapeHtml(t('importLinkLast', { d: new Date(TRIP.sourceAt).toLocaleString(LANG, { dateStyle: 'medium', timeStyle: 'short' }) }))}</div>` : ''}
+        <div class="row-inline" style="margin-top:8px">
+          <button class="btn btn-primary" onclick="refreshFromLink()"><i class="fa-solid fa-rotate"></i> ${escapeHtml(t('refreshFromLink'))}</button>
+          <button class="btn btn-ghost" onclick="forgetSourceLink()">${escapeHtml(t('importLinkForget'))}</button>
+        </div>
+        <p class="settings-note">${escapeHtml(t('refreshHint'))}</p>
+      </div>` : ''}
+      <label class="edit-form-label" for="il-url">${escapeHtml(src ? t('importLinkOther') : t('importLinkLabel'))}</label>
+      <input class="edit-form-input" id="il-url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false"
+        placeholder="https://docs.google.com/spreadsheets/d/…" onkeydown="if(event.key==='Enter'){event.preventDefault();importFromLinkInput();}">
+      ${msg ? `<p class="il-msg">${escapeHtml(msg)}</p>` : ''}
+      <div class="row-inline" style="margin-top:10px">
+        <button class="btn btn-primary" id="il-go" onclick="importFromLinkInput()"><i class="fa-solid fa-link"></i> ${escapeHtml(t('importLinkGo'))}</button>
+      </div>
+      <ul class="il-help">
+        <li>${escapeHtml(t('importLinkHelpSheet'))}</li>
+        <li>${escapeHtml(t('importLinkHelpCsv'))}</li>
+        <li>${escapeHtml(t('importLinkHelpShare'))}</li>
+      </ul>`;
+  }
+
+  function importFromLinkInput() {
+    const i = $('il-url');
+    importFromLink(i ? i.value : '');
+  }
+
+  async function importFromLink(raw, opts = {}) {
+    const target = importLinkTarget(raw);
+    if (target.error) { renderImportLink(t(target.error)); const i = $('il-url'); if (i) i.value = raw || ''; return; }
+    if (target.kind === 'share') {
+      closeImportLink();
+      const u = new URL(target.url);
+      history.replaceState(null, '', location.href.split('#')[0] + u.hash);
+      openSharedTripFromUrl();
+      return;
+    }
+    if (!opts.refresh && rawData.length && !confirm(t('importReplaceConfirm'))) return;
+    const btn = $('il-go');
+    if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${escapeHtml(t('importLinkLoading'))}`; }
+    try {
+      const text = await fetchCsvText(target.url);
+      const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+      const rows = (parsed.data || []).filter(r => r && Object.values(r).some(v => String(v || '').trim()));
+      if (!rows.length) throw new Error('importLinkEmptySheet');
+      const source = String(raw).trim();
+      if (opts.refresh) {
+        clearToasts();
+        const st = processParsedData(rows, { refresh: true, sourceUrl: source });
+        closeImportLink();
+        showToast(t('refreshedFromLink', { a: st.added, u: st.updated, r: st.removed }), { ms: 6000, actionLabel: t('undoBtn'), onAction: undo });
+      } else {
+        clearToasts();
+        processParsedData(rows, { title: opts.title || '', sourceUrl: source });
+        closeImportLink();
+        showToast(t('importedFromLink', { n: rows.length }), { ms: 4000 });
+      }
+    } catch (e) {
+      const key = e && e.message && I18N.en[e.message] ? e.message : 'importLinkBlocked';
+      if ($('import-link-modal').style.display !== 'flex') { renderImportLink(); $('import-link-modal').style.display = 'flex'; }
+      renderImportLink(t(key) + (target.sheet && key !== 'offlineNeedsNet' ? ' ' + t('importLinkSheetShare') : ''));
+      const i = $('il-url'); if (i && !opts.refresh) i.value = raw || '';
+    }
+  }
+
+  function refreshFromLink() {
+    if (!TRIP.sourceUrl) { openImportLink(); return; }
+    if (!confirm(t('refreshConfirm'))) return;
+    importFromLink(TRIP.sourceUrl, { refresh: true });
+  }
+  function forgetSourceLink() {
+    delete TRIP.sourceUrl; delete TRIP.sourceAt;
+    scheduleAutosave();
+    renderImportLink();
+  }
+
   /* ===== 99-boot.js ===== */
   /* =========================================================
      START-UP: wire up gestures and helpers, then build the map once the page has loaded
@@ -11813,6 +12430,7 @@
   placeFilters();
   initDayHold();
   initHoldSelect();
+  initPinDoubleTap();
 
   window.addEventListener('load', () => {
     initMap();

@@ -1,3 +1,5 @@
+# Publishes the www folder as a free website with GitHub Pages (works on iPhone, Android and computers).
+# One-time setup: repository Settings → Pages → Source: "GitHub Actions".
 name: Publish website
 
 on:
@@ -22,16 +24,22 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install packages
         run: npm install
+
       - name: Bundle libraries (so the site works offline)
         run: npm run vendor
+
       - uses: actions/configure-pages@v5
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: www
+
       - id: deployment
         uses: actions/deploy-pages@v4

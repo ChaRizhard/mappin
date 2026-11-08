@@ -2,7 +2,7 @@
   "name": "mappin",
   "version": "1.0.0",
   "private": true,
-  "description": "Mappin – plan trips day by day on a map. Website + iOS + Android (Capacitor).",
+  "description": "Mappin \u2013 plan trips day by day on a map. Website + iOS + Android (Capacitor).",
   "scripts": {
     "vendor": "node scripts/copy-vendor.mjs",
     "serve": "npx --yes serve www -l 8080",
@@ -10,7 +10,8 @@
     "android:open": "npx cap open android",
     "ios:init": "npm run vendor && npx cap add ios && npx capacitor-assets generate --ios --assetPath assets && node scripts/patch-native.mjs && npx cap sync ios",
     "ios:open": "npx cap open ios",
-    "sync": "npm run vendor && npx cap sync"
+    "sync": "npm run vendor && npx cap sync",
+    "build": "node scripts/build.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",

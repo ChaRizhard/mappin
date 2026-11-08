@@ -137,8 +137,9 @@ Before releasing:
 - **Map and search licences:** the map images use an unofficial Google address and the free OpenStreetMap
   search services have fair-use limits. Switch to a licensed map (e.g. the official Google Maps Platform) before
   a public launch. That's the roadmap at the top of `index.html`.
-- **Privacy policy:** both stores require a web page explaining what Mappin stores (trips on the device, optional
-  cloud sync, location only when you tap "Show my location").
+- **Privacy policy:** both stores require one. MapPin includes `www/privacy.html` (linked from Settings → About).
+  Add your contact email where it says `[add your contact email here]`, then use
+  `https://YOUR-USERNAME.github.io/mappin/privacy.html` as the privacy policy address in both stores.
 
 **Google Play**
 - One-off US$25 registration at play.google.com/console.
@@ -152,6 +153,25 @@ Before releasing:
 - Build and upload from Xcode (**Product → Archive**), test with TestFlight, then submit for review.
 - Apple rejects apps that are "just a website". Mappin uses phone features (location, share sheet, offline),
   which helps.
+
+---
+
+## Part 7 · Optional: the official Google map (for a public release)
+
+The map images MapPin uses now come from an unofficial Google address, which is fine for private testing only.
+The licensed version is Google's **Map Tiles API**. It looks the same and has a free monthly allowance, but Google
+requires a billing account (credit card) on file.
+
+1. Go to **console.cloud.google.com** → create a project → **Billing** → link a billing account.
+2. **APIs & Services → Library** → search **Map Tiles API** → **Enable**.
+3. **APIs & Services → Credentials → Create credentials → API key**.
+4. Click the new key → **Application restrictions: Websites** → add `https://YOUR-USERNAME.github.io/*` →
+   **API restrictions: Restrict key → Map Tiles API** → **Save**. (Restricting the key stops anyone else using it.)
+5. Set a budget alert under **Billing → Budgets & alerts** (e.g. US$1) so you get an email before any charge.
+6. In `www/config.js`, set `googleMapsKey: 'YOUR-KEY'` and commit.
+
+MapPin then switches to the official map automatically, and Settings → About shows "Map: Google Maps Platform".
+Remove the key to go back. Check Google's current Map Tiles API pricing page before launching.
 
 ---
 

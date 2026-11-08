@@ -26,6 +26,7 @@ const copy = (from, to) => {
 copy('leaflet/dist/leaflet.js', 'leaflet/leaflet.js');
 copy('leaflet/dist/leaflet.css', 'leaflet/leaflet.css');
 copy('leaflet/dist/images', 'leaflet/images');
+// Sharp (vector) map
 // CSV reader and drag-and-drop
 copy('papaparse/papaparse.min.js', 'papaparse.min.js');
 copy('sortablejs/Sortable.min.js', 'Sortable.min.js');
