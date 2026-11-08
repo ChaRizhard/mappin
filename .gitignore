@@ -4,3 +4,12 @@ android/
 ios/
 .DS_Store
 *.log
+
+# Personal trips never go to GitHub (the site is public)
+*.csv
+*.kml
+*.kmz
+*.geojson
+*.gpx
+trips/
+private/
