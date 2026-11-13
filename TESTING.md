@@ -73,3 +73,7 @@ Do it once in the **Home Screen app** (iPhone) or the **installed app** (Android
 ## 1.4.4 checks
 - Import a private trip link (…/p/<name>.enc#k=…): the trip loads, the import window shows "Private", and "Update automatically when MapPin opens" is ticked.
 - After the private trip is updated on GitHub, close and reopen MapPin: a message says what changed, with Undo.
+
+## 1.4.5 checks
+- Scroll the day chips far to the right: Today stays pinned on the left; today's day chip has a green dot; the chosen day scrolls into view.
+- In Today mode, swipe to another day: a green "Today" button appears in the card; tapping it (or the Today chip) jumps back to today.

@@ -19,7 +19,11 @@
     return i === -1 ? list.length : i;
   }
 
-  function toggleToday() { if (todayMode) exitToday(); else startToday(); }
+  function toggleToday() {
+    // In Today mode on another day: the Today chip goes back to today instead of closing
+    if (todayMode) { const real = todayDayNumber(); if (real !== null && real !== todayDay && getAllDays().includes(real)) todayGoDay(real); else exitToday(); }
+    else startToday();
+  }
 
   function startToday() {
     if (!rawData.length) { alert(t('noExport')); return; }
@@ -103,6 +107,7 @@
         <button class="tp-day" onclick="todaySwitchDay(-1)" ${getAllDays().indexOf(todayDay) <= 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('prevDay'))}"><i class="fa-solid fa-chevron-left"></i></button>
         <label class="tp-dayname"><i class="fa-solid fa-location-arrow"></i> <span>${escapeHtml(getDayTitle(todayDay))}</span> <i class="fa-solid fa-chevron-down tp-dd"></i>${todayDayPickerHtml()}</label>
         <button class="tp-day" onclick="todaySwitchDay(1)" ${getAllDays().indexOf(todayDay) >= getAllDays().length - 1 ? 'disabled' : ''} aria-label="${escapeHtml(t('nextDayL'))}"><i class="fa-solid fa-chevron-right"></i></button>
+        ${todayBackHtml()}
         ${todayWeatherHtml()}
         <span class="tp-progress">${escapeHtml(t('progressN', { n: doneCount, m: list.length }))}</span>
         <button class="tp-close" onclick="exitToday()" aria-label="${escapeHtml(t('close'))}"><i class="fa-solid fa-xmark"></i></button>
@@ -315,6 +320,12 @@
     const i = days.indexOf(todayDay), j = days.indexOf(d);
     if (j === -1 || i === j) return;
     todaySwitchDay(j - i);
+  }
+  // Looking at another day in Today mode: one tap back to today
+  function todayBackHtml() {
+    const real = todayDayNumber();
+    if (real === null || real === todayDay || !getAllDays().includes(real)) return '';
+    return `<button class="tp-back-today" onclick="todayGoDay(${real})"><i class="fa-solid fa-rotate-left"></i> ${escapeHtml(t('today'))}</button>`;
   }
   function todayGoStop(i) { todayIdx = i; renderTodayPanel(); focusTodayStop(); }
 

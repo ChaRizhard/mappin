@@ -1381,6 +1381,15 @@
     .il-private { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #10b981; margin-left: 4px; white-space: nowrap; }
     .il-auto { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-main); margin-top: 10px; cursor: pointer; }
     .il-auto input { width: 18px; height: 18px; accent-color: var(--accent-blue); }
+    /* 1.4.5: Today stays pinned at the start of the day chips; today's day chip has a dot */
+    .day-chips { position: relative; }
+    .day-chip.today-chip { position: sticky; left: 0; z-index: 2; box-shadow: 8px 0 10px -4px var(--panel-solid, var(--bg-panel)); }
+    .day-chip.today-chip:not(.active) { background: linear-gradient(var(--chip-bg), var(--chip-bg)), var(--panel-solid); }
+    .day-chip.is-today { gap: 6px; border-color: #10b981; }
+    .day-chip.is-today:not(.active) { color: var(--text-main); }
+    .day-chip .today-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); flex-shrink: 0; }
+    .tp-back-today { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 13px; border: 1px solid #10b981;
+      background: rgba(16,185,129,0.14); color: #10b981; font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -6624,10 +6633,26 @@
     const hasToday = rawData.length && todayDayNumber() !== null;
     chips.innerHTML = (rawData.length ? `<div class="day-chip today-chip ${todayMode ? 'active' : ''}" onclick="toggleToday()" title="${escapeHtml(t('todayTitle'))}">${hasToday && !todayMode ? '<span class="today-dot"></span>' : '<i class="fa-solid fa-location-arrow"></i>'} ${escapeHtml(t('today'))}</div>` : '') +
       `<div class="day-chip ${activeDay === 'all' && !todayMode ? 'active' : ''}" onclick="setDayChip('all')">${escapeHtml(t('allDays'))}</div>`;
+    const realToday = hasToday ? todayDayNumber() : null;
     days.forEach(d => {
-      chips.innerHTML += `<div class="day-chip ${activeDay == d && !todayMode ? 'active' : ''}" onclick="setDayChip(${d})">${escapeHtml(getDayTitle(d))}</div>`;
+      chips.innerHTML += `<div class="day-chip ${activeDay == d && !todayMode ? 'active' : ''} ${d === realToday ? 'is-today' : ''}" data-day="${d}" onclick="setDayChip(${d})">${d === realToday ? '<span class="today-dot"></span>' : ''}${escapeHtml(getDayTitle(d))}</div>`;
     });
+    keepActiveChipInView(chips);
     renderCategoryChips();
+  }
+
+  // The chosen day stays in view in the chip row (Today stays pinned on the left)
+  function keepActiveChipInView(chips) {
+    requestAnimationFrame(() => {
+      const a = chips.querySelector('.day-chip.active:not(.today-chip)') || (todayMode && chips.querySelector(`.day-chip[data-day="${todayDay}"]`));
+      if (!a) return;
+      const pin = chips.querySelector('.today-chip');
+      const left = (pin ? pin.offsetWidth + 6 : 0);
+      const x = a.offsetLeft - chips.offsetLeft, w = a.offsetWidth;
+      if (x - chips.scrollLeft < left || x + w - chips.scrollLeft > chips.clientWidth) {
+        chips.scrollTo({ left: Math.max(0, x - left - (chips.clientWidth - left - w) / 2), behavior: 'smooth' });
+      }
+    });
   }
 
   function setDayChip(day) {
@@ -9232,7 +9257,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.4';
+  const APP_VERSION = '1.4.5';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -10189,7 +10214,11 @@
     return i === -1 ? list.length : i;
   }
 
-  function toggleToday() { if (todayMode) exitToday(); else startToday(); }
+  function toggleToday() {
+    // In Today mode on another day: the Today chip goes back to today instead of closing
+    if (todayMode) { const real = todayDayNumber(); if (real !== null && real !== todayDay && getAllDays().includes(real)) todayGoDay(real); else exitToday(); }
+    else startToday();
+  }
 
   function startToday() {
     if (!rawData.length) { alert(t('noExport')); return; }
@@ -10273,6 +10302,7 @@
         <button class="tp-day" onclick="todaySwitchDay(-1)" ${getAllDays().indexOf(todayDay) <= 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('prevDay'))}"><i class="fa-solid fa-chevron-left"></i></button>
         <label class="tp-dayname"><i class="fa-solid fa-location-arrow"></i> <span>${escapeHtml(getDayTitle(todayDay))}</span> <i class="fa-solid fa-chevron-down tp-dd"></i>${todayDayPickerHtml()}</label>
         <button class="tp-day" onclick="todaySwitchDay(1)" ${getAllDays().indexOf(todayDay) >= getAllDays().length - 1 ? 'disabled' : ''} aria-label="${escapeHtml(t('nextDayL'))}"><i class="fa-solid fa-chevron-right"></i></button>
+        ${todayBackHtml()}
         ${todayWeatherHtml()}
         <span class="tp-progress">${escapeHtml(t('progressN', { n: doneCount, m: list.length }))}</span>
         <button class="tp-close" onclick="exitToday()" aria-label="${escapeHtml(t('close'))}"><i class="fa-solid fa-xmark"></i></button>
@@ -10485,6 +10515,12 @@
     const i = days.indexOf(todayDay), j = days.indexOf(d);
     if (j === -1 || i === j) return;
     todaySwitchDay(j - i);
+  }
+  // Looking at another day in Today mode: one tap back to today
+  function todayBackHtml() {
+    const real = todayDayNumber();
+    if (real === null || real === todayDay || !getAllDays().includes(real)) return '';
+    return `<button class="tp-back-today" onclick="todayGoDay(${real})"><i class="fa-solid fa-rotate-left"></i> ${escapeHtml(t('today'))}</button>`;
   }
   function todayGoStop(i) { todayIdx = i; renderTodayPanel(); focusTodayStop(); }
 

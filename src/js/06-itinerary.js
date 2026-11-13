@@ -17,10 +17,26 @@
     const hasToday = rawData.length && todayDayNumber() !== null;
     chips.innerHTML = (rawData.length ? `<div class="day-chip today-chip ${todayMode ? 'active' : ''}" onclick="toggleToday()" title="${escapeHtml(t('todayTitle'))}">${hasToday && !todayMode ? '<span class="today-dot"></span>' : '<i class="fa-solid fa-location-arrow"></i>'} ${escapeHtml(t('today'))}</div>` : '') +
       `<div class="day-chip ${activeDay === 'all' && !todayMode ? 'active' : ''}" onclick="setDayChip('all')">${escapeHtml(t('allDays'))}</div>`;
+    const realToday = hasToday ? todayDayNumber() : null;
     days.forEach(d => {
-      chips.innerHTML += `<div class="day-chip ${activeDay == d && !todayMode ? 'active' : ''}" onclick="setDayChip(${d})">${escapeHtml(getDayTitle(d))}</div>`;
+      chips.innerHTML += `<div class="day-chip ${activeDay == d && !todayMode ? 'active' : ''} ${d === realToday ? 'is-today' : ''}" data-day="${d}" onclick="setDayChip(${d})">${d === realToday ? '<span class="today-dot"></span>' : ''}${escapeHtml(getDayTitle(d))}</div>`;
     });
+    keepActiveChipInView(chips);
     renderCategoryChips();
+  }
+
+  // The chosen day stays in view in the chip row (Today stays pinned on the left)
+  function keepActiveChipInView(chips) {
+    requestAnimationFrame(() => {
+      const a = chips.querySelector('.day-chip.active:not(.today-chip)') || (todayMode && chips.querySelector(`.day-chip[data-day="${todayDay}"]`));
+      if (!a) return;
+      const pin = chips.querySelector('.today-chip');
+      const left = (pin ? pin.offsetWidth + 6 : 0);
+      const x = a.offsetLeft - chips.offsetLeft, w = a.offsetWidth;
+      if (x - chips.scrollLeft < left || x + w - chips.scrollLeft > chips.clientWidth) {
+        chips.scrollTo({ left: Math.max(0, x - left - (chips.clientWidth - left - w) / 2), behavior: 'smooth' });
+      }
+    });
   }
 
   function setDayChip(day) {
