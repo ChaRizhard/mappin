@@ -99,3 +99,9 @@ Do it once in the **Home Screen app** (iPhone) or the **installed app** (Android
 - A stop whose notes say "NOT BOOKED" shows an amber "Not booked yet" line in the Tomorrow card (and in Today on the day).
 - Bookings shows where it was booked and the nights (e.g. "Agoda · 2 nights").
 - CSV has a Done column (import and export).
+
+## 1.4.10 checks
+- Optional stops show a small dashed "optional" tag (cards and Today); Optional box in stop details; CSV Optional column.
+- "Not booked yet" has Hotels nearby (Google Maps) and Booking.com links for that night.
+- After the last stop, a "Today in short" summary (stops done, distance between stops, spent) with Copy the day.
+- From 6 pm on today's date, the Tomorrow card also shows under the current stop.

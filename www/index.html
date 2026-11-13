@@ -1445,6 +1445,17 @@
     .tp-notbooked a { color: #f59e0b; text-decoration: underline; cursor: pointer; }
     .tpt-btns { display: flex; gap: 8px; }
     .tpt-btns .tpt-open { flex: 1; }
+    /* 1.4.10 */
+    .opt-tag { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 9px; border: 1px dashed var(--text-muted); color: var(--text-muted);
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; vertical-align: middle; }
+    .tp-notbooked > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .nb-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .nb-links a { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 8px; background: var(--tint); border: 1px solid var(--panel-border);
+      color: var(--text-main) !important; text-decoration: none !important; font-size: 12px; font-weight: 600; }
+    .tp-wrap { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--tint); border: 1px solid var(--panel-border); }
+    .tpw-bits { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; font-size: 13px; color: var(--text-muted); }
+    .tpw-bits b { color: var(--text-main); font-size: 15px; margin-right: 3px; }
+    .tpw-copy { margin-top: 8px; height: 32px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -2308,7 +2319,19 @@
       notBookedYet: "Not booked yet",
       nNights: "{n} nights",
       saveOfflineShort: "Save offline",
-      saveNext2: "Save next 2 days offline"
+      saveNext2: "Save next 2 days offline",
+      optionalLabel: "Optional",
+      optionalHint: "only if there’s time",
+      optionalTag: "optional",
+      hotelsMaps: "Hotels nearby",
+      wrapTitle: "Today in short",
+      wrapStops: "stops done",
+      wrapAround: "between stops",
+      wrapSpent: "spent",
+      wrapSpentOf: "spent of {b}",
+      wrapSkipped: "skipped",
+      wrapCopy: "Copy the day",
+      wrapCopied: "Day copied"
     },
     ja: {
       language: "言語",
@@ -2814,7 +2837,19 @@
       notBookedYet: "未予約",
       nNights: "{n} 泊",
       saveOfflineShort: "オフライン保存",
-      saveNext2: "次の 2 日分をオフライン保存"
+      saveNext2: "次の 2 日分をオフライン保存",
+      optionalLabel: "任意",
+      optionalHint: "時間があれば",
+      optionalTag: "任意",
+      hotelsMaps: "近くのホテル",
+      wrapTitle: "今日のまとめ",
+      wrapStops: "件完了",
+      wrapAround: "スポット間の距離",
+      wrapSpent: "支出",
+      wrapSpentOf: "支出（予定 {b}）",
+      wrapSkipped: "件スキップ",
+      wrapCopy: "今日をコピー",
+      wrapCopied: "コピーしました"
     },
     zh: {
       language: "语言",
@@ -3320,7 +3355,19 @@
       notBookedYet: "尚未预订",
       nNights: "{n} 晚",
       saveOfflineShort: "离线保存",
-      saveNext2: "离线保存接下来 2 天"
+      saveNext2: "离线保存接下来 2 天",
+      optionalLabel: "可选",
+      optionalHint: "有时间再去",
+      optionalTag: "可选",
+      hotelsMaps: "附近酒店",
+      wrapTitle: "今日小结",
+      wrapStops: "个地点已完成",
+      wrapAround: "地点之间",
+      wrapSpent: "已花费",
+      wrapSpentOf: "已花费（计划 {b}）",
+      wrapSkipped: "个已跳过",
+      wrapCopy: "复制今天",
+      wrapCopied: "已复制"
     },
     ko: {
       language: "언어",
@@ -3826,7 +3873,19 @@
       notBookedYet: "아직 예약 안 함",
       nNights: "{n}박",
       saveOfflineShort: "오프라인 저장",
-      saveNext2: "다음 2일 오프라인 저장"
+      saveNext2: "다음 2일 오프라인 저장",
+      optionalLabel: "선택",
+      optionalHint: "시간이 되면",
+      optionalTag: "선택",
+      hotelsMaps: "근처 호텔",
+      wrapTitle: "오늘 요약",
+      wrapStops: "곳 완료",
+      wrapAround: "장소 간 거리",
+      wrapSpent: "지출",
+      wrapSpentOf: "지출 (계획 {b})",
+      wrapSkipped: "곳 건너뜀",
+      wrapCopy: "오늘 복사",
+      wrapCopied: "복사했어요"
     },
     es: {
       language: "Idioma",
@@ -4337,7 +4396,19 @@
       notBookedYet: "Sin reservar",
       nNights: "{n} noches",
       saveOfflineShort: "Guardar sin conexión",
-      saveNext2: "Guardar los próximos 2 días sin conexión"
+      saveNext2: "Guardar los próximos 2 días sin conexión",
+      optionalLabel: "Opcional",
+      optionalHint: "solo si da tiempo",
+      optionalTag: "opcional",
+      hotelsMaps: "Hoteles cerca",
+      wrapTitle: "Tu día",
+      wrapStops: "paradas hechas",
+      wrapAround: "entre paradas",
+      wrapSpent: "gastado",
+      wrapSpentOf: "gastado de {b}",
+      wrapSkipped: "omitidas",
+      wrapCopy: "Copiar el día",
+      wrapCopied: "Día copiado"
     },
     fr: {
       language: "Langue",
@@ -4848,7 +4919,19 @@
       notBookedYet: "Pas encore réservé",
       nNights: "{n} nuits",
       saveOfflineShort: "Hors ligne",
-      saveNext2: "Enregistrer les 2 prochains jours hors ligne"
+      saveNext2: "Enregistrer les 2 prochains jours hors ligne",
+      optionalLabel: "Facultatif",
+      optionalHint: "seulement s’il reste du temps",
+      optionalTag: "facultatif",
+      hotelsMaps: "Hôtels à proximité",
+      wrapTitle: "Votre journée",
+      wrapStops: "étapes faites",
+      wrapAround: "entre les étapes",
+      wrapSpent: "dépensé",
+      wrapSpentOf: "dépensé sur {b}",
+      wrapSkipped: "passées",
+      wrapCopy: "Copier la journée",
+      wrapCopied: "Journée copiée"
     },
     de: {
       language: "Sprache",
@@ -5359,7 +5442,19 @@
       notBookedYet: "Noch nicht gebucht",
       nNights: "{n} Nächte",
       saveOfflineShort: "Offline speichern",
-      saveNext2: "Nächste 2 Tage offline speichern"
+      saveNext2: "Nächste 2 Tage offline speichern",
+      optionalLabel: "Optional",
+      optionalHint: "nur wenn Zeit bleibt",
+      optionalTag: "optional",
+      hotelsMaps: "Hotels in der Nähe",
+      wrapTitle: "Dein Tag",
+      wrapStops: "Stopps erledigt",
+      wrapAround: "zwischen Stopps",
+      wrapSpent: "ausgegeben",
+      wrapSpentOf: "von {b} ausgegeben",
+      wrapSkipped: "übersprungen",
+      wrapCopy: "Tag kopieren",
+      wrapCopied: "Tag kopiert"
     }
   };
 
@@ -6076,7 +6171,8 @@
     openinghours: ['openinghours', 'openinghour', 'openhours'],
     daytitle: ['daytitle', 'dayname', 'daylabel', 'daytheme'],
     skipped: ['skipped', 'skip', 'missed'],
-    done: ['done', 'completed', 'visited', 'ticked']
+    done: ['done', 'completed', 'visited', 'ticked'],
+    optional: ['optional', 'maybe', 'ifTime']
   };
 
   function normKey(k) { return String(k || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -6090,7 +6186,7 @@
       for (const alias of COLUMN_ALIASES[field]) if (alias in normMap) return normMap[alias];
       return null;
     };
-    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'skipped', 'done', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
+    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'skipped', 'done', 'optional', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
       let col = resolve(f);
       if (col && f === 'address' && used.name === col) {
         col = COLUMN_ALIASES.address.filter(a => a !== 'location').map(a => normMap[a]).find(Boolean) || null;
@@ -6191,6 +6287,7 @@
         fixedTime: /^(y|yes|true|1|x|✓|✔|booked|fixed)$/i.test(get(item, 'fixed')),
         skipped: /^(y|yes|true|1|x|✓|✔|skipped|missed)$/i.test(get(item, 'skipped')) || undefined,
         done: /^(y|yes|true|1|x|✓|✔|done|visited)$/i.test(get(item, 'done')) || undefined,
+        optional: /^(y|yes|true|1|x|✓|✔|optional|maybe)$/i.test(get(item, 'optional')) || undefined,
         hours: get(item, 'openinghours') || undefined,
         hoursChecked: !!get(item, 'openinghours'),
         _dayTitle: dayTitle, _catGiven: !!catRaw
@@ -6298,7 +6395,7 @@
       if (r.pending && hasCoords(old) && sameAddress) {
         r.lat = old.lat; r.lng = old.lng; r.pending = false; r.approx = old.approx; r.notFound = false; r.cityKey = old.cityKey;
       }
-      ['done', 'locked', 'osmTags', 'osmRef', 'photo', 'fixedTime', 'skipped'].forEach(k => { if (old[k] !== undefined && r[k] === undefined) r[k] = old[k]; });
+      ['done', 'locked', 'osmTags', 'osmRef', 'photo', 'fixedTime', 'skipped', 'optional'].forEach(k => { if (old[k] !== undefined && r[k] === undefined) r[k] = old[k]; });
       if (old.done) r.done = true;
     });
     const removed = rawData.filter(o => !kept.has(o.id)).length;
@@ -7218,7 +7315,7 @@
                   <button class="card-action-btn" title="${escapeHtml(t('deleteT'))}" onclick="deleteCard(${item.id})"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </div>
-              <div class="card-meta"><span class="cat-tag" title="${escapeHtml(t('changeCategory'))}" onclick="editCategory(${item.id}, event)"><i class="fa-solid ${categoryIcon(item.category)}"></i> ${escapeHtml(item.category)}</span> ${dateChip} ${costChipHtml(item)} ${bookingChipHtml(item)} ${hoursWarningHtml(item)} ${locTag}</div>
+              <div class="card-meta"><span class="cat-tag" title="${escapeHtml(t('changeCategory'))}" onclick="editCategory(${item.id}, event)"><i class="fa-solid ${categoryIcon(item.category)}"></i> ${escapeHtml(item.category)}</span> ${dateChip} ${isOptional(item) ? `<span class="opt-tag">${escapeHtml(t('optionalTag'))}</span>` : ''} ${costChipHtml(item)} ${bookingChipHtml(item)} ${hoursWarningHtml(item)} ${locTag}</div>
               <div class="card-desc-editable" onclick="queueInlineEdit('desc', ${item.id}, event)">${escapeHtml(item.desc || item.address || t('clickNotes'))}</div>
             </div>`;
           targetContainer.appendChild(card);
@@ -7904,6 +8001,7 @@
       <label class="field-label">${escapeHtml(t('bookingLink'))}</label>
       <input type="url" id="single-burl-input" class="edit-form-input booking-url-input" autocomplete="off" inputmode="url" value="${escapeHtml(item.bookingUrl || '')}" placeholder="https://…">
       <label class="check-row"><input type="checkbox" id="single-fixed-input" ${item.fixedTime ? 'checked' : ''}> ${escapeHtml(t('fixedTime'))} <small>${escapeHtml(t('fixedTimeHint'))}</small></label>
+      <label class="check-row"><input type="checkbox" id="single-opt-input" ${isOptional(item) ? 'checked' : ''}> ${escapeHtml(t('optionalLabel'))} <small>${escapeHtml(t('optionalHint'))}</small></label>
       <label class="check-row"><input type="checkbox" id="single-skip-input" ${isSkipped(item) ? 'checked' : ''}> ${escapeHtml(t('skippedLabel'))} <small>${escapeHtml(t('skippedHint'))}</small></label>
       <label class="field-label">${escapeHtml(t('coloursLabel'))}</label>
       ${buildColourPickerHtml('single', currentColor)}`);
@@ -7955,6 +8053,8 @@
         const curIn = $('single-cur-input');
         if (curIn) item.currency = curIn.value && curIn.value !== tripCurrency() ? curIn.value : undefined;
         if (fIn) item.fixedTime = fIn.checked;
+        const opIn = $('single-opt-input');
+        if (opIn) { if (opIn.checked) item.optional = true; else { delete item.optional; if (item.desc) item.desc = item.desc.replace(/^\s*optional\b[.,:]?\s*/i, ''); } }
         const skIn = $('single-skip-input');
         if (skIn) setSkipped(item, skIn.checked);
         const spIn = $('single-spent-input'), brIn = $('single-bref-input'), buIn = $('single-burl-input');
@@ -9446,7 +9546,7 @@
       'Group': stopToGroup[item.id] && GROUPS[stopToGroup[item.id]] ? GROUPS[stopToGroup[item.id]].name : '',
       'Cost': typeof item.cost === 'number' ? item.cost : '', 'Stay (min)': typeof item.stay === 'number' ? item.stay : '',
       'Fixed time': item.fixedTime ? 'yes' : '', 'Opening hours': item.hours || '',
-      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || '', 'Skipped': item.skipped ? 'yes' : '', 'Done': item.done ? 'yes' : ''
+      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || '', 'Skipped': item.skipped ? 'yes' : '', 'Done': item.done ? 'yes' : '', 'Optional': item.optional ? 'yes' : ''
     }));
     const csv = Papa.unparse(exportData);
     shareFile('MapPin_Itinerary.csv', '﻿' + csv, 'text/csv;charset=utf-8').then(r => { if (r === 'shared' && IS_NATIVE) showToast(t('fileReady'), { ms: 2000 }); }).catch(() => {});
@@ -9567,7 +9667,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.9';
+  const APP_VERSION = '1.4.10';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -10630,6 +10730,7 @@
     if (!s) {
       panel.innerHTML = head + `
         <div class="tp-done"><i class="fa-solid fa-flag-checkered"></i> ${escapeHtml(t('allDoneToday'))}</div>
+        ${dayWrapUpHtml(todayDay)}
         ${tomorrowPreviewHtml()}
         <div class="tp-actions">
           <button class="btn btn-secondary" onclick="todayStep(-1)" ${list.length ? '' : 'disabled'}><i class="fa-solid fa-chevron-left"></i></button>
@@ -10652,7 +10753,7 @@
       <div class="tp-stop" onclick="focusTodayStop()">
         <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
         <div class="tp-info">
-          <div class="tp-label">${escapeHtml(s.done ? t('doneLabel') : todayIdx === firstOpenIndex() ? t('nextStop') : t('stopN', { n: todayIdx + 1 }))}</div>
+          <div class="tp-label">${escapeHtml(s.done ? t('doneLabel') : todayIdx === firstOpenIndex() ? t('nextStop') : t('stopN', { n: todayIdx + 1 }))}${isOptional(s) ? ` <span class="opt-tag">${escapeHtml(t('optionalTag'))}</span>` : ''}</div>
           <div class="tp-title">${escapeHtml(s.cleanTitle || s.title)}</div>
           <div class="tp-meta">${s.time ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</span>` : ''}
             <span><i class="fa-solid ${categoryIcon(s.category)}"></i> ${escapeHtml(s.category)}</span>
@@ -10670,7 +10771,8 @@
         <a class="btn btn-primary tp-grow" href="${escapeHtml(dirUrl)}" target="_blank" rel="noopener">${todayDirLabel(from, s)}</a>
         <button class="btn ${s.done ? 'btn-secondary' : 'btn-success'}" onclick="todayMarkDone()"><i class="fa-solid ${s.done ? 'fa-rotate-left' : 'fa-check'}"></i> ${escapeHtml(s.done ? t('notDone') : t('markDone'))}</button>
         <button class="btn btn-secondary" onclick="todayStep(1)" aria-label="${escapeHtml(t('nextStopBtn'))}"><i class="fa-solid fa-chevron-right"></i></button>
-      </div>`;
+      </div>
+      ${eveningTomorrowHtml()}`;
   }
 
   /* ---------- Today panel: photo of the stop ---------- */
@@ -13189,7 +13291,7 @@
   function notBookedHtml(day) {
     const list = notBookedStops(day);
     if (!list.length) return '';
-    return `<div class="tp-notbooked"><i class="fa-solid fa-triangle-exclamation"></i> <span>${escapeHtml(t('notBookedYet'))}: ${list.map(s => `<a onclick="closeMenus(); revealStop(${s.id}, true)">${escapeHtml(s.cleanTitle || s.title)}</a>`).join(', ')}</span></div>`;
+    return list.map(s => `<div class="tp-notbooked"><i class="fa-solid fa-triangle-exclamation"></i> <div><span>${escapeHtml(t('notBookedYet'))}: <a onclick="closeMenus(); revealStop(${s.id}, true)">${escapeHtml(s.cleanTitle || s.title)}</a></span>${bookStayLinksHtml(s)}</div></div>`).join('');
   }
 
   /* ---------- Booking details read from the notes: where it was booked and for how many nights ---------- */
@@ -13202,6 +13304,60 @@
     if (via) bits.push(via);
     if (n) bits.push(t('nNights', { n: Number(n[1]) }));
     return bits.join(' · ');
+  }
+
+  /* ---------- 1.4.10: optional stops ---------- */
+  function isOptional(s) { return !!s && (s.optional === true || /^\s*optional\b/i.test(s.desc || '') || /\(optional\)/i.test(s.title || '')); }
+
+  /* ---------- Book a place to stay for a night that isn't booked ---------- */
+  function stayNightFor(s) {
+    const iso = effectiveDate(s);
+    if (!iso) return null;
+    const out = isoFromDate(new Date(isoToDate(iso).getTime() + 864e5));
+    return { iso, out };
+  }
+  function bookStayLinksHtml(s) {
+    const n = stayNightFor(s);
+    const place = (s.city || (s.cleanTitle || s.title).replace(/\s*(station|stn|airport).*$/i, '')).trim();
+    const maps = hasCoords(s) ? `https://www.google.com/maps/search/hotels/@${s.lat},${s.lng},15z?hl=${LANG}` : `https://www.google.com/maps/search/${encodeURIComponent('hotels ' + place)}`;
+    const q = new URLSearchParams({ ss: place });
+    if (n) { q.set('checkin', n.iso); q.set('checkout', n.out); }
+    if (hasCoords(s)) { q.set('latitude', s.lat); q.set('longitude', s.lng); }
+    return `<span class="nb-links"><a href="${escapeHtml(maps)}" target="_blank" rel="noopener"><i class="fa-solid fa-map-location-dot"></i> ${escapeHtml(t('hotelsMaps'))}</a>
+      <a href="https://www.booking.com/searchresults.html?${escapeHtml(q.toString())}" target="_blank" rel="noopener"><i class="fa-solid fa-bed"></i> Booking.com</a></span>`;
+  }
+
+  /* ---------- End of the day: what you did ---------- */
+  function dayWrapUpHtml(day) {
+    const list = dayDisplayOrder(day).filter(s => !isSkipped(s));
+    if (!list.length) return '';
+    const done = list.filter(s => s.done);
+    let m = 0;
+    const pts = list.filter(hasCoords);
+    for (let i = 1; i < pts.length; i++) { const d = distMeters([pts[i - 1].lat, pts[i - 1].lng], [pts[i].lat, pts[i].lng]); if (d < 30000) m += d; }
+    const spent = typeof daySpent === 'function' ? daySpent(day) : 0, planned = typeof dayCost === 'function' ? dayCost(day) : 0;
+    const skipped = dayDisplayOrder(day).filter(isSkipped).length;
+    const bits = [
+      `<span><b>${done.length}/${list.length}</b> ${escapeHtml(t('wrapStops'))}</span>`,
+      m ? `<span><b>${escapeHtml(formatDistance(m))}</b> ${escapeHtml(t('wrapAround'))}</span>` : '',
+      spent || planned ? `<span><b>${escapeHtml(fmtMoney(spent))}</b> ${escapeHtml(planned ? t('wrapSpentOf', { b: fmtMoney(planned) }) : t('wrapSpent'))}</span>` : '',
+      skipped ? `<span><b>${skipped}</b> ${escapeHtml(t('wrapSkipped'))}</span>` : ''
+    ].filter(Boolean).join('');
+    return `<div class="tp-wrap"><div class="tpt-label">${escapeHtml(t('wrapTitle'))}</div><div class="tpw-bits">${bits}</div>
+      <button class="btn btn-ghost tpw-copy" onclick="copyDayWrapUp(${day})"><i class="fa-regular fa-copy"></i> ${escapeHtml(t('wrapCopy'))}</button></div>`;
+  }
+  function copyDayWrapUp(day) {
+    const list = dayDisplayOrder(day).filter(s => !isSkipped(s));
+    const iso = typeof dayDateIso === 'function' ? dayDateIso(day) : null;
+    const text = [`${getDayTitle(day)}${iso ? ` (${formatDateShort(iso)})` : ''}`]
+      .concat(list.map(s => `${s.done ? '✓' : '·'} ${s.time ? s.time + ' ' : ''}${s.cleanTitle || s.title}`)).join('\n');
+    Promise.resolve(navigator.clipboard && navigator.clipboard.writeText(text)).then(() => showToast(t('wrapCopied'), { ms: 2200 })).catch(() => prompt('', text));
+  }
+
+  /* ---------- From 6 pm, tomorrow shows under the current stop too ---------- */
+  function eveningTomorrowHtml() {
+    if (!effectiveDayIsToday() || new Date().getHours() < 18) return '';
+    return tomorrowPreviewHtml();
   }
 
   /* ===== 99-boot.js ===== */

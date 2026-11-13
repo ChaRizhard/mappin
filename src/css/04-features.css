@@ -542,3 +542,14 @@ html.card-dragging, html.card-dragging body, html.card-dragging #sidebar, html.c
 .tp-notbooked a { color: #f59e0b; text-decoration: underline; cursor: pointer; }
 .tpt-btns { display: flex; gap: 8px; }
 .tpt-btns .tpt-open { flex: 1; }
+/* 1.4.10 */
+.opt-tag { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 9px; border: 1px dashed var(--text-muted); color: var(--text-muted);
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; vertical-align: middle; }
+.tp-notbooked > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.nb-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.nb-links a { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 8px; background: var(--tint); border: 1px solid var(--panel-border);
+  color: var(--text-main) !important; text-decoration: none !important; font-size: 12px; font-weight: 600; }
+.tp-wrap { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--tint); border: 1px solid var(--panel-border); }
+.tpw-bits { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; font-size: 13px; color: var(--text-muted); }
+.tpw-bits b { color: var(--text-main); font-size: 15px; margin-right: 3px; }
+.tpw-copy { margin-top: 8px; height: 32px; font-size: 12px; }

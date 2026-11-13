@@ -180,7 +180,7 @@
   function notBookedHtml(day) {
     const list = notBookedStops(day);
     if (!list.length) return '';
-    return `<div class="tp-notbooked"><i class="fa-solid fa-triangle-exclamation"></i> <span>${escapeHtml(t('notBookedYet'))}: ${list.map(s => `<a onclick="closeMenus(); revealStop(${s.id}, true)">${escapeHtml(s.cleanTitle || s.title)}</a>`).join(', ')}</span></div>`;
+    return list.map(s => `<div class="tp-notbooked"><i class="fa-solid fa-triangle-exclamation"></i> <div><span>${escapeHtml(t('notBookedYet'))}: <a onclick="closeMenus(); revealStop(${s.id}, true)">${escapeHtml(s.cleanTitle || s.title)}</a></span>${bookStayLinksHtml(s)}</div></div>`).join('');
   }
 
   /* ---------- Booking details read from the notes: where it was booked and for how many nights ---------- */
@@ -193,4 +193,58 @@
     if (via) bits.push(via);
     if (n) bits.push(t('nNights', { n: Number(n[1]) }));
     return bits.join(' · ');
+  }
+
+  /* ---------- 1.4.10: optional stops ---------- */
+  function isOptional(s) { return !!s && (s.optional === true || /^\s*optional\b/i.test(s.desc || '') || /\(optional\)/i.test(s.title || '')); }
+
+  /* ---------- Book a place to stay for a night that isn't booked ---------- */
+  function stayNightFor(s) {
+    const iso = effectiveDate(s);
+    if (!iso) return null;
+    const out = isoFromDate(new Date(isoToDate(iso).getTime() + 864e5));
+    return { iso, out };
+  }
+  function bookStayLinksHtml(s) {
+    const n = stayNightFor(s);
+    const place = (s.city || (s.cleanTitle || s.title).replace(/\s*(station|stn|airport).*$/i, '')).trim();
+    const maps = hasCoords(s) ? `https://www.google.com/maps/search/hotels/@${s.lat},${s.lng},15z?hl=${LANG}` : `https://www.google.com/maps/search/${encodeURIComponent('hotels ' + place)}`;
+    const q = new URLSearchParams({ ss: place });
+    if (n) { q.set('checkin', n.iso); q.set('checkout', n.out); }
+    if (hasCoords(s)) { q.set('latitude', s.lat); q.set('longitude', s.lng); }
+    return `<span class="nb-links"><a href="${escapeHtml(maps)}" target="_blank" rel="noopener"><i class="fa-solid fa-map-location-dot"></i> ${escapeHtml(t('hotelsMaps'))}</a>
+      <a href="https://www.booking.com/searchresults.html?${escapeHtml(q.toString())}" target="_blank" rel="noopener"><i class="fa-solid fa-bed"></i> Booking.com</a></span>`;
+  }
+
+  /* ---------- End of the day: what you did ---------- */
+  function dayWrapUpHtml(day) {
+    const list = dayDisplayOrder(day).filter(s => !isSkipped(s));
+    if (!list.length) return '';
+    const done = list.filter(s => s.done);
+    let m = 0;
+    const pts = list.filter(hasCoords);
+    for (let i = 1; i < pts.length; i++) { const d = distMeters([pts[i - 1].lat, pts[i - 1].lng], [pts[i].lat, pts[i].lng]); if (d < 30000) m += d; }
+    const spent = typeof daySpent === 'function' ? daySpent(day) : 0, planned = typeof dayCost === 'function' ? dayCost(day) : 0;
+    const skipped = dayDisplayOrder(day).filter(isSkipped).length;
+    const bits = [
+      `<span><b>${done.length}/${list.length}</b> ${escapeHtml(t('wrapStops'))}</span>`,
+      m ? `<span><b>${escapeHtml(formatDistance(m))}</b> ${escapeHtml(t('wrapAround'))}</span>` : '',
+      spent || planned ? `<span><b>${escapeHtml(fmtMoney(spent))}</b> ${escapeHtml(planned ? t('wrapSpentOf', { b: fmtMoney(planned) }) : t('wrapSpent'))}</span>` : '',
+      skipped ? `<span><b>${skipped}</b> ${escapeHtml(t('wrapSkipped'))}</span>` : ''
+    ].filter(Boolean).join('');
+    return `<div class="tp-wrap"><div class="tpt-label">${escapeHtml(t('wrapTitle'))}</div><div class="tpw-bits">${bits}</div>
+      <button class="btn btn-ghost tpw-copy" onclick="copyDayWrapUp(${day})"><i class="fa-regular fa-copy"></i> ${escapeHtml(t('wrapCopy'))}</button></div>`;
+  }
+  function copyDayWrapUp(day) {
+    const list = dayDisplayOrder(day).filter(s => !isSkipped(s));
+    const iso = typeof dayDateIso === 'function' ? dayDateIso(day) : null;
+    const text = [`${getDayTitle(day)}${iso ? ` (${formatDateShort(iso)})` : ''}`]
+      .concat(list.map(s => `${s.done ? '✓' : '·'} ${s.time ? s.time + ' ' : ''}${s.cleanTitle || s.title}`)).join('\n');
+    Promise.resolve(navigator.clipboard && navigator.clipboard.writeText(text)).then(() => showToast(t('wrapCopied'), { ms: 2200 })).catch(() => prompt('', text));
+  }
+
+  /* ---------- From 6 pm, tomorrow shows under the current stop too ---------- */
+  function eveningTomorrowHtml() {
+    if (!effectiveDayIsToday() || new Date().getHours() < 18) return '';
+    return tomorrowPreviewHtml();
   }

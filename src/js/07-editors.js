@@ -106,6 +106,7 @@
       <label class="field-label">${escapeHtml(t('bookingLink'))}</label>
       <input type="url" id="single-burl-input" class="edit-form-input booking-url-input" autocomplete="off" inputmode="url" value="${escapeHtml(item.bookingUrl || '')}" placeholder="https://…">
       <label class="check-row"><input type="checkbox" id="single-fixed-input" ${item.fixedTime ? 'checked' : ''}> ${escapeHtml(t('fixedTime'))} <small>${escapeHtml(t('fixedTimeHint'))}</small></label>
+      <label class="check-row"><input type="checkbox" id="single-opt-input" ${isOptional(item) ? 'checked' : ''}> ${escapeHtml(t('optionalLabel'))} <small>${escapeHtml(t('optionalHint'))}</small></label>
       <label class="check-row"><input type="checkbox" id="single-skip-input" ${isSkipped(item) ? 'checked' : ''}> ${escapeHtml(t('skippedLabel'))} <small>${escapeHtml(t('skippedHint'))}</small></label>
       <label class="field-label">${escapeHtml(t('coloursLabel'))}</label>
       ${buildColourPickerHtml('single', currentColor)}`);
@@ -157,6 +158,8 @@
         const curIn = $('single-cur-input');
         if (curIn) item.currency = curIn.value && curIn.value !== tripCurrency() ? curIn.value : undefined;
         if (fIn) item.fixedTime = fIn.checked;
+        const opIn = $('single-opt-input');
+        if (opIn) { if (opIn.checked) item.optional = true; else { delete item.optional; if (item.desc) item.desc = item.desc.replace(/^\s*optional\b[.,:]?\s*/i, ''); } }
         const skIn = $('single-skip-input');
         if (skIn) setSkipped(item, skIn.checked);
         const spIn = $('single-spent-input'), brIn = $('single-bref-input'), buIn = $('single-burl-input');

@@ -118,6 +118,7 @@
     if (!s) {
       panel.innerHTML = head + `
         <div class="tp-done"><i class="fa-solid fa-flag-checkered"></i> ${escapeHtml(t('allDoneToday'))}</div>
+        ${dayWrapUpHtml(todayDay)}
         ${tomorrowPreviewHtml()}
         <div class="tp-actions">
           <button class="btn btn-secondary" onclick="todayStep(-1)" ${list.length ? '' : 'disabled'}><i class="fa-solid fa-chevron-left"></i></button>
@@ -140,7 +141,7 @@
       <div class="tp-stop" onclick="focusTodayStop()">
         <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
         <div class="tp-info">
-          <div class="tp-label">${escapeHtml(s.done ? t('doneLabel') : todayIdx === firstOpenIndex() ? t('nextStop') : t('stopN', { n: todayIdx + 1 }))}</div>
+          <div class="tp-label">${escapeHtml(s.done ? t('doneLabel') : todayIdx === firstOpenIndex() ? t('nextStop') : t('stopN', { n: todayIdx + 1 }))}${isOptional(s) ? ` <span class="opt-tag">${escapeHtml(t('optionalTag'))}</span>` : ''}</div>
           <div class="tp-title">${escapeHtml(s.cleanTitle || s.title)}</div>
           <div class="tp-meta">${s.time ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</span>` : ''}
             <span><i class="fa-solid ${categoryIcon(s.category)}"></i> ${escapeHtml(s.category)}</span>
@@ -158,7 +159,8 @@
         <a class="btn btn-primary tp-grow" href="${escapeHtml(dirUrl)}" target="_blank" rel="noopener">${todayDirLabel(from, s)}</a>
         <button class="btn ${s.done ? 'btn-secondary' : 'btn-success'}" onclick="todayMarkDone()"><i class="fa-solid ${s.done ? 'fa-rotate-left' : 'fa-check'}"></i> ${escapeHtml(s.done ? t('notDone') : t('markDone'))}</button>
         <button class="btn btn-secondary" onclick="todayStep(1)" aria-label="${escapeHtml(t('nextStopBtn'))}"><i class="fa-solid fa-chevron-right"></i></button>
-      </div>`;
+      </div>
+      ${eveningTomorrowHtml()}`;
   }
 
   /* ---------- Today panel: photo of the stop ---------- */

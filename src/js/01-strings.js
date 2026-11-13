@@ -524,7 +524,19 @@
       notBookedYet: "Not booked yet",
       nNights: "{n} nights",
       saveOfflineShort: "Save offline",
-      saveNext2: "Save next 2 days offline"
+      saveNext2: "Save next 2 days offline",
+      optionalLabel: "Optional",
+      optionalHint: "only if there’s time",
+      optionalTag: "optional",
+      hotelsMaps: "Hotels nearby",
+      wrapTitle: "Today in short",
+      wrapStops: "stops done",
+      wrapAround: "between stops",
+      wrapSpent: "spent",
+      wrapSpentOf: "spent of {b}",
+      wrapSkipped: "skipped",
+      wrapCopy: "Copy the day",
+      wrapCopied: "Day copied"
     },
     ja: {
       language: "言語",
@@ -1030,7 +1042,19 @@
       notBookedYet: "未予約",
       nNights: "{n} 泊",
       saveOfflineShort: "オフライン保存",
-      saveNext2: "次の 2 日分をオフライン保存"
+      saveNext2: "次の 2 日分をオフライン保存",
+      optionalLabel: "任意",
+      optionalHint: "時間があれば",
+      optionalTag: "任意",
+      hotelsMaps: "近くのホテル",
+      wrapTitle: "今日のまとめ",
+      wrapStops: "件完了",
+      wrapAround: "スポット間の距離",
+      wrapSpent: "支出",
+      wrapSpentOf: "支出（予定 {b}）",
+      wrapSkipped: "件スキップ",
+      wrapCopy: "今日をコピー",
+      wrapCopied: "コピーしました"
     },
     zh: {
       language: "语言",
@@ -1536,7 +1560,19 @@
       notBookedYet: "尚未预订",
       nNights: "{n} 晚",
       saveOfflineShort: "离线保存",
-      saveNext2: "离线保存接下来 2 天"
+      saveNext2: "离线保存接下来 2 天",
+      optionalLabel: "可选",
+      optionalHint: "有时间再去",
+      optionalTag: "可选",
+      hotelsMaps: "附近酒店",
+      wrapTitle: "今日小结",
+      wrapStops: "个地点已完成",
+      wrapAround: "地点之间",
+      wrapSpent: "已花费",
+      wrapSpentOf: "已花费（计划 {b}）",
+      wrapSkipped: "个已跳过",
+      wrapCopy: "复制今天",
+      wrapCopied: "已复制"
     },
     ko: {
       language: "언어",
@@ -2042,7 +2078,19 @@
       notBookedYet: "아직 예약 안 함",
       nNights: "{n}박",
       saveOfflineShort: "오프라인 저장",
-      saveNext2: "다음 2일 오프라인 저장"
+      saveNext2: "다음 2일 오프라인 저장",
+      optionalLabel: "선택",
+      optionalHint: "시간이 되면",
+      optionalTag: "선택",
+      hotelsMaps: "근처 호텔",
+      wrapTitle: "오늘 요약",
+      wrapStops: "곳 완료",
+      wrapAround: "장소 간 거리",
+      wrapSpent: "지출",
+      wrapSpentOf: "지출 (계획 {b})",
+      wrapSkipped: "곳 건너뜀",
+      wrapCopy: "오늘 복사",
+      wrapCopied: "복사했어요"
     },
     es: {
       language: "Idioma",
@@ -2553,7 +2601,19 @@
       notBookedYet: "Sin reservar",
       nNights: "{n} noches",
       saveOfflineShort: "Guardar sin conexión",
-      saveNext2: "Guardar los próximos 2 días sin conexión"
+      saveNext2: "Guardar los próximos 2 días sin conexión",
+      optionalLabel: "Opcional",
+      optionalHint: "solo si da tiempo",
+      optionalTag: "opcional",
+      hotelsMaps: "Hoteles cerca",
+      wrapTitle: "Tu día",
+      wrapStops: "paradas hechas",
+      wrapAround: "entre paradas",
+      wrapSpent: "gastado",
+      wrapSpentOf: "gastado de {b}",
+      wrapSkipped: "omitidas",
+      wrapCopy: "Copiar el día",
+      wrapCopied: "Día copiado"
     },
     fr: {
       language: "Langue",
@@ -3064,7 +3124,19 @@
       notBookedYet: "Pas encore réservé",
       nNights: "{n} nuits",
       saveOfflineShort: "Hors ligne",
-      saveNext2: "Enregistrer les 2 prochains jours hors ligne"
+      saveNext2: "Enregistrer les 2 prochains jours hors ligne",
+      optionalLabel: "Facultatif",
+      optionalHint: "seulement s’il reste du temps",
+      optionalTag: "facultatif",
+      hotelsMaps: "Hôtels à proximité",
+      wrapTitle: "Votre journée",
+      wrapStops: "étapes faites",
+      wrapAround: "entre les étapes",
+      wrapSpent: "dépensé",
+      wrapSpentOf: "dépensé sur {b}",
+      wrapSkipped: "passées",
+      wrapCopy: "Copier la journée",
+      wrapCopied: "Journée copiée"
     },
     de: {
       language: "Sprache",
@@ -3575,7 +3647,19 @@
       notBookedYet: "Noch nicht gebucht",
       nNights: "{n} Nächte",
       saveOfflineShort: "Offline speichern",
-      saveNext2: "Nächste 2 Tage offline speichern"
+      saveNext2: "Nächste 2 Tage offline speichern",
+      optionalLabel: "Optional",
+      optionalHint: "nur wenn Zeit bleibt",
+      optionalTag: "optional",
+      hotelsMaps: "Hotels in der Nähe",
+      wrapTitle: "Dein Tag",
+      wrapStops: "Stopps erledigt",
+      wrapAround: "zwischen Stopps",
+      wrapSpent: "ausgegeben",
+      wrapSpentOf: "von {b} ausgegeben",
+      wrapSkipped: "übersprungen",
+      wrapCopy: "Tag kopieren",
+      wrapCopied: "Tag kopiert"
     }
   };
 
