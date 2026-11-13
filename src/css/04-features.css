@@ -532,3 +532,6 @@ html.card-dragging, html.card-dragging body, html.card-dragging #sidebar, html.c
   padding: 0 10px; height: 34px; font: 600 14px ui-monospace, SFMono-Regular, Menlo, monospace; cursor: pointer; letter-spacing: .03em; }
 .bk-ref i { font-size: 12px; color: var(--text-muted); }
 .bk-link { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--panel-border); color: var(--accent-blue); }
+/* 1.4.8 */
+.bk-cal { width: 100%; justify-content: center; margin-bottom: 4px; }
+.bk-cal-note { margin: 0 0 12px; text-align: center; }

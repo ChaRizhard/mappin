@@ -75,10 +75,10 @@
     const body = $('bookings-body');
     if (!body) return;
     const list = rawData.filter(s => (s.bookingRef || s.bookingUrl) && !isSkipped(s));
-    if (!list.length) { body.innerHTML = `<p class="settings-note ex-empty">${escapeHtml(t('bookingsEmpty'))}</p>`; return; }
+    if (!list.length) { body.innerHTML = keyEventsButtonHtml() + `<p class="settings-note ex-empty">${escapeHtml(t('bookingsEmpty'))}</p>`; return; }
     const today = todayDayNumber();
     const days = [...new Set(list.map(s => s.day))].sort((a, b) => a - b);
-    body.innerHTML = days.map(d => {
+    body.innerHTML = keyEventsButtonHtml() + days.map(d => {
       const iso = typeof dayDateIso === 'function' ? dayDateIso(d) : null;
       const items = dayDisplayOrder(d).filter(s => list.includes(s));
       return `<div class="bk-day ${d === today ? 'is-today' : ''} ${today !== null && d < today ? 'is-past' : ''}">
@@ -94,4 +94,53 @@
         </div>`).join('')}
       </div>`;
     }).join('');
+  }
+
+  /* ---------- Flights and hotel check-ins to the phone's calendar (with reminders) ---------- */
+  const HOTEL_CAT = /hotel|accommodation|lodging|hostel|ryokan|guesthouse/i;
+  const FLIGHT_RE = /\b(flight|airport|airlines?|peach|jetstar|qantas|jal|ana|zipair|terminal)\b|✈/i;
+  const CHECK_RE = /check[\s-]?(in|out)/i;
+  function keyEventKind(s) {
+    if (isSkipped(s) || !effectiveDate(s)) return null;
+    const text = `${s.title || ''} ${s.desc || ''}`;
+    if (FLIGHT_RE.test(text) && /^\d{1,2}:\d{2}$/.test(s.time || '') && (s.bookingRef || /\b[A-Z0-9]{2}\s?\d{2,4}\b/.test(text))) return 'flight';
+    if (HOTEL_CAT.test(s.category || '') && CHECK_RE.test(text)) return 'hotel';
+    if (s.bookingRef) return 'booking';
+    return null;
+  }
+  function keyEvents() {
+    const today = typeof isoFromDate === 'function' ? isoFromDate(new Date()) : '';
+    return rawData.filter(s => keyEventKind(s) && effectiveDate(s) >= today)
+      .sort((a, b) => effectiveDate(a).localeCompare(effectiveDate(b)) || String(a.time || '').localeCompare(String(b.time || '')));
+  }
+  function keyEventsIcs(list) {
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MapPin//Trip planner//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+    list.forEach(s => {
+      const kind = keyEventKind(s), tm = stopTimes(s, effectiveDate(s)), desc = stopDescription(s);
+      lines.push('BEGIN:VEVENT', `UID:mappin-key-${s.id}-${tm.start}@mappin`, `DTSTAMP:${stamp}`);
+      if (tm.allDay) lines.push(`DTSTART;VALUE=DATE:${tm.start}`, `DTEND;VALUE=DATE:${tm.end}`);
+      else lines.push(`DTSTART:${tm.start}`, `DTEND:${tm.end}`);
+      lines.push(icsFold(`SUMMARY:${icsEscape(`${kind === 'flight' ? '✈ ' : kind === 'hotel' ? '🏨 ' : ''}${s.cleanTitle || s.title}`)}`));
+      if (s.address || hasCoords(s)) lines.push(icsFold(`LOCATION:${icsEscape(s.address || `${s.lat},${s.lng}`)}`));
+      if (desc) lines.push(icsFold(`DESCRIPTION:${icsEscape(desc)}`));
+      // Reminders: flights 3 hours and 1 hour before, everything else 30 minutes before
+      (kind === 'flight' ? ['-PT3H', '-PT1H'] : ['-PT30M']).forEach(tr => {
+        lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', icsFold(`DESCRIPTION:${icsEscape(s.cleanTitle || s.title)}`), `TRIGGER:${tr}`, 'END:VALARM');
+      });
+      lines.push('END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    return lines.join('\r\n') + '\r\n';
+  }
+  function addKeyEventsToCalendar() {
+    const list = keyEvents();
+    if (!list.length) { showToast(t('keyEventsNone'), { ms: 4000 }); return; }
+    downloadIcs(`MapPin_${(TRIP.title || 'Trip').replace(/[^\p{L}\p{N}]+/gu, '_')}_flights_and_hotels.ics`, keyEventsIcs(list));
+  }
+  function keyEventsButtonHtml() {
+    const n = keyEvents().length;
+    if (!n) return '';
+    return `<button class="btn btn-primary bk-cal" onclick="addKeyEventsToCalendar()"><i class="fa-regular fa-calendar-plus"></i> ${escapeHtml(t('keyEventsAdd', { n }))}</button>
+      <p class="settings-note bk-cal-note">${escapeHtml(t('keyEventsNote'))}</p>`;
   }

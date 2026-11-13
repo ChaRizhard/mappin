@@ -318,11 +318,27 @@
     let nextId = rawData.reduce((m, o) => Math.max(m, Number(o.id) || 0), 0) + 1;
     let updated = 0, added = 0;
     const kept = new Set();
+    // Match by name first; a stop that was renamed is still found by being at the same spot on the same day
+    const matchOf = new Map();
     rows.forEach(r => {
       const list = pool[keyOf(r)];
       const old = list && (list.find(o => o.day === r.day) || list[0]);
+      if (old) { list.splice(list.indexOf(old), 1); matchOf.set(r, old); }
+    });
+    const leftovers = Object.values(pool).flat();
+    rows.forEach(r => {
+      if (matchOf.has(r) || !hasCoords(r)) return;
+      let best = null, bestD = 120;
+      leftovers.forEach(o => {
+        if (o.day !== r.day || !hasCoords(o)) return;
+        const d = distMeters([r.lat, r.lng], [o.lat, o.lng]) + (o.time && o.time === r.time ? 0 : 40); // same time breaks ties
+        if (d < bestD) { best = o; bestD = d; }
+      });
+      if (best) { leftovers.splice(leftovers.indexOf(best), 1); matchOf.set(r, best); }
+    });
+    rows.forEach(r => {
+      const old = matchOf.get(r);
       if (!old) { r.id = nextId++; added++; return; }
-      list.splice(list.indexOf(old), 1);
       kept.add(old.id);
       updated++;
       r.id = old.id;

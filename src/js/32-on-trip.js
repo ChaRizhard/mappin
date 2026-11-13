@@ -12,10 +12,10 @@
     if (!list.length) return '';
     const first = list[0];
     const iso = typeof dayDateIso === 'function' ? dayDateIso(next) : null;
-    const todayHotel = todayStops().filter(s => /hotel/i.test(s.category || '')).map(s => normKey(s.cleanTitle || s.title));
+    const todayHotel = todayStops().filter(s => HOTEL_CAT.test(s.category || '')).map(s => normKey(s.cleanTitle || s.title));
     // Things worth knowing tonight: journeys, a new hotel and anything at a fixed time
     const key = list.filter(s => s !== first && (s.fixedTime || /transport|flight/i.test(s.category || '') ||
-      (/hotel/i.test(s.category || '') && !todayHotel.includes(normKey(s.cleanTitle || s.title))))).slice(0, 3);
+      (HOTEL_CAT.test(s.category || '') && !todayHotel.includes(normKey(s.cleanTitle || s.title))))).slice(0, 3);
     const line = s => `<div class="tpt-row"><i class="fa-solid ${categoryIcon(s.category)}"></i>${s.time ? `<b>${escapeHtml(s.time)}</b>` : ''}<span>${escapeHtml(s.cleanTitle || s.title)}</span></div>`;
     return `<div class="tp-tomorrow">
       <div class="tpt-label">${escapeHtml(t('tomorrowLabel'))} · ${escapeHtml(getDayTitle(next))}${iso ? ` · ${escapeHtml(formatDateShort(iso))}` : ''}</div>
@@ -67,7 +67,7 @@
     const R = Math.max(80, acc), now = Date.now();
     let ask = null;
     todayStops().forEach(s => {
-      if (s.done || !hasCoords(s) || arrivalDismissed.has(s.id) || /hotel/i.test(s.category || '')) { delete nearSince[s.id]; return; }
+      if (s.done || !hasCoords(s) || arrivalDismissed.has(s.id) || HOTEL_CAT.test(s.category || '')) { delete nearSince[s.id]; return; }
       const d = distMeters([c.latitude, c.longitude], [s.lat, s.lng]);
       if (d <= R) {
         nearSince[s.id] = nearSince[s.id] || now;

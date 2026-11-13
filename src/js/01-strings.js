@@ -514,7 +514,12 @@
       stopSkipped: "Skipped {name}",
       skipStop: "Skip this stop",
       bookings: "Bookings",
-      bookingsEmpty: "No booking references yet. Add one in a stop’s details (Booking ref or link) and it shows up here."
+      bookingsEmpty: "No booking references yet. Add one in a stop’s details (Booking ref or link) and it shows up here.",
+      dirWalk: "Walk there",
+      dirTransit: "Trains & buses",
+      keyEventsAdd: "Add flights & check-ins to calendar ({n})",
+      keyEventsNote: "Your phone’s calendar reminds you 3 h and 1 h before flights, and 30 min before check-ins, even when MapPin is closed.",
+      keyEventsNone: "No upcoming flights, check-ins or bookings with a date."
     },
     ja: {
       language: "言語",
@@ -1010,7 +1015,12 @@
       stopSkipped: "{name} をスキップしました",
       skipStop: "このスポットをスキップ",
       bookings: "予約",
-      bookingsEmpty: "予約番号はまだありません。スポットの詳細で予約番号やリンクを入れるとここに表示されます。"
+      bookingsEmpty: "予約番号はまだありません。スポットの詳細で予約番号やリンクを入れるとここに表示されます。",
+      dirWalk: "歩いて行く",
+      dirTransit: "電車・バス",
+      keyEventsAdd: "フライトとチェックインをカレンダーに追加（{n}）",
+      keyEventsNote: "MapPin を閉じていても、カレンダーがフライトの 3 時間前と 1 時間前、チェックインの 30 分前に通知します。",
+      keyEventsNone: "日付のある今後のフライト・チェックイン・予約はありません。"
     },
     zh: {
       language: "语言",
@@ -1506,7 +1516,12 @@
       stopSkipped: "已跳过 {name}",
       skipStop: "跳过此地点",
       bookings: "预订",
-      bookingsEmpty: "还没有预订编号。在地点详情中填写预订编号或链接后会显示在这里。"
+      bookingsEmpty: "还没有预订编号。在地点详情中填写预订编号或链接后会显示在这里。",
+      dirWalk: "步行前往",
+      dirTransit: "火车和巴士",
+      keyEventsAdd: "将航班和入住添加到日历（{n}）",
+      keyEventsNote: "即使关闭 MapPin，日历也会在航班前 3 小时和 1 小时、入住前 30 分钟提醒你。",
+      keyEventsNone: "没有带日期的后续航班、入住或预订。"
     },
     ko: {
       language: "언어",
@@ -2002,7 +2017,12 @@
       stopSkipped: "{name} 건너뜀",
       skipStop: "이 장소 건너뛰기",
       bookings: "예약",
-      bookingsEmpty: "아직 예약 번호가 없어요. 장소 상세에서 예약 번호나 링크를 넣으면 여기에 보여요."
+      bookingsEmpty: "아직 예약 번호가 없어요. 장소 상세에서 예약 번호나 링크를 넣으면 여기에 보여요.",
+      dirWalk: "걸어서 가기",
+      dirTransit: "기차·버스",
+      keyEventsAdd: "항공편과 체크인을 캘린더에 추가 ({n})",
+      keyEventsNote: "MapPin을 닫아도 캘린더가 항공편 3시간 전과 1시간 전, 체크인 30분 전에 알려줘요.",
+      keyEventsNone: "날짜가 있는 다가오는 항공편, 체크인, 예약이 없어요."
     },
     es: {
       language: "Idioma",
@@ -2503,7 +2523,12 @@
       stopSkipped: "Omitida: {name}",
       skipStop: "Omitir esta parada",
       bookings: "Reservas",
-      bookingsEmpty: "Aún no hay referencias de reserva. Añade una en los detalles de una parada y aparecerá aquí."
+      bookingsEmpty: "Aún no hay referencias de reserva. Añade una en los detalles de una parada y aparecerá aquí.",
+      dirWalk: "Ir a pie",
+      dirTransit: "Trenes y buses",
+      keyEventsAdd: "Añadir vuelos y check-ins al calendario ({n})",
+      keyEventsNote: "El calendario del móvil te avisa 3 h y 1 h antes de los vuelos y 30 min antes de los check-ins, aunque MapPin esté cerrado.",
+      keyEventsNone: "No hay vuelos, check-ins ni reservas con fecha próximos."
     },
     fr: {
       language: "Langue",
@@ -3004,7 +3029,12 @@
       stopSkipped: "{name} passée",
       skipStop: "Passer cette étape",
       bookings: "Réservations",
-      bookingsEmpty: "Aucune référence de réservation. Ajoutez-en une dans les détails d’une étape pour la voir ici."
+      bookingsEmpty: "Aucune référence de réservation. Ajoutez-en une dans les détails d’une étape pour la voir ici.",
+      dirWalk: "Y aller à pied",
+      dirTransit: "Trains et bus",
+      keyEventsAdd: "Ajouter vols et arrivées à l’hôtel au calendrier ({n})",
+      keyEventsNote: "Le calendrier du téléphone vous prévient 3 h et 1 h avant les vols, et 30 min avant les arrivées, même MapPin fermé.",
+      keyEventsNone: "Aucun vol, arrivée ou réservation datée à venir."
     },
     de: {
       language: "Sprache",
@@ -3505,7 +3535,12 @@
       stopSkipped: "{name} übersprungen",
       skipStop: "Diesen Stopp überspringen",
       bookings: "Buchungen",
-      bookingsEmpty: "Noch keine Buchungsnummern. Trage eine in den Details eines Stopps ein, dann erscheint sie hier."
+      bookingsEmpty: "Noch keine Buchungsnummern. Trage eine in den Details eines Stopps ein, dann erscheint sie hier.",
+      dirWalk: "Zu Fuß",
+      dirTransit: "Bahn & Bus",
+      keyEventsAdd: "Flüge & Check-ins zum Kalender hinzufügen ({n})",
+      keyEventsNote: "Der Kalender erinnert dich 3 h und 1 h vor Flügen und 30 Min. vor Check-ins, auch wenn MapPin geschlossen ist.",
+      keyEventsNone: "Keine anstehenden Flüge, Check-ins oder Buchungen mit Datum."
     }
   };
 

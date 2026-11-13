@@ -100,8 +100,9 @@
   }
 
   function downloadDayCalendar(day) {
-    const ics = dayIcs(day);
-    const name = `MapPin_${(getDayTitle(day) || 'Day').replace(/[^\p{L}\p{N}]+/gu, '_')}.ics`;
+    downloadIcs(`MapPin_${(getDayTitle(day) || 'Day').replace(/[^\p{L}\p{N}]+/gu, '_')}.ics`, dayIcs(day));
+  }
+  function downloadIcs(name, ics) {
     if (isIos() && !IS_NATIVE) {
       // iPhone: opening the calendar file shows Apple's "Add All" screen
       const a = document.createElement('a');

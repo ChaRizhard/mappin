@@ -87,3 +87,9 @@ Do it once in the **Home Screen app** (iPhone) or the **installed app** (Android
 - Straight-line routes: between cards you see a journey estimate (e.g. "~9 min walk · 500 m"); it turns amber with "tight" when the planned times don't leave enough time.
 - Stops named "(missed)" or ticked Skipped in their details fold into a "Skipped (n)" row at the end of the day, with Bring back. In Today mode, "Skip this stop" does the same.
 - Menu → Bookings lists every booking reference and link by day; tap a reference to copy it.
+
+## 1.4.8 checks
+- Today card: the main button says "Walk there" or "Trains & buses" depending on the next stop.
+- Menu → Bookings → "Add flights & check-ins to calendar": the phone's calendar adds them with reminders (flights 3 h and 1 h before, check-ins 30 min before).
+- The green "Start" tag is gone from each day's first card.
+- Refreshing a linked trip keeps done/spent on stops that were renamed (matched by place and time on the same day).

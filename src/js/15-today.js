@@ -155,7 +155,7 @@
       ${todayChecklistHtml()}
       <div class="tp-actions">
         <button class="btn btn-secondary" onclick="todayStep(-1)" ${todayIdx === 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('previousStop'))}"><i class="fa-solid fa-chevron-left"></i></button>
-        <a class="btn btn-primary tp-grow" href="${escapeHtml(dirUrl)}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right"></i> ${escapeHtml(t('directions'))}</a>
+        <a class="btn btn-primary tp-grow" href="${escapeHtml(dirUrl)}" target="_blank" rel="noopener">${todayDirLabel(from, s)}</a>
         <button class="btn ${s.done ? 'btn-secondary' : 'btn-success'}" onclick="todayMarkDone()"><i class="fa-solid ${s.done ? 'fa-rotate-left' : 'fa-check'}"></i> ${escapeHtml(s.done ? t('notDone') : t('markDone'))}</button>
         <button class="btn btn-secondary" onclick="todayStep(1)" aria-label="${escapeHtml(t('nextStopBtn'))}"><i class="fa-solid fa-chevron-right"></i></button>
       </div>`;
@@ -326,6 +326,14 @@
     const i = days.indexOf(todayDay), j = days.indexOf(d);
     if (j === -1 || i === j) return;
     todaySwitchDay(j - i);
+  }
+  // The directions button says how you'll get there: walk, or trains and buses (opens Google Maps for times)
+  function todayDirLabel(from, s) {
+    if (!hasCoords(s)) return `<i class="fa-solid fa-diamond-turn-right"></i> ${escapeHtml(t('directions'))}`;
+    const m = directionsMode(from, s);
+    if (m === 'walking') return `<i class="fa-solid fa-person-walking"></i> ${escapeHtml(t('dirWalk'))}`;
+    if (m === 'transit') return `<i class="fa-solid fa-train-subway"></i> ${escapeHtml(t('dirTransit'))}`;
+    return `<i class="fa-solid fa-car"></i> ${escapeHtml(t('directions'))}`;
   }
   // Looking at another day in Today mode: one tap back to today
   function todayBackHtml() {

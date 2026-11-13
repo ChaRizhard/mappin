@@ -305,7 +305,7 @@
                   <button class="card-action-btn" title="${escapeHtml(t('deleteT'))}" onclick="deleteCard(${item.id})"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </div>
-              <div class="card-meta"><span class="cat-tag" title="${escapeHtml(t('changeCategory'))}" onclick="editCategory(${item.id}, event)"><i class="fa-solid ${categoryIcon(item.category)}"></i> ${escapeHtml(item.category)}</span> ${dateChip} ${costChipHtml(item)} ${bookingChipHtml(item)} ${hoursWarningHtml(item)} ${isStart ? `<b style="color:#10b981">• ${escapeHtml(t('start'))}</b>` : ''} ${locTag}</div>
+              <div class="card-meta"><span class="cat-tag" title="${escapeHtml(t('changeCategory'))}" onclick="editCategory(${item.id}, event)"><i class="fa-solid ${categoryIcon(item.category)}"></i> ${escapeHtml(item.category)}</span> ${dateChip} ${costChipHtml(item)} ${bookingChipHtml(item)} ${hoursWarningHtml(item)} ${locTag}</div>
               <div class="card-desc-editable" onclick="queueInlineEdit('desc', ${item.id}, event)">${escapeHtml(item.desc || item.address || t('clickNotes'))}</div>
             </div>`;
           targetContainer.appendChild(card);

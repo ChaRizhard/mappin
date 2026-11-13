@@ -1435,6 +1435,9 @@
       padding: 0 10px; height: 34px; font: 600 14px ui-monospace, SFMono-Regular, Menlo, monospace; cursor: pointer; letter-spacing: .03em; }
     .bk-ref i { font-size: 12px; color: var(--text-muted); }
     .bk-link { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--panel-border); color: var(--accent-blue); }
+    /* 1.4.8 */
+    .bk-cal { width: 100%; justify-content: center; margin-bottom: 4px; }
+    .bk-cal-note { margin: 0 0 12px; text-align: center; }
   </style>
 </head>
 <body>
@@ -2287,7 +2290,12 @@
       stopSkipped: "Skipped {name}",
       skipStop: "Skip this stop",
       bookings: "Bookings",
-      bookingsEmpty: "No booking references yet. Add one in a stop’s details (Booking ref or link) and it shows up here."
+      bookingsEmpty: "No booking references yet. Add one in a stop’s details (Booking ref or link) and it shows up here.",
+      dirWalk: "Walk there",
+      dirTransit: "Trains & buses",
+      keyEventsAdd: "Add flights & check-ins to calendar ({n})",
+      keyEventsNote: "Your phone’s calendar reminds you 3 h and 1 h before flights, and 30 min before check-ins, even when MapPin is closed.",
+      keyEventsNone: "No upcoming flights, check-ins or bookings with a date."
     },
     ja: {
       language: "言語",
@@ -2783,7 +2791,12 @@
       stopSkipped: "{name} をスキップしました",
       skipStop: "このスポットをスキップ",
       bookings: "予約",
-      bookingsEmpty: "予約番号はまだありません。スポットの詳細で予約番号やリンクを入れるとここに表示されます。"
+      bookingsEmpty: "予約番号はまだありません。スポットの詳細で予約番号やリンクを入れるとここに表示されます。",
+      dirWalk: "歩いて行く",
+      dirTransit: "電車・バス",
+      keyEventsAdd: "フライトとチェックインをカレンダーに追加（{n}）",
+      keyEventsNote: "MapPin を閉じていても、カレンダーがフライトの 3 時間前と 1 時間前、チェックインの 30 分前に通知します。",
+      keyEventsNone: "日付のある今後のフライト・チェックイン・予約はありません。"
     },
     zh: {
       language: "语言",
@@ -3279,7 +3292,12 @@
       stopSkipped: "已跳过 {name}",
       skipStop: "跳过此地点",
       bookings: "预订",
-      bookingsEmpty: "还没有预订编号。在地点详情中填写预订编号或链接后会显示在这里。"
+      bookingsEmpty: "还没有预订编号。在地点详情中填写预订编号或链接后会显示在这里。",
+      dirWalk: "步行前往",
+      dirTransit: "火车和巴士",
+      keyEventsAdd: "将航班和入住添加到日历（{n}）",
+      keyEventsNote: "即使关闭 MapPin，日历也会在航班前 3 小时和 1 小时、入住前 30 分钟提醒你。",
+      keyEventsNone: "没有带日期的后续航班、入住或预订。"
     },
     ko: {
       language: "언어",
@@ -3775,7 +3793,12 @@
       stopSkipped: "{name} 건너뜀",
       skipStop: "이 장소 건너뛰기",
       bookings: "예약",
-      bookingsEmpty: "아직 예약 번호가 없어요. 장소 상세에서 예약 번호나 링크를 넣으면 여기에 보여요."
+      bookingsEmpty: "아직 예약 번호가 없어요. 장소 상세에서 예약 번호나 링크를 넣으면 여기에 보여요.",
+      dirWalk: "걸어서 가기",
+      dirTransit: "기차·버스",
+      keyEventsAdd: "항공편과 체크인을 캘린더에 추가 ({n})",
+      keyEventsNote: "MapPin을 닫아도 캘린더가 항공편 3시간 전과 1시간 전, 체크인 30분 전에 알려줘요.",
+      keyEventsNone: "날짜가 있는 다가오는 항공편, 체크인, 예약이 없어요."
     },
     es: {
       language: "Idioma",
@@ -4276,7 +4299,12 @@
       stopSkipped: "Omitida: {name}",
       skipStop: "Omitir esta parada",
       bookings: "Reservas",
-      bookingsEmpty: "Aún no hay referencias de reserva. Añade una en los detalles de una parada y aparecerá aquí."
+      bookingsEmpty: "Aún no hay referencias de reserva. Añade una en los detalles de una parada y aparecerá aquí.",
+      dirWalk: "Ir a pie",
+      dirTransit: "Trenes y buses",
+      keyEventsAdd: "Añadir vuelos y check-ins al calendario ({n})",
+      keyEventsNote: "El calendario del móvil te avisa 3 h y 1 h antes de los vuelos y 30 min antes de los check-ins, aunque MapPin esté cerrado.",
+      keyEventsNone: "No hay vuelos, check-ins ni reservas con fecha próximos."
     },
     fr: {
       language: "Langue",
@@ -4777,7 +4805,12 @@
       stopSkipped: "{name} passée",
       skipStop: "Passer cette étape",
       bookings: "Réservations",
-      bookingsEmpty: "Aucune référence de réservation. Ajoutez-en une dans les détails d’une étape pour la voir ici."
+      bookingsEmpty: "Aucune référence de réservation. Ajoutez-en une dans les détails d’une étape pour la voir ici.",
+      dirWalk: "Y aller à pied",
+      dirTransit: "Trains et bus",
+      keyEventsAdd: "Ajouter vols et arrivées à l’hôtel au calendrier ({n})",
+      keyEventsNote: "Le calendrier du téléphone vous prévient 3 h et 1 h avant les vols, et 30 min avant les arrivées, même MapPin fermé.",
+      keyEventsNone: "Aucun vol, arrivée ou réservation datée à venir."
     },
     de: {
       language: "Sprache",
@@ -5278,7 +5311,12 @@
       stopSkipped: "{name} übersprungen",
       skipStop: "Diesen Stopp überspringen",
       bookings: "Buchungen",
-      bookingsEmpty: "Noch keine Buchungsnummern. Trage eine in den Details eines Stopps ein, dann erscheint sie hier."
+      bookingsEmpty: "Noch keine Buchungsnummern. Trage eine in den Details eines Stopps ein, dann erscheint sie hier.",
+      dirWalk: "Zu Fuß",
+      dirTransit: "Bahn & Bus",
+      keyEventsAdd: "Flüge & Check-ins zum Kalender hinzufügen ({n})",
+      keyEventsNote: "Der Kalender erinnert dich 3 h und 1 h vor Flügen und 30 Min. vor Check-ins, auch wenn MapPin geschlossen ist.",
+      keyEventsNone: "Keine anstehenden Flüge, Check-ins oder Buchungen mit Datum."
     }
   };
 
@@ -6181,11 +6219,27 @@
     let nextId = rawData.reduce((m, o) => Math.max(m, Number(o.id) || 0), 0) + 1;
     let updated = 0, added = 0;
     const kept = new Set();
+    // Match by name first; a stop that was renamed is still found by being at the same spot on the same day
+    const matchOf = new Map();
     rows.forEach(r => {
       const list = pool[keyOf(r)];
       const old = list && (list.find(o => o.day === r.day) || list[0]);
+      if (old) { list.splice(list.indexOf(old), 1); matchOf.set(r, old); }
+    });
+    const leftovers = Object.values(pool).flat();
+    rows.forEach(r => {
+      if (matchOf.has(r) || !hasCoords(r)) return;
+      let best = null, bestD = 120;
+      leftovers.forEach(o => {
+        if (o.day !== r.day || !hasCoords(o)) return;
+        const d = distMeters([r.lat, r.lng], [o.lat, o.lng]) + (o.time && o.time === r.time ? 0 : 40); // same time breaks ties
+        if (d < bestD) { best = o; bestD = d; }
+      });
+      if (best) { leftovers.splice(leftovers.indexOf(best), 1); matchOf.set(r, best); }
+    });
+    rows.forEach(r => {
+      const old = matchOf.get(r);
       if (!old) { r.id = nextId++; added++; return; }
-      list.splice(list.indexOf(old), 1);
       kept.add(old.id);
       updated++;
       r.id = old.id;
@@ -7119,7 +7173,7 @@
                   <button class="card-action-btn" title="${escapeHtml(t('deleteT'))}" onclick="deleteCard(${item.id})"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </div>
-              <div class="card-meta"><span class="cat-tag" title="${escapeHtml(t('changeCategory'))}" onclick="editCategory(${item.id}, event)"><i class="fa-solid ${categoryIcon(item.category)}"></i> ${escapeHtml(item.category)}</span> ${dateChip} ${costChipHtml(item)} ${bookingChipHtml(item)} ${hoursWarningHtml(item)} ${isStart ? `<b style="color:#10b981">• ${escapeHtml(t('start'))}</b>` : ''} ${locTag}</div>
+              <div class="card-meta"><span class="cat-tag" title="${escapeHtml(t('changeCategory'))}" onclick="editCategory(${item.id}, event)"><i class="fa-solid ${categoryIcon(item.category)}"></i> ${escapeHtml(item.category)}</span> ${dateChip} ${costChipHtml(item)} ${bookingChipHtml(item)} ${hoursWarningHtml(item)} ${locTag}</div>
               <div class="card-desc-editable" onclick="queueInlineEdit('desc', ${item.id}, event)">${escapeHtml(item.desc || item.address || t('clickNotes'))}</div>
             </div>`;
           targetContainer.appendChild(card);
@@ -9468,7 +9522,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.7';
+  const APP_VERSION = '1.4.8';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -10568,7 +10622,7 @@
       ${todayChecklistHtml()}
       <div class="tp-actions">
         <button class="btn btn-secondary" onclick="todayStep(-1)" ${todayIdx === 0 ? 'disabled' : ''} aria-label="${escapeHtml(t('previousStop'))}"><i class="fa-solid fa-chevron-left"></i></button>
-        <a class="btn btn-primary tp-grow" href="${escapeHtml(dirUrl)}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right"></i> ${escapeHtml(t('directions'))}</a>
+        <a class="btn btn-primary tp-grow" href="${escapeHtml(dirUrl)}" target="_blank" rel="noopener">${todayDirLabel(from, s)}</a>
         <button class="btn ${s.done ? 'btn-secondary' : 'btn-success'}" onclick="todayMarkDone()"><i class="fa-solid ${s.done ? 'fa-rotate-left' : 'fa-check'}"></i> ${escapeHtml(s.done ? t('notDone') : t('markDone'))}</button>
         <button class="btn btn-secondary" onclick="todayStep(1)" aria-label="${escapeHtml(t('nextStopBtn'))}"><i class="fa-solid fa-chevron-right"></i></button>
       </div>`;
@@ -10739,6 +10793,14 @@
     const i = days.indexOf(todayDay), j = days.indexOf(d);
     if (j === -1 || i === j) return;
     todaySwitchDay(j - i);
+  }
+  // The directions button says how you'll get there: walk, or trains and buses (opens Google Maps for times)
+  function todayDirLabel(from, s) {
+    if (!hasCoords(s)) return `<i class="fa-solid fa-diamond-turn-right"></i> ${escapeHtml(t('directions'))}`;
+    const m = directionsMode(from, s);
+    if (m === 'walking') return `<i class="fa-solid fa-person-walking"></i> ${escapeHtml(t('dirWalk'))}`;
+    if (m === 'transit') return `<i class="fa-solid fa-train-subway"></i> ${escapeHtml(t('dirTransit'))}`;
+    return `<i class="fa-solid fa-car"></i> ${escapeHtml(t('directions'))}`;
   }
   // Looking at another day in Today mode: one tap back to today
   function todayBackHtml() {
@@ -12023,8 +12085,9 @@
   }
 
   function downloadDayCalendar(day) {
-    const ics = dayIcs(day);
-    const name = `MapPin_${(getDayTitle(day) || 'Day').replace(/[^\p{L}\p{N}]+/gu, '_')}.ics`;
+    downloadIcs(`MapPin_${(getDayTitle(day) || 'Day').replace(/[^\p{L}\p{N}]+/gu, '_')}.ics`, dayIcs(day));
+  }
+  function downloadIcs(name, ics) {
     if (isIos() && !IS_NATIVE) {
       // iPhone: opening the calendar file shows Apple's "Add All" screen
       const a = document.createElement('a');
@@ -12797,10 +12860,10 @@
     if (!list.length) return '';
     const first = list[0];
     const iso = typeof dayDateIso === 'function' ? dayDateIso(next) : null;
-    const todayHotel = todayStops().filter(s => /hotel/i.test(s.category || '')).map(s => normKey(s.cleanTitle || s.title));
+    const todayHotel = todayStops().filter(s => HOTEL_CAT.test(s.category || '')).map(s => normKey(s.cleanTitle || s.title));
     // Things worth knowing tonight: journeys, a new hotel and anything at a fixed time
     const key = list.filter(s => s !== first && (s.fixedTime || /transport|flight/i.test(s.category || '') ||
-      (/hotel/i.test(s.category || '') && !todayHotel.includes(normKey(s.cleanTitle || s.title))))).slice(0, 3);
+      (HOTEL_CAT.test(s.category || '') && !todayHotel.includes(normKey(s.cleanTitle || s.title))))).slice(0, 3);
     const line = s => `<div class="tpt-row"><i class="fa-solid ${categoryIcon(s.category)}"></i>${s.time ? `<b>${escapeHtml(s.time)}</b>` : ''}<span>${escapeHtml(s.cleanTitle || s.title)}</span></div>`;
     return `<div class="tp-tomorrow">
       <div class="tpt-label">${escapeHtml(t('tomorrowLabel'))} · ${escapeHtml(getDayTitle(next))}${iso ? ` · ${escapeHtml(formatDateShort(iso))}` : ''}</div>
@@ -12852,7 +12915,7 @@
     const R = Math.max(80, acc), now = Date.now();
     let ask = null;
     todayStops().forEach(s => {
-      if (s.done || !hasCoords(s) || arrivalDismissed.has(s.id) || /hotel/i.test(s.category || '')) { delete nearSince[s.id]; return; }
+      if (s.done || !hasCoords(s) || arrivalDismissed.has(s.id) || HOTEL_CAT.test(s.category || '')) { delete nearSince[s.id]; return; }
       const d = distMeters([c.latitude, c.longitude], [s.lat, s.lng]);
       if (d <= R) {
         nearSince[s.id] = nearSince[s.id] || now;
@@ -12972,10 +13035,10 @@
     const body = $('bookings-body');
     if (!body) return;
     const list = rawData.filter(s => (s.bookingRef || s.bookingUrl) && !isSkipped(s));
-    if (!list.length) { body.innerHTML = `<p class="settings-note ex-empty">${escapeHtml(t('bookingsEmpty'))}</p>`; return; }
+    if (!list.length) { body.innerHTML = keyEventsButtonHtml() + `<p class="settings-note ex-empty">${escapeHtml(t('bookingsEmpty'))}</p>`; return; }
     const today = todayDayNumber();
     const days = [...new Set(list.map(s => s.day))].sort((a, b) => a - b);
-    body.innerHTML = days.map(d => {
+    body.innerHTML = keyEventsButtonHtml() + days.map(d => {
       const iso = typeof dayDateIso === 'function' ? dayDateIso(d) : null;
       const items = dayDisplayOrder(d).filter(s => list.includes(s));
       return `<div class="bk-day ${d === today ? 'is-today' : ''} ${today !== null && d < today ? 'is-past' : ''}">
@@ -12991,6 +13054,55 @@
         </div>`).join('')}
       </div>`;
     }).join('');
+  }
+
+  /* ---------- Flights and hotel check-ins to the phone's calendar (with reminders) ---------- */
+  const HOTEL_CAT = /hotel|accommodation|lodging|hostel|ryokan|guesthouse/i;
+  const FLIGHT_RE = /\b(flight|airport|airlines?|peach|jetstar|qantas|jal|ana|zipair|terminal)\b|✈/i;
+  const CHECK_RE = /check[\s-]?(in|out)/i;
+  function keyEventKind(s) {
+    if (isSkipped(s) || !effectiveDate(s)) return null;
+    const text = `${s.title || ''} ${s.desc || ''}`;
+    if (FLIGHT_RE.test(text) && /^\d{1,2}:\d{2}$/.test(s.time || '') && (s.bookingRef || /\b[A-Z0-9]{2}\s?\d{2,4}\b/.test(text))) return 'flight';
+    if (HOTEL_CAT.test(s.category || '') && CHECK_RE.test(text)) return 'hotel';
+    if (s.bookingRef) return 'booking';
+    return null;
+  }
+  function keyEvents() {
+    const today = typeof isoFromDate === 'function' ? isoFromDate(new Date()) : '';
+    return rawData.filter(s => keyEventKind(s) && effectiveDate(s) >= today)
+      .sort((a, b) => effectiveDate(a).localeCompare(effectiveDate(b)) || String(a.time || '').localeCompare(String(b.time || '')));
+  }
+  function keyEventsIcs(list) {
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MapPin//Trip planner//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+    list.forEach(s => {
+      const kind = keyEventKind(s), tm = stopTimes(s, effectiveDate(s)), desc = stopDescription(s);
+      lines.push('BEGIN:VEVENT', `UID:mappin-key-${s.id}-${tm.start}@mappin`, `DTSTAMP:${stamp}`);
+      if (tm.allDay) lines.push(`DTSTART;VALUE=DATE:${tm.start}`, `DTEND;VALUE=DATE:${tm.end}`);
+      else lines.push(`DTSTART:${tm.start}`, `DTEND:${tm.end}`);
+      lines.push(icsFold(`SUMMARY:${icsEscape(`${kind === 'flight' ? '✈ ' : kind === 'hotel' ? '🏨 ' : ''}${s.cleanTitle || s.title}`)}`));
+      if (s.address || hasCoords(s)) lines.push(icsFold(`LOCATION:${icsEscape(s.address || `${s.lat},${s.lng}`)}`));
+      if (desc) lines.push(icsFold(`DESCRIPTION:${icsEscape(desc)}`));
+      // Reminders: flights 3 hours and 1 hour before, everything else 30 minutes before
+      (kind === 'flight' ? ['-PT3H', '-PT1H'] : ['-PT30M']).forEach(tr => {
+        lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', icsFold(`DESCRIPTION:${icsEscape(s.cleanTitle || s.title)}`), `TRIGGER:${tr}`, 'END:VALARM');
+      });
+      lines.push('END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    return lines.join('\r\n') + '\r\n';
+  }
+  function addKeyEventsToCalendar() {
+    const list = keyEvents();
+    if (!list.length) { showToast(t('keyEventsNone'), { ms: 4000 }); return; }
+    downloadIcs(`MapPin_${(TRIP.title || 'Trip').replace(/[^\p{L}\p{N}]+/gu, '_')}_flights_and_hotels.ics`, keyEventsIcs(list));
+  }
+  function keyEventsButtonHtml() {
+    const n = keyEvents().length;
+    if (!n) return '';
+    return `<button class="btn btn-primary bk-cal" onclick="addKeyEventsToCalendar()"><i class="fa-regular fa-calendar-plus"></i> ${escapeHtml(t('keyEventsAdd', { n }))}</button>
+      <p class="settings-note bk-cal-note">${escapeHtml(t('keyEventsNote'))}</p>`;
   }
 
   /* ===== 99-boot.js ===== */
