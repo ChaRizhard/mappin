@@ -35,6 +35,7 @@
     if (id === 'settings-modal') closeSettings();
     else if (id === 'checklist-modal') closeChecklist();
     else if (id === 'expenses-modal') closeExpenses();
+    else if (id === 'bookings-modal') closeBookings();
     else if (id === 'import-link-modal') closeImportLink();
     else if (id === 'single-item-modal') closeSingleItemModal();
     else if (id === 'color-modal') closeMasterColorModal();

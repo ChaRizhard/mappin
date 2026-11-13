@@ -8,7 +8,7 @@
     const days = getAllDays();
     const next = days[days.indexOf(todayDay) + 1];
     if (next === undefined) return `<div class="tp-tomorrow"><div class="tpt-label">${escapeHtml(t('tripLastDay'))}</div></div>`;
-    const list = dayDisplayOrder(next);
+    const list = dayDisplayOrder(next).filter(s => !isSkipped(s));
     if (!list.length) return '';
     const first = list[0];
     const iso = typeof dayDateIso === 'function' ? dayDateIso(next) : null;

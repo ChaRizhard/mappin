@@ -44,6 +44,7 @@
           <div class="context-menu-item" onclick="closeAppMenu(); openMasterColorModal()"><i class="fa-solid fa-palette"></i> <span data-i18n="coloursTitles">Colours &amp; titles</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openChecklist()"><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openExpenses()"><i class="fa-solid fa-wallet"></i> <span data-i18n="expenses">Expenses</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openBookings()"><i class="fa-solid fa-ticket"></i> <span data-i18n="bookings">Bookings</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); printItinerary()"><i class="fa-solid fa-print"></i> <span data-i18n="printPdf">Print or save as PDF</span></div>
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); shareTrip()"><i class="fa-solid fa-link"></i> <span data-i18n="shareLink">Copy share link</span></div>
@@ -225,6 +226,16 @@
       <i class="fa-solid fa-xmark modal-close-x" onclick="closeImportLink()"></i>
     </div>
     <div id="import-link-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bookings-modal" onclick="if(event.target.id==='bookings-modal')closeBookings()">
+  <div class="modal-box" style="width: 480px;">
+    <div class="modal-title">
+      <span><i class="fa-solid fa-ticket"></i> <span data-i18n="bookings">Bookings</span></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeBookings()"></i>
+    </div>
+    <div id="bookings-body"></div>
   </div>
 </div>
 

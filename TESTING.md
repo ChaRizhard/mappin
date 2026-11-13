@@ -82,3 +82,8 @@ Do it once in the **Home Screen app** (iPhone) or the **installed app** (Android
 - Finish today's stops in Today mode: a "Tomorrow" card shows the first stop and any journeys, new hotel or fixed times, with See tomorrow.
 - With location allowed, stay at one of today's stops for 3 minutes with MapPin open: it asks "You're at …. Mark it done?" (Done / Not now / Stop asking; also in Settings). Hotels are skipped.
 - In Today mode on a phone, the trip summary card is hidden to give the day more room.
+
+## 1.4.7 checks
+- Straight-line routes: between cards you see a journey estimate (e.g. "~9 min walk · 500 m"); it turns amber with "tight" when the planned times don't leave enough time.
+- Stops named "(missed)" or ticked Skipped in their details fold into a "Skipped (n)" row at the end of the day, with Bring back. In Today mode, "Skip this stop" does the same.
+- Menu → Bookings lists every booking reference and link by day; tap a reference to copy it.

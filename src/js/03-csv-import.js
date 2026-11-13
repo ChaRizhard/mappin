@@ -130,7 +130,8 @@
     stay: ['staymin', 'stay', 'duration', 'durationmin', 'stayminutes', 'minutes', 'length'],
     fixed: ['fixedtime', 'fixed', 'booked', 'reservation', 'reserved'],
     openinghours: ['openinghours', 'openinghour', 'openhours'],
-    daytitle: ['daytitle', 'dayname', 'daylabel', 'daytheme']
+    daytitle: ['daytitle', 'dayname', 'daylabel', 'daytheme'],
+    skipped: ['skipped', 'skip', 'missed']
   };
 
   function normKey(k) { return String(k || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -144,7 +145,7 @@
       for (const alias of COLUMN_ALIASES[field]) if (alias in normMap) return normMap[alias];
       return null;
     };
-    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
+    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'skipped', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
       let col = resolve(f);
       if (col && f === 'address' && used.name === col) {
         col = COLUMN_ALIASES.address.filter(a => a !== 'location').map(a => normMap[a]).find(Boolean) || null;
@@ -243,6 +244,7 @@
         bookingRef: get(item, 'bookingref') || '', bookingUrl: get(item, 'bookinglink') || '',
         stay: (() => { const v = parseInt(get(item, 'stay')); return isNaN(v) ? null : v; })(),
         fixedTime: /^(y|yes|true|1|x|✓|✔|booked|fixed)$/i.test(get(item, 'fixed')),
+        skipped: /^(y|yes|true|1|x|✓|✔|skipped|missed)$/i.test(get(item, 'skipped')) || undefined,
         hours: get(item, 'openinghours') || undefined,
         hoursChecked: !!get(item, 'openinghours'),
         _dayTitle: dayTitle, _catGiven: !!catRaw
@@ -334,7 +336,7 @@
       if (r.pending && hasCoords(old) && sameAddress) {
         r.lat = old.lat; r.lng = old.lng; r.pending = false; r.approx = old.approx; r.notFound = false; r.cityKey = old.cityKey;
       }
-      ['done', 'locked', 'osmTags', 'osmRef', 'photo', 'fixedTime'].forEach(k => { if (old[k] !== undefined && r[k] === undefined) r[k] = old[k]; });
+      ['done', 'locked', 'osmTags', 'osmRef', 'photo', 'fixedTime', 'skipped'].forEach(k => { if (old[k] !== undefined && r[k] === undefined) r[k] = old[k]; });
       if (old.done) r.done = true;
     });
     const removed = rawData.filter(o => !kept.has(o.id)).length;

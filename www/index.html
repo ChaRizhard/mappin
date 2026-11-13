@@ -1407,6 +1407,34 @@
     .tp-arrive-off { background: none; border: 0; color: var(--text-muted); font-size: 12px; text-decoration: underline; cursor: pointer; padding: 4px; }
     /* The trip summary makes way for the day's stops while Today is on (phones) */
     @media (max-width: 820px) and (min-height: 521px), (max-height: 520px) { html.today-on #trip-summary { display: none; } }
+    /* 1.4.7: journey estimates, skipped stops, booking wallet */
+    .travel-pill.est.tight { color: #f59e0b; }
+    .travel-pill.est.tight i { color: #f59e0b; }
+    .travel-pill.est.tight b { font-weight: 800; }
+    .skipped-block { margin: 4px 0 6px; border: 1px dashed var(--panel-border); border-radius: 12px; padding: 0 10px; }
+    .skipped-block summary { list-style: none; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); font-weight: 600; padding: 9px 2px; cursor: pointer; }
+    .skipped-block summary::-webkit-details-marker { display: none; }
+    .skipped-block .sk-chev { margin-left: auto; font-size: 11px; transition: transform .2s; }
+    .skipped-block[open] .sk-chev { transform: rotate(180deg); }
+    .skipped-row { display: flex; align-items: center; gap: 8px; padding: 6px 2px; border-top: 1px solid var(--panel-border); font-size: 13px; color: var(--text-muted); }
+    .skipped-row > i { width: 16px; text-align: center; }
+    .sk-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: line-through; cursor: pointer; }
+    .sk-back { height: 30px; font-size: 12px; padding: 0 10px; }
+    .tp-skip { margin-top: 6px; background: none; border: 0; padding: 4px 0; color: var(--text-muted); font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+    .bk-day { margin-bottom: 12px; }
+    .bk-day.is-past { opacity: 0.55; }
+    .bk-day-title { font-size: 13px; font-weight: 800; color: var(--accent-blue); margin-bottom: 4px; }
+    .bk-day.is-today .bk-day-title { color: #10b981; }
+    .bk-day-title span { color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+    .bk-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--panel-border); }
+    .bk-icon { color: var(--text-muted); width: 18px; text-align: center; }
+    .bk-main { flex: 1; min-width: 0; cursor: pointer; }
+    .bk-name { font-weight: 600; font-size: 14px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bk-time { font-size: 12px; color: var(--text-muted); }
+    .bk-ref { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--panel-border); background: var(--tint); color: var(--text-main); border-radius: 8px;
+      padding: 0 10px; height: 34px; font: 600 14px ui-monospace, SFMono-Regular, Menlo, monospace; cursor: pointer; letter-spacing: .03em; }
+    .bk-ref i { font-size: 12px; color: var(--text-muted); }
+    .bk-link { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--panel-border); color: var(--accent-blue); }
   </style>
 </head>
 <body>
@@ -1455,6 +1483,7 @@
           <div class="context-menu-item" onclick="closeAppMenu(); openMasterColorModal()"><i class="fa-solid fa-palette"></i> <span data-i18n="coloursTitles">Colours &amp; titles</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openChecklist()"><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openExpenses()"><i class="fa-solid fa-wallet"></i> <span data-i18n="expenses">Expenses</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); openBookings()"><i class="fa-solid fa-ticket"></i> <span data-i18n="bookings">Bookings</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); printItinerary()"><i class="fa-solid fa-print"></i> <span data-i18n="printPdf">Print or save as PDF</span></div>
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); shareTrip()"><i class="fa-solid fa-link"></i> <span data-i18n="shareLink">Copy share link</span></div>
@@ -1636,6 +1665,16 @@
       <i class="fa-solid fa-xmark modal-close-x" onclick="closeImportLink()"></i>
     </div>
     <div id="import-link-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bookings-modal" onclick="if(event.target.id==='bookings-modal')closeBookings()">
+  <div class="modal-box" style="width: 480px;">
+    <div class="modal-title">
+      <span><i class="fa-solid fa-ticket"></i> <span data-i18n="bookings">Bookings</span></span>
+      <i class="fa-solid fa-xmark modal-close-x" onclick="closeBookings()"></i>
+    </div>
+    <div id="bookings-body"></div>
   </div>
 </div>
 
@@ -2118,8 +2157,8 @@
       spentHint: "Spent so far (planned cost in grey)",
       booking: "Booking",
       openBooking: "Open booking",
-      copyRef: "Copy booking ref",
-      refCopied: "Booking ref copied",
+      copyRef: "Copy reference",
+      refCopied: "Copied {ref}",
       copy: "Copy",
       open: "Open",
       recentSearches: "Recent",
@@ -2238,7 +2277,17 @@
       arriveNotNow: "Not now",
       arriveStopAsking: "Stop asking",
       arriveTurnedOff: "OK, MapPin won’t ask. Turn it back on in Settings.",
-      arrivalsSetting: "Ask to mark a stop done when I’m there"
+      arrivalsSetting: "Ask to mark a stop done when I’m there",
+      legTight: "tight",
+      skippedN: "Skipped ({n})",
+      bringBack: "Bring back",
+      skippedLabel: "Skipped",
+      skippedHint: "folds it away at the end of the day",
+      stopBack: "{name} is back in the plan",
+      stopSkipped: "Skipped {name}",
+      skipStop: "Skip this stop",
+      bookings: "Bookings",
+      bookingsEmpty: "No booking references yet. Add one in a stop’s details (Booking ref or link) and it shows up here."
     },
     ja: {
       language: "言語",
@@ -2605,7 +2654,7 @@
       booking: "予約",
       openBooking: "予約を開く",
       copyRef: "予約番号をコピー",
-      refCopied: "予約番号をコピーしました",
+      refCopied: "{ref} をコピーしました",
       copy: "コピー",
       open: "開く",
       recentSearches: "最近の検索",
@@ -2724,7 +2773,17 @@
       arriveNotNow: "あとで",
       arriveStopAsking: "今後は聞かない",
       arriveTurnedOff: "今後は聞きません。設定でオンに戻せます。",
-      arrivalsSetting: "スポットに着いたら完了にするか聞く"
+      arrivalsSetting: "スポットに着いたら完了にするか聞く",
+      legTight: "ギリギリ",
+      skippedN: "スキップ（{n}）",
+      bringBack: "戻す",
+      skippedLabel: "スキップ",
+      skippedHint: "その日の最後にまとめて表示",
+      stopBack: "{name} を予定に戻しました",
+      stopSkipped: "{name} をスキップしました",
+      skipStop: "このスポットをスキップ",
+      bookings: "予約",
+      bookingsEmpty: "予約番号はまだありません。スポットの詳細で予約番号やリンクを入れるとここに表示されます。"
     },
     zh: {
       language: "语言",
@@ -3090,8 +3149,8 @@
       spentHint: "目前花费（计划费用为灰色）",
       booking: "预订",
       openBooking: "打开预订",
-      copyRef: "复制预订号",
-      refCopied: "已复制预订号",
+      copyRef: "复制编号",
+      refCopied: "已复制 {ref}",
       copy: "复制",
       open: "打开",
       recentSearches: "最近搜索",
@@ -3210,7 +3269,17 @@
       arriveNotNow: "稍后",
       arriveStopAsking: "不再询问",
       arriveTurnedOff: "好的，不再询问。可在设置中重新开启。",
-      arrivalsSetting: "到达地点时询问是否标记完成"
+      arrivalsSetting: "到达地点时询问是否标记完成",
+      legTight: "时间紧",
+      skippedN: "已跳过（{n}）",
+      bringBack: "恢复",
+      skippedLabel: "已跳过",
+      skippedHint: "收到当天最后",
+      stopBack: "{name} 已回到计划中",
+      stopSkipped: "已跳过 {name}",
+      skipStop: "跳过此地点",
+      bookings: "预订",
+      bookingsEmpty: "还没有预订编号。在地点详情中填写预订编号或链接后会显示在这里。"
     },
     ko: {
       language: "언어",
@@ -3577,7 +3646,7 @@
       booking: "예약",
       openBooking: "예약 열기",
       copyRef: "예약 번호 복사",
-      refCopied: "예약 번호를 복사했어요",
+      refCopied: "{ref} 복사됨",
       copy: "복사",
       open: "열기",
       recentSearches: "최근 검색",
@@ -3696,7 +3765,17 @@
       arriveNotNow: "나중에",
       arriveStopAsking: "그만 묻기",
       arriveTurnedOff: "이제 묻지 않을게요. 설정에서 다시 켤 수 있어요.",
-      arrivalsSetting: "장소에 도착하면 완료할지 묻기"
+      arrivalsSetting: "장소에 도착하면 완료할지 묻기",
+      legTight: "빠듯함",
+      skippedN: "건너뜀 ({n})",
+      bringBack: "되돌리기",
+      skippedLabel: "건너뜀",
+      skippedHint: "그날 맨 끝에 접어서 표시",
+      stopBack: "{name}을(를) 다시 일정에 넣었어요",
+      stopSkipped: "{name} 건너뜀",
+      skipStop: "이 장소 건너뛰기",
+      bookings: "예약",
+      bookingsEmpty: "아직 예약 번호가 없어요. 장소 상세에서 예약 번호나 링크를 넣으면 여기에 보여요."
     },
     es: {
       language: "Idioma",
@@ -4067,8 +4146,8 @@
       spentHint: "Gastado hasta ahora (lo previsto en gris)",
       booking: "Reserva",
       openBooking: "Abrir reserva",
-      copyRef: "Copiar n.º de reserva",
-      refCopied: "N.º de reserva copiado",
+      copyRef: "Copiar referencia",
+      refCopied: "Copiado {ref}",
       copy: "Copiar",
       open: "Abrir",
       recentSearches: "Recientes",
@@ -4187,7 +4266,17 @@
       arriveNotNow: "Ahora no",
       arriveStopAsking: "No preguntar más",
       arriveTurnedOff: "Vale, MapPin no preguntará. Puedes activarlo en Ajustes.",
-      arrivalsSetting: "Preguntar si marcar una parada al llegar"
+      arrivalsSetting: "Preguntar si marcar una parada al llegar",
+      legTight: "justo",
+      skippedN: "Omitidas ({n})",
+      bringBack: "Recuperar",
+      skippedLabel: "Omitida",
+      skippedHint: "se pliega al final del día",
+      stopBack: "{name} vuelve al plan",
+      stopSkipped: "Omitida: {name}",
+      skipStop: "Omitir esta parada",
+      bookings: "Reservas",
+      bookingsEmpty: "Aún no hay referencias de reserva. Añade una en los detalles de una parada y aparecerá aquí."
     },
     fr: {
       language: "Langue",
@@ -4558,8 +4647,8 @@
       spentHint: "Dépensé jusqu’ici (prévu en gris)",
       booking: "Réservation",
       openBooking: "Ouvrir la réservation",
-      copyRef: "Copier le n° de réservation",
-      refCopied: "N° de réservation copié",
+      copyRef: "Copier la référence",
+      refCopied: "{ref} copié",
       copy: "Copier",
       open: "Ouvrir",
       recentSearches: "Récents",
@@ -4678,7 +4767,17 @@
       arriveNotNow: "Plus tard",
       arriveStopAsking: "Ne plus demander",
       arriveTurnedOff: "D’accord, MapPin ne demandera plus. Réactivez-le dans les réglages.",
-      arrivalsSetting: "Proposer de marquer une étape à l’arrivée"
+      arrivalsSetting: "Proposer de marquer une étape à l’arrivée",
+      legTight: "serré",
+      skippedN: "Passées ({n})",
+      bringBack: "Remettre",
+      skippedLabel: "Passée",
+      skippedHint: "repliée en fin de journée",
+      stopBack: "{name} est de retour dans le plan",
+      stopSkipped: "{name} passée",
+      skipStop: "Passer cette étape",
+      bookings: "Réservations",
+      bookingsEmpty: "Aucune référence de réservation. Ajoutez-en une dans les détails d’une étape pour la voir ici."
     },
     de: {
       language: "Sprache",
@@ -5049,8 +5148,8 @@
       spentHint: "Bisher ausgegeben (geplant in grau)",
       booking: "Buchung",
       openBooking: "Buchung öffnen",
-      copyRef: "Buchungsnr. kopieren",
-      refCopied: "Buchungsnr. kopiert",
+      copyRef: "Nummer kopieren",
+      refCopied: "{ref} kopiert",
       copy: "Kopieren",
       open: "Öffnen",
       recentSearches: "Zuletzt gesucht",
@@ -5169,7 +5268,17 @@
       arriveNotNow: "Später",
       arriveStopAsking: "Nicht mehr fragen",
       arriveTurnedOff: "OK, MapPin fragt nicht mehr. In den Einstellungen wieder einschalten.",
-      arrivalsSetting: "Beim Ankommen fragen, ob ein Stopp erledigt ist"
+      arrivalsSetting: "Beim Ankommen fragen, ob ein Stopp erledigt ist",
+      legTight: "knapp",
+      skippedN: "Übersprungen ({n})",
+      bringBack: "Zurückholen",
+      skippedLabel: "Übersprungen",
+      skippedHint: "wird am Tagesende eingeklappt",
+      stopBack: "{name} ist wieder im Plan",
+      stopSkipped: "{name} übersprungen",
+      skipStop: "Diesen Stopp überspringen",
+      bookings: "Buchungen",
+      bookingsEmpty: "Noch keine Buchungsnummern. Trage eine in den Details eines Stopps ein, dann erscheint sie hier."
     }
   };
 
@@ -5884,7 +5993,8 @@
     stay: ['staymin', 'stay', 'duration', 'durationmin', 'stayminutes', 'minutes', 'length'],
     fixed: ['fixedtime', 'fixed', 'booked', 'reservation', 'reserved'],
     openinghours: ['openinghours', 'openinghour', 'openhours'],
-    daytitle: ['daytitle', 'dayname', 'daylabel', 'daytheme']
+    daytitle: ['daytitle', 'dayname', 'daylabel', 'daytheme'],
+    skipped: ['skipped', 'skip', 'missed']
   };
 
   function normKey(k) { return String(k || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -5898,7 +6008,7 @@
       for (const alias of COLUMN_ALIASES[field]) if (alias in normMap) return normMap[alias];
       return null;
     };
-    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
+    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'skipped', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
       let col = resolve(f);
       if (col && f === 'address' && used.name === col) {
         col = COLUMN_ALIASES.address.filter(a => a !== 'location').map(a => normMap[a]).find(Boolean) || null;
@@ -5997,6 +6107,7 @@
         bookingRef: get(item, 'bookingref') || '', bookingUrl: get(item, 'bookinglink') || '',
         stay: (() => { const v = parseInt(get(item, 'stay')); return isNaN(v) ? null : v; })(),
         fixedTime: /^(y|yes|true|1|x|✓|✔|booked|fixed)$/i.test(get(item, 'fixed')),
+        skipped: /^(y|yes|true|1|x|✓|✔|skipped|missed)$/i.test(get(item, 'skipped')) || undefined,
         hours: get(item, 'openinghours') || undefined,
         hoursChecked: !!get(item, 'openinghours'),
         _dayTitle: dayTitle, _catGiven: !!catRaw
@@ -6088,7 +6199,7 @@
       if (r.pending && hasCoords(old) && sameAddress) {
         r.lat = old.lat; r.lng = old.lng; r.pending = false; r.approx = old.approx; r.notFound = false; r.cityKey = old.cityKey;
       }
-      ['done', 'locked', 'osmTags', 'osmRef', 'photo', 'fixedTime'].forEach(k => { if (old[k] !== undefined && r[k] === undefined) r[k] = old[k]; });
+      ['done', 'locked', 'osmTags', 'osmRef', 'photo', 'fixedTime', 'skipped'].forEach(k => { if (old[k] !== undefined && r[k] === undefined) r[k] = old[k]; });
       if (old.done) r.done = true;
     });
     const removed = rawData.filter(o => !kept.has(o.id)).length;
@@ -6860,10 +6971,14 @@
       return;
     }
 
+    // Skipped / missed stops fold away at the end of their day (no pin, no route, no number)
+    const skippedByDay = {};
+    filtered.filter(isSkipped).forEach(item => { (skippedByDay[item.day] = skippedByDay[item.day] || []).push(item); });
+    const active = filtered.filter(item => !isSkipped(item));
     const byDay = {};
-    filtered.forEach(item => { (byDay[item.day] = byDay[item.day] || []).push(item); });
+    active.forEach(item => { (byDay[item.day] = byDay[item.day] || []).push(item); });
 
-    const located = filtered.filter(hasCoords);
+    const located = active.filter(hasCoords);
     const bounds = L.latLngBounds();
     const clusters = {};
     located.forEach(item => {
@@ -7011,6 +7126,11 @@
 
           // Travel time to the next stop
           const nextItem = hasCoords(item) ? nextLocated[item.id] : null;
+          if (nextItem && routeMode === 'straight') {
+            const pill = document.createElement('div');
+            const est = estimateLegHtml(item, nextItem);
+            if (est) { pill.className = `travel-pill est ${est.tight ? 'tight' : ''}`; pill.innerHTML = est.html; targetContainer.appendChild(pill); }
+          }
           if (nextItem && routeMode !== 'straight') {
             const pill = document.createElement('div');
             pill.className = 'travel-pill';
@@ -7031,6 +7151,7 @@
       }
 
       daySection.appendChild(dayCardContainer);
+      if (skippedByDay[dayNum] && skippedByDay[dayNum].length) daySection.appendChild(makeSkippedBlock(dayNum, skippedByDay[dayNum]));
       parent.appendChild(daySection);
       new Sortable(dayCardContainer, sortableOptions());
     });
@@ -7684,6 +7805,7 @@
       <label class="field-label">${escapeHtml(t('bookingLink'))}</label>
       <input type="url" id="single-burl-input" class="edit-form-input booking-url-input" autocomplete="off" inputmode="url" value="${escapeHtml(item.bookingUrl || '')}" placeholder="https://…">
       <label class="check-row"><input type="checkbox" id="single-fixed-input" ${item.fixedTime ? 'checked' : ''}> ${escapeHtml(t('fixedTime'))} <small>${escapeHtml(t('fixedTimeHint'))}</small></label>
+      <label class="check-row"><input type="checkbox" id="single-skip-input" ${isSkipped(item) ? 'checked' : ''}> ${escapeHtml(t('skippedLabel'))} <small>${escapeHtml(t('skippedHint'))}</small></label>
       <label class="field-label">${escapeHtml(t('coloursLabel'))}</label>
       ${buildColourPickerHtml('single', currentColor)}`);
   }
@@ -7734,6 +7856,8 @@
         const curIn = $('single-cur-input');
         if (curIn) item.currency = curIn.value && curIn.value !== tripCurrency() ? curIn.value : undefined;
         if (fIn) item.fixedTime = fIn.checked;
+        const skIn = $('single-skip-input');
+        if (skIn) setSkipped(item, skIn.checked);
         const spIn = $('single-spent-input'), brIn = $('single-bref-input'), buIn = $('single-burl-input');
         if (spIn) { const v = parseFloat(spIn.value); item.spent = isNaN(v) ? null : v; }
         if (brIn) item.bookingRef = brIn.value.trim();
@@ -9223,7 +9347,7 @@
       'Group': stopToGroup[item.id] && GROUPS[stopToGroup[item.id]] ? GROUPS[stopToGroup[item.id]].name : '',
       'Cost': typeof item.cost === 'number' ? item.cost : '', 'Stay (min)': typeof item.stay === 'number' ? item.stay : '',
       'Fixed time': item.fixedTime ? 'yes' : '', 'Opening hours': item.hours || '',
-      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || ''
+      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || '', 'Skipped': item.skipped ? 'yes' : ''
     }));
     const csv = Papa.unparse(exportData);
     shareFile('MapPin_Itinerary.csv', '﻿' + csv, 'text/csv;charset=utf-8').then(r => { if (r === 'shared' && IS_NATIVE) showToast(t('fileReady'), { ms: 2000 }); }).catch(() => {});
@@ -9344,7 +9468,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.6';
+  const APP_VERSION = '1.4.7';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -10300,7 +10424,7 @@
     return getAllDays().find(d => DAY_DATES[d] === iso || rawData.some(s => s.day === d && s.date === iso)) || null;
   }
 
-  function todayStops() { return todayDay === null ? [] : dayDisplayOrder(todayDay); }
+  function todayStops() { return todayDay === null ? [] : dayDisplayOrder(todayDay).filter(s => !isSkipped(s)); }
 
   function firstOpenIndex() {
     const list = todayStops();
@@ -10437,6 +10561,7 @@
           ${leaveByHtml(from, s, fromKind)}
           ${todayBookingHtml(s)}
           ${s.desc ? `<div class="tp-notes">${escapeHtml(s.desc)}</div>` : ''}
+          ${!s.done ? `<button class="tp-skip" onclick="event.stopPropagation(); skipStop(${s.id})"><i class="fa-solid fa-forward"></i> ${escapeHtml(t('skipStop'))}</button>` : ''}
         </div>
         ${todayPhotos[s.id] ? `<img class="tp-photo" src="${escapeHtml(todayPhotos[s.id])}" alt="" onerror="this.remove()">` : ''}
       </div>
@@ -10500,7 +10625,9 @@
     const real = realTravelMinutes(mode, from, to);
     if (real) return { mins: real, mode, real: true };
     const km = distMeters([from.lat, from.lng], [to.lat, to.lng]) / 1000 * p.detour;
-    return { mins: Math.max(1, Math.round(km / p.kmh * 60 + p.extra)), mode };
+    // Longer transit journeys are mostly fast trains, not city buses
+    const kmh = mode === 'transit' ? (km < 8 ? p.kmh : km < 30 ? 32 : 48) : p.kmh;
+    return { mins: Math.max(1, Math.round(km / kmh * 60 + p.extra)), mode };
   }
 
   function leaveByHtml(from, s, fromKind) {
@@ -11319,6 +11446,7 @@
     if (id === 'settings-modal') closeSettings();
     else if (id === 'checklist-modal') closeChecklist();
     else if (id === 'expenses-modal') closeExpenses();
+    else if (id === 'bookings-modal') closeBookings();
     else if (id === 'import-link-modal') closeImportLink();
     else if (id === 'single-item-modal') closeSingleItemModal();
     else if (id === 'color-modal') closeMasterColorModal();
@@ -12665,7 +12793,7 @@
     const days = getAllDays();
     const next = days[days.indexOf(todayDay) + 1];
     if (next === undefined) return `<div class="tp-tomorrow"><div class="tpt-label">${escapeHtml(t('tripLastDay'))}</div></div>`;
-    const list = dayDisplayOrder(next);
+    const list = dayDisplayOrder(next).filter(s => !isSkipped(s));
     if (!list.length) return '';
     const first = list[0];
     const iso = typeof dayDateIso === 'function' ? dayDateIso(next) : null;
@@ -12764,6 +12892,105 @@
   function toggleArrivals() { setArrivals(!arrivalsOn()); renderSettings(); }
   function arrivalsSettingHtml() {
     return `<div class="settings-row"><span>${escapeHtml(t('arrivalsSetting'))}</span>${switchHtml(arrivalsOn(), 'toggleArrivals()', t('arrivalsSetting'))}</div>`;
+  }
+
+  /* ===== 33-day-extras.js ===== */
+  /* =========================================================
+     1.4.7: journey times between stops, skipped stops folded away, booking wallet
+     ========================================================= */
+
+  /* ---------- Skipped or missed stops ---------- */
+  const SKIP_RE = /\s*\((missed|skipped)\)\s*$/i;
+  function isSkipped(s) { return !!s && (s.skipped === true || SKIP_RE.test(s.title || '')); }
+  function setSkipped(item, on) {
+    if (on) item.skipped = true;
+    else {
+      delete item.skipped;
+      if (SKIP_RE.test(item.title || '')) item.title = item.title.replace(SKIP_RE, '');
+      if (SKIP_RE.test(item.cleanTitle || '')) item.cleanTitle = item.cleanTitle.replace(SKIP_RE, '');
+    }
+  }
+  function unskipStop(id) {
+    const s = rawData.find(x => x.id === id);
+    if (!s) return;
+    setSkipped(s, false);
+    renderItinerary();
+    showToast(t('stopBack', { name: s.cleanTitle || s.title }), { ms: 3000, actionLabel: t('undoBtn'), onAction: undo });
+  }
+  function skipStop(id) {
+    const s = rawData.find(x => x.id === id);
+    if (!s) return;
+    setSkipped(s, true);
+    renderItinerary();
+    showToast(t('stopSkipped', { name: s.cleanTitle || s.title }), { ms: 4000, actionLabel: t('undoBtn'), onAction: undo });
+  }
+  const openSkipped = new Set();
+  function makeSkippedBlock(day, items) {
+    const box = document.createElement('details');
+    box.className = 'skipped-block';
+    if (openSkipped.has(day)) box.open = true;
+    box.addEventListener('toggle', () => { if (box.open) openSkipped.add(day); else openSkipped.delete(day); });
+    box.innerHTML = `<summary><i class="fa-solid fa-forward"></i> ${escapeHtml(t('skippedN', { n: items.length }))} <i class="fa-solid fa-chevron-down sk-chev"></i></summary>
+      ${items.map(s => `<div class="skipped-row">
+        <i class="fa-solid ${categoryIcon(s.category)}"></i>
+        <span class="sk-name" onclick="openSingleStopModal(${s.id})">${escapeHtml((s.cleanTitle || s.title).replace(SKIP_RE, ''))}</span>
+        <button class="btn btn-ghost sk-back" onclick="unskipStop(${s.id})"><i class="fa-solid fa-rotate-left"></i> ${escapeHtml(t('bringBack'))}</button>
+      </div>`).join('')}`;
+    return box;
+  }
+
+  /* ---------- Journey estimate between two stops (straight-line routes) ---------- */
+  function estimateLegHtml(a, b) {
+    const tr = travelMinutes(a, b);
+    if (!tr) return null;
+    const dist = distMeters([a.lat, a.lng], [b.lat, b.lng]);
+    if (dist > 150000 || tr.mins > 240) return { html: `<i class="fa-solid fa-plane-departure"></i> ${escapeHtml(t('longHop', { km: formatDistance(dist) }))}` };
+    const icon = tr.mode === 'walking' ? 'fa-person-walking' : tr.mode === 'driving' ? 'fa-car' : 'fa-train-subway';
+    let label = t(tr.mode === 'walking' ? 'byWalk' : tr.mode === 'driving' ? 'byCar' : 'byTransit', { m: tr.mins });
+    if (tr.real) label = label.replace(/^~\s?/, '');
+    // Tight: not enough time between the two planned times for the journey (after the planned stay)
+    let tight = false;
+    const t1 = toMin(a.time), t2 = toMin(b.time);
+    if (!isNaN(t1) && !isNaN(t2) && t2 >= t1) tight = t2 - t1 - (Number(a.stay) || 0) < tr.mins;
+    return { tight, html: `<i class="fa-solid ${icon}"></i> ${escapeHtml(label)} · ${escapeHtml(formatDistance(dist))}${tight ? ` · <b>${escapeHtml(t('legTight'))}</b>` : ''}` };
+  }
+
+  /* ---------- Booking wallet: every booking reference and link in one place ---------- */
+  function openBookings() {
+    closeMenus(); closeAppMenu();
+    renderBookings();
+    $('bookings-modal').style.display = 'flex';
+  }
+  function closeBookings() { $('bookings-modal').style.display = 'none'; }
+  function copyBookingRef(id) {
+    const s = rawData.find(x => x.id === id);
+    if (!s || !s.bookingRef) return;
+    Promise.resolve(navigator.clipboard && navigator.clipboard.writeText(s.bookingRef))
+      .then(() => showToast(t('refCopied', { ref: s.bookingRef }), { ms: 2200 })).catch(() => prompt('', s.bookingRef));
+  }
+  function renderBookings() {
+    const body = $('bookings-body');
+    if (!body) return;
+    const list = rawData.filter(s => (s.bookingRef || s.bookingUrl) && !isSkipped(s));
+    if (!list.length) { body.innerHTML = `<p class="settings-note ex-empty">${escapeHtml(t('bookingsEmpty'))}</p>`; return; }
+    const today = todayDayNumber();
+    const days = [...new Set(list.map(s => s.day))].sort((a, b) => a - b);
+    body.innerHTML = days.map(d => {
+      const iso = typeof dayDateIso === 'function' ? dayDateIso(d) : null;
+      const items = dayDisplayOrder(d).filter(s => list.includes(s));
+      return `<div class="bk-day ${d === today ? 'is-today' : ''} ${today !== null && d < today ? 'is-past' : ''}">
+        <div class="bk-day-title">${escapeHtml(getDayTitle(d))}${iso ? ` <span>${escapeHtml(formatDateShort(iso))}</span>` : ''}</div>
+        ${items.map(s => `<div class="bk-row">
+          <i class="fa-solid ${categoryIcon(s.category)} bk-icon"></i>
+          <div class="bk-main" onclick="closeBookings(); revealStop(${s.id}, true)">
+            <div class="bk-name">${escapeHtml(s.cleanTitle || s.title)}</div>
+            ${s.time ? `<div class="bk-time"><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</div>` : ''}
+          </div>
+          ${s.bookingRef ? `<button class="bk-ref" onclick="copyBookingRef(${s.id})" title="${escapeHtml(t('copyRef'))}"><span>${escapeHtml(s.bookingRef)}</span> <i class="fa-regular fa-copy"></i></button>` : ''}
+          ${s.bookingUrl ? `<a class="bk-link" href="${escapeHtml(s.bookingUrl)}" target="_blank" rel="noopener" aria-label="${escapeHtml(t('openBooking'))}"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
+        </div>`).join('')}
+      </div>`;
+    }).join('');
   }
 
   /* ===== 99-boot.js ===== */

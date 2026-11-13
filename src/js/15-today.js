@@ -11,7 +11,7 @@
     return getAllDays().find(d => DAY_DATES[d] === iso || rawData.some(s => s.day === d && s.date === iso)) || null;
   }
 
-  function todayStops() { return todayDay === null ? [] : dayDisplayOrder(todayDay); }
+  function todayStops() { return todayDay === null ? [] : dayDisplayOrder(todayDay).filter(s => !isSkipped(s)); }
 
   function firstOpenIndex() {
     const list = todayStops();
@@ -148,6 +148,7 @@
           ${leaveByHtml(from, s, fromKind)}
           ${todayBookingHtml(s)}
           ${s.desc ? `<div class="tp-notes">${escapeHtml(s.desc)}</div>` : ''}
+          ${!s.done ? `<button class="tp-skip" onclick="event.stopPropagation(); skipStop(${s.id})"><i class="fa-solid fa-forward"></i> ${escapeHtml(t('skipStop'))}</button>` : ''}
         </div>
         ${todayPhotos[s.id] ? `<img class="tp-photo" src="${escapeHtml(todayPhotos[s.id])}" alt="" onerror="this.remove()">` : ''}
       </div>
@@ -211,7 +212,9 @@
     const real = realTravelMinutes(mode, from, to);
     if (real) return { mins: real, mode, real: true };
     const km = distMeters([from.lat, from.lng], [to.lat, to.lng]) / 1000 * p.detour;
-    return { mins: Math.max(1, Math.round(km / p.kmh * 60 + p.extra)), mode };
+    // Longer transit journeys are mostly fast trains, not city buses
+    const kmh = mode === 'transit' ? (km < 8 ? p.kmh : km < 30 ? 32 : 48) : p.kmh;
+    return { mins: Math.max(1, Math.round(km / kmh * 60 + p.extra)), mode };
   }
 
   function leaveByHtml(from, s, fromKind) {

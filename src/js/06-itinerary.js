@@ -157,10 +157,14 @@
       return;
     }
 
+    // Skipped / missed stops fold away at the end of their day (no pin, no route, no number)
+    const skippedByDay = {};
+    filtered.filter(isSkipped).forEach(item => { (skippedByDay[item.day] = skippedByDay[item.day] || []).push(item); });
+    const active = filtered.filter(item => !isSkipped(item));
     const byDay = {};
-    filtered.forEach(item => { (byDay[item.day] = byDay[item.day] || []).push(item); });
+    active.forEach(item => { (byDay[item.day] = byDay[item.day] || []).push(item); });
 
-    const located = filtered.filter(hasCoords);
+    const located = active.filter(hasCoords);
     const bounds = L.latLngBounds();
     const clusters = {};
     located.forEach(item => {
@@ -308,6 +312,11 @@
 
           // Travel time to the next stop
           const nextItem = hasCoords(item) ? nextLocated[item.id] : null;
+          if (nextItem && routeMode === 'straight') {
+            const pill = document.createElement('div');
+            const est = estimateLegHtml(item, nextItem);
+            if (est) { pill.className = `travel-pill est ${est.tight ? 'tight' : ''}`; pill.innerHTML = est.html; targetContainer.appendChild(pill); }
+          }
           if (nextItem && routeMode !== 'straight') {
             const pill = document.createElement('div');
             pill.className = 'travel-pill';
@@ -328,6 +337,7 @@
       }
 
       daySection.appendChild(dayCardContainer);
+      if (skippedByDay[dayNum] && skippedByDay[dayNum].length) daySection.appendChild(makeSkippedBlock(dayNum, skippedByDay[dayNum]));
       parent.appendChild(daySection);
       new Sortable(dayCardContainer, sortableOptions());
     });
