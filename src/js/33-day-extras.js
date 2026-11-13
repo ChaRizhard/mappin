@@ -87,7 +87,7 @@
           <i class="fa-solid ${categoryIcon(s.category)} bk-icon"></i>
           <div class="bk-main" onclick="closeBookings(); revealStop(${s.id}, true)">
             <div class="bk-name">${escapeHtml(s.cleanTitle || s.title)}</div>
-            ${s.time ? `<div class="bk-time"><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</div>` : ''}
+            <div class="bk-time">${s.time ? `<i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}` : ''}${bookingDetails(s) ? `${s.time ? ' · ' : ''}${escapeHtml(bookingDetails(s))}` : ''}</div>
           </div>
           ${s.bookingRef ? `<button class="bk-ref" onclick="copyBookingRef(${s.id})" title="${escapeHtml(t('copyRef'))}"><span>${escapeHtml(s.bookingRef)}</span> <i class="fa-regular fa-copy"></i></button>` : ''}
           ${s.bookingUrl ? `<a class="bk-link" href="${escapeHtml(s.bookingUrl)}" target="_blank" rel="noopener" aria-label="${escapeHtml(t('openBooking'))}"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
@@ -143,4 +143,54 @@
     if (!n) return '';
     return `<button class="btn btn-primary bk-cal" onclick="addKeyEventsToCalendar()"><i class="fa-regular fa-calendar-plus"></i> ${escapeHtml(t('keyEventsAdd', { n }))}</button>
       <p class="settings-note bk-cal-note">${escapeHtml(t('keyEventsNote'))}</p>`;
+  }
+
+  /* ---------- 1.4.9: save the next two days for offline (each town on its own, so travel days stay small) ---------- */
+  function placeClusters(stops, km = 12) {
+    const groups = [];
+    stops.filter(hasCoords).forEach(s => {
+      const g = groups.find(g => g.some(o => distMeters([o.lat, o.lng], [s.lat, s.lng]) < km * 1000));
+      if (g) g.push(s); else groups.push([s]);
+    });
+    return groups;
+  }
+  async function saveNextDaysOffline(fromDay) {
+    closeMenus(); closeAppMenu();
+    const days = getAllDays();
+    const start = fromDay !== undefined ? fromDay : (todayDayNumber() !== null ? todayDayNumber() : (activeDay !== 'all' ? activeDay : days[0]));
+    const pick = days.slice(Math.max(0, days.indexOf(start)), Math.max(0, days.indexOf(start)) + 2);
+    const stops = rawData.filter(s => pick.includes(s.day) && !isSkipped(s));
+    // Airports and long journeys are left out of the map areas; towns are what you walk around
+    const areas = placeClusters(stops).filter(g => g.length > 1 || !FLIGHT_RE.test(g[0].title || ''));
+    if (!areas.length) { showToast(t('offlineNoStops'), { ms: 3500 }); return; }
+    showToast(t('offlineNextDays', { n: areas.length, days: pick.map(getDayTitle).join(' + ') }), { ms: 4000 });
+    for (const g of areas) {
+      const pts = g.map(s => [s.lat, s.lng]);
+      let b = L.latLngBounds(pts);
+      if (pts.length === 1) b = L.latLngBounds([pts[0][0] - 0.01, pts[0][1] - 0.012], [pts[0][0] + 0.01, pts[0][1] + 0.012]);
+      await saveOfflineArea(b.pad(0.25));
+    }
+  }
+
+  /* ---------- Not booked yet ---------- */
+  const NOT_BOOKED_RE = /\b(not booked|unbooked|to book|need to book|book (ahead|now|soon))\b/i;
+  function notBookedStops(day) {
+    return dayDisplayOrder(day).filter(s => !isSkipped(s) && NOT_BOOKED_RE.test(`${s.title || ''} ${s.desc || ''}`));
+  }
+  function notBookedHtml(day) {
+    const list = notBookedStops(day);
+    if (!list.length) return '';
+    return `<div class="tp-notbooked"><i class="fa-solid fa-triangle-exclamation"></i> <span>${escapeHtml(t('notBookedYet'))}: ${list.map(s => `<a onclick="closeMenus(); revealStop(${s.id}, true)">${escapeHtml(s.cleanTitle || s.title)}</a>`).join(', ')}</span></div>`;
+  }
+
+  /* ---------- Booking details read from the notes: where it was booked and for how many nights ---------- */
+  const BOOKED_VIA_RE = /\b(Agoda|Booking\.com|Expedia|Hotels\.com|Airbnb|Trip\.com|Rakuten(?: Travel)?|Jalan|JTB|Klook|KKday|Peach|Jetstar|ANA|JAL|Qantas|Zipair|Skyscanner)\b/i;
+  function bookingDetails(s) {
+    const text = `${s.title || ''} ${s.desc || ''}`;
+    const via = (text.match(BOOKED_VIA_RE) || [])[1];
+    const n = text.match(/\b(\d+)\s*(?:more\s+)?nights?\b/i);
+    const bits = [];
+    if (via) bits.push(via);
+    if (n) bits.push(t('nNights', { n: Number(n[1]) }));
+    return bits.join(' · ');
   }

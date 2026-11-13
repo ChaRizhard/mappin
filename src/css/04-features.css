@@ -535,3 +535,10 @@ html.card-dragging, html.card-dragging body, html.card-dragging #sidebar, html.c
 /* 1.4.8 */
 .bk-cal { width: 100%; justify-content: center; margin-bottom: 4px; }
 .bk-cal-note { margin: 0 0 12px; text-align: center; }
+/* 1.4.9 */
+.tp-notbooked { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; margin: 8px 0; border-radius: 10px; background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.5); color: var(--text-main); font-size: 13px; font-weight: 600; }
+.tp-notbooked i { color: #f59e0b; margin-top: 2px; }
+.tp-notbooked a { color: #f59e0b; text-decoration: underline; cursor: pointer; }
+.tpt-btns { display: flex; gap: 8px; }
+.tpt-btns .tpt-open { flex: 1; }

@@ -125,7 +125,7 @@
       'Group': stopToGroup[item.id] && GROUPS[stopToGroup[item.id]] ? GROUPS[stopToGroup[item.id]].name : '',
       'Cost': typeof item.cost === 'number' ? item.cost : '', 'Stay (min)': typeof item.stay === 'number' ? item.stay : '',
       'Fixed time': item.fixedTime ? 'yes' : '', 'Opening hours': item.hours || '',
-      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || '', 'Skipped': item.skipped ? 'yes' : ''
+      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || '', 'Skipped': item.skipped ? 'yes' : '', 'Done': item.done ? 'yes' : ''
     }));
     const csv = Papa.unparse(exportData);
     shareFile('MapPin_Itinerary.csv', '﻿' + csv, 'text/csv;charset=utf-8').then(r => { if (r === 'shared' && IS_NATIVE) showToast(t('fileReady'), { ms: 2000 }); }).catch(() => {});

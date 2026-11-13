@@ -131,7 +131,8 @@
     fixed: ['fixedtime', 'fixed', 'booked', 'reservation', 'reserved'],
     openinghours: ['openinghours', 'openinghour', 'openhours'],
     daytitle: ['daytitle', 'dayname', 'daylabel', 'daytheme'],
-    skipped: ['skipped', 'skip', 'missed']
+    skipped: ['skipped', 'skip', 'missed'],
+    done: ['done', 'completed', 'visited', 'ticked']
   };
 
   function normKey(k) { return String(k || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -145,7 +146,7 @@
       for (const alias of COLUMN_ALIASES[field]) if (alias in normMap) return normMap[alias];
       return null;
     };
-    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'skipped', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
+    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'skipped', 'done', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
       let col = resolve(f);
       if (col && f === 'address' && used.name === col) {
         col = COLUMN_ALIASES.address.filter(a => a !== 'location').map(a => normMap[a]).find(Boolean) || null;
@@ -245,6 +246,7 @@
         stay: (() => { const v = parseInt(get(item, 'stay')); return isNaN(v) ? null : v; })(),
         fixedTime: /^(y|yes|true|1|x|✓|✔|booked|fixed)$/i.test(get(item, 'fixed')),
         skipped: /^(y|yes|true|1|x|✓|✔|skipped|missed)$/i.test(get(item, 'skipped')) || undefined,
+        done: /^(y|yes|true|1|x|✓|✔|done|visited)$/i.test(get(item, 'done')) || undefined,
         hours: get(item, 'openinghours') || undefined,
         hoursChecked: !!get(item, 'openinghours'),
         _dayTitle: dayTitle, _catGiven: !!catRaw

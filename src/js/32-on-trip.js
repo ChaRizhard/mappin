@@ -19,9 +19,13 @@
     const line = s => `<div class="tpt-row"><i class="fa-solid ${categoryIcon(s.category)}"></i>${s.time ? `<b>${escapeHtml(s.time)}</b>` : ''}<span>${escapeHtml(s.cleanTitle || s.title)}</span></div>`;
     return `<div class="tp-tomorrow">
       <div class="tpt-label">${escapeHtml(t('tomorrowLabel'))} · ${escapeHtml(getDayTitle(next))}${iso ? ` · ${escapeHtml(formatDateShort(iso))}` : ''}</div>
+      ${notBookedHtml(next)}
       <div class="tpt-first">${escapeHtml(t('tomorrowStarts'))}</div>${line(first)}
       ${key.length ? `<div class="tpt-first">${escapeHtml(t('tomorrowAlso'))}</div>${key.map(line).join('')}` : ''}
-      <button class="btn btn-secondary tpt-open" onclick="todaySwitchDay(1)">${escapeHtml(t('tomorrowOpen'))} <i class="fa-solid fa-chevron-right"></i></button>
+      <div class="tpt-btns">
+        <button class="btn btn-secondary tpt-open" onclick="todaySwitchDay(1)">${escapeHtml(t('tomorrowOpen'))} <i class="fa-solid fa-chevron-right"></i></button>
+        <button class="btn btn-secondary tpt-open" onclick="saveNextDaysOffline(${next})"><i class="fa-solid fa-download"></i> ${escapeHtml(t('saveOfflineShort'))}</button>
+      </div>
     </div>`;
   }
 

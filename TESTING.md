@@ -93,3 +93,9 @@ Do it once in the **Home Screen app** (iPhone) or the **installed app** (Android
 - Menu → Bookings → "Add flights & check-ins to calendar": the phone's calendar adds them with reminders (flights 3 h and 1 h before, check-ins 30 min before).
 - The green "Start" tag is gone from each day's first card.
 - Refreshing a linked trip keeps done/spent on stops that were renamed (matched by place and time on the same day).
+
+## 1.4.9 checks
+- Menu → Save next 2 days offline (or Save offline in the Tomorrow card): saves the map around each town for today and tomorrow.
+- A stop whose notes say "NOT BOOKED" shows an amber "Not booked yet" line in the Tomorrow card (and in Today on the day).
+- Bookings shows where it was booked and the nights (e.g. "Agoda · 2 nights").
+- CSV has a Done column (import and export).

@@ -136,7 +136,7 @@
       ? `https://www.google.com/maps/dir/?api=1${from && hasCoords(from) ? `&origin=${from.lat},${from.lng}` : ''}&destination=${s.lat},${s.lng}&travelmode=${directionsMode(from, s)}&hl=${LANG}`
       : googleSearchUrl({ name: s.cleanTitle || s.title, address: s.address });
     loadTodayPhoto(s);
-    panel.innerHTML = head + arrivalBannerHtml() + todayDotsHtml(list) + `
+    panel.innerHTML = head + arrivalBannerHtml() + (effectiveDayIsToday() ? notBookedHtml(todayDay) : '') + todayDotsHtml(list) + `
       <div class="tp-stop" onclick="focusTodayStop()">
         <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
         <div class="tp-info">

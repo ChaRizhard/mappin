@@ -519,7 +519,12 @@
       dirTransit: "Trains & buses",
       keyEventsAdd: "Add flights & check-ins to calendar ({n})",
       keyEventsNote: "Your phone’s calendar reminds you 3 h and 1 h before flights, and 30 min before check-ins, even when MapPin is closed.",
-      keyEventsNone: "No upcoming flights, check-ins or bookings with a date."
+      keyEventsNone: "No upcoming flights, check-ins or bookings with a date.",
+      offlineNextDays: "Saving {n} map areas for {days}…",
+      notBookedYet: "Not booked yet",
+      nNights: "{n} nights",
+      saveOfflineShort: "Save offline",
+      saveNext2: "Save next 2 days offline"
     },
     ja: {
       language: "言語",
@@ -1020,7 +1025,12 @@
       dirTransit: "電車・バス",
       keyEventsAdd: "フライトとチェックインをカレンダーに追加（{n}）",
       keyEventsNote: "MapPin を閉じていても、カレンダーがフライトの 3 時間前と 1 時間前、チェックインの 30 分前に通知します。",
-      keyEventsNone: "日付のある今後のフライト・チェックイン・予約はありません。"
+      keyEventsNone: "日付のある今後のフライト・チェックイン・予約はありません。",
+      offlineNextDays: "{days} の地図 {n} エリアを保存中…",
+      notBookedYet: "未予約",
+      nNights: "{n} 泊",
+      saveOfflineShort: "オフライン保存",
+      saveNext2: "次の 2 日分をオフライン保存"
     },
     zh: {
       language: "语言",
@@ -1521,7 +1531,12 @@
       dirTransit: "火车和巴士",
       keyEventsAdd: "将航班和入住添加到日历（{n}）",
       keyEventsNote: "即使关闭 MapPin，日历也会在航班前 3 小时和 1 小时、入住前 30 分钟提醒你。",
-      keyEventsNone: "没有带日期的后续航班、入住或预订。"
+      keyEventsNone: "没有带日期的后续航班、入住或预订。",
+      offlineNextDays: "正在为 {days} 保存 {n} 个地图区域…",
+      notBookedYet: "尚未预订",
+      nNights: "{n} 晚",
+      saveOfflineShort: "离线保存",
+      saveNext2: "离线保存接下来 2 天"
     },
     ko: {
       language: "언어",
@@ -2022,7 +2037,12 @@
       dirTransit: "기차·버스",
       keyEventsAdd: "항공편과 체크인을 캘린더에 추가 ({n})",
       keyEventsNote: "MapPin을 닫아도 캘린더가 항공편 3시간 전과 1시간 전, 체크인 30분 전에 알려줘요.",
-      keyEventsNone: "날짜가 있는 다가오는 항공편, 체크인, 예약이 없어요."
+      keyEventsNone: "날짜가 있는 다가오는 항공편, 체크인, 예약이 없어요.",
+      offlineNextDays: "{days} 지도 {n}개 지역 저장 중…",
+      notBookedYet: "아직 예약 안 함",
+      nNights: "{n}박",
+      saveOfflineShort: "오프라인 저장",
+      saveNext2: "다음 2일 오프라인 저장"
     },
     es: {
       language: "Idioma",
@@ -2528,7 +2548,12 @@
       dirTransit: "Trenes y buses",
       keyEventsAdd: "Añadir vuelos y check-ins al calendario ({n})",
       keyEventsNote: "El calendario del móvil te avisa 3 h y 1 h antes de los vuelos y 30 min antes de los check-ins, aunque MapPin esté cerrado.",
-      keyEventsNone: "No hay vuelos, check-ins ni reservas con fecha próximos."
+      keyEventsNone: "No hay vuelos, check-ins ni reservas con fecha próximos.",
+      offlineNextDays: "Guardando {n} zonas del mapa para {days}…",
+      notBookedYet: "Sin reservar",
+      nNights: "{n} noches",
+      saveOfflineShort: "Guardar sin conexión",
+      saveNext2: "Guardar los próximos 2 días sin conexión"
     },
     fr: {
       language: "Langue",
@@ -3034,7 +3059,12 @@
       dirTransit: "Trains et bus",
       keyEventsAdd: "Ajouter vols et arrivées à l’hôtel au calendrier ({n})",
       keyEventsNote: "Le calendrier du téléphone vous prévient 3 h et 1 h avant les vols, et 30 min avant les arrivées, même MapPin fermé.",
-      keyEventsNone: "Aucun vol, arrivée ou réservation datée à venir."
+      keyEventsNone: "Aucun vol, arrivée ou réservation datée à venir.",
+      offlineNextDays: "Enregistrement de {n} zones de carte pour {days}…",
+      notBookedYet: "Pas encore réservé",
+      nNights: "{n} nuits",
+      saveOfflineShort: "Hors ligne",
+      saveNext2: "Enregistrer les 2 prochains jours hors ligne"
     },
     de: {
       language: "Sprache",
@@ -3540,7 +3570,12 @@
       dirTransit: "Bahn & Bus",
       keyEventsAdd: "Flüge & Check-ins zum Kalender hinzufügen ({n})",
       keyEventsNote: "Der Kalender erinnert dich 3 h und 1 h vor Flügen und 30 Min. vor Check-ins, auch wenn MapPin geschlossen ist.",
-      keyEventsNone: "Keine anstehenden Flüge, Check-ins oder Buchungen mit Datum."
+      keyEventsNone: "Keine anstehenden Flüge, Check-ins oder Buchungen mit Datum.",
+      offlineNextDays: "{n} Kartenbereiche für {days} werden gespeichert…",
+      notBookedYet: "Noch nicht gebucht",
+      nNights: "{n} Nächte",
+      saveOfflineShort: "Offline speichern",
+      saveNext2: "Nächste 2 Tage offline speichern"
     }
   };
 

@@ -1438,6 +1438,13 @@
     /* 1.4.8 */
     .bk-cal { width: 100%; justify-content: center; margin-bottom: 4px; }
     .bk-cal-note { margin: 0 0 12px; text-align: center; }
+    /* 1.4.9 */
+    .tp-notbooked { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; margin: 8px 0; border-radius: 10px; background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.5); color: var(--text-main); font-size: 13px; font-weight: 600; }
+    .tp-notbooked i { color: #f59e0b; margin-top: 2px; }
+    .tp-notbooked a { color: #f59e0b; text-decoration: underline; cursor: pointer; }
+    .tpt-btns { display: flex; gap: 8px; }
+    .tpt-btns .tpt-open { flex: 1; }
   </style>
 </head>
 <body>
@@ -1487,6 +1494,7 @@
           <div class="context-menu-item" onclick="closeAppMenu(); openChecklist()"><i class="fa-solid fa-list-check"></i> <span data-i18n="checklist">Checklist</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openExpenses()"><i class="fa-solid fa-wallet"></i> <span data-i18n="expenses">Expenses</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); openBookings()"><i class="fa-solid fa-ticket"></i> <span data-i18n="bookings">Bookings</span></div>
+          <div class="context-menu-item" onclick="closeAppMenu(); saveNextDaysOffline()"><i class="fa-solid fa-download"></i> <span data-i18n="saveNext2">Save next 2 days offline</span></div>
           <div class="context-menu-item" onclick="closeAppMenu(); printItinerary()"><i class="fa-solid fa-print"></i> <span data-i18n="printPdf">Print or save as PDF</span></div>
           <div class="menu-divider"></div>
           <div class="context-menu-item" onclick="closeAppMenu(); shareTrip()"><i class="fa-solid fa-link"></i> <span data-i18n="shareLink">Copy share link</span></div>
@@ -2295,7 +2303,12 @@
       dirTransit: "Trains & buses",
       keyEventsAdd: "Add flights & check-ins to calendar ({n})",
       keyEventsNote: "Your phone’s calendar reminds you 3 h and 1 h before flights, and 30 min before check-ins, even when MapPin is closed.",
-      keyEventsNone: "No upcoming flights, check-ins or bookings with a date."
+      keyEventsNone: "No upcoming flights, check-ins or bookings with a date.",
+      offlineNextDays: "Saving {n} map areas for {days}…",
+      notBookedYet: "Not booked yet",
+      nNights: "{n} nights",
+      saveOfflineShort: "Save offline",
+      saveNext2: "Save next 2 days offline"
     },
     ja: {
       language: "言語",
@@ -2796,7 +2809,12 @@
       dirTransit: "電車・バス",
       keyEventsAdd: "フライトとチェックインをカレンダーに追加（{n}）",
       keyEventsNote: "MapPin を閉じていても、カレンダーがフライトの 3 時間前と 1 時間前、チェックインの 30 分前に通知します。",
-      keyEventsNone: "日付のある今後のフライト・チェックイン・予約はありません。"
+      keyEventsNone: "日付のある今後のフライト・チェックイン・予約はありません。",
+      offlineNextDays: "{days} の地図 {n} エリアを保存中…",
+      notBookedYet: "未予約",
+      nNights: "{n} 泊",
+      saveOfflineShort: "オフライン保存",
+      saveNext2: "次の 2 日分をオフライン保存"
     },
     zh: {
       language: "语言",
@@ -3297,7 +3315,12 @@
       dirTransit: "火车和巴士",
       keyEventsAdd: "将航班和入住添加到日历（{n}）",
       keyEventsNote: "即使关闭 MapPin，日历也会在航班前 3 小时和 1 小时、入住前 30 分钟提醒你。",
-      keyEventsNone: "没有带日期的后续航班、入住或预订。"
+      keyEventsNone: "没有带日期的后续航班、入住或预订。",
+      offlineNextDays: "正在为 {days} 保存 {n} 个地图区域…",
+      notBookedYet: "尚未预订",
+      nNights: "{n} 晚",
+      saveOfflineShort: "离线保存",
+      saveNext2: "离线保存接下来 2 天"
     },
     ko: {
       language: "언어",
@@ -3798,7 +3821,12 @@
       dirTransit: "기차·버스",
       keyEventsAdd: "항공편과 체크인을 캘린더에 추가 ({n})",
       keyEventsNote: "MapPin을 닫아도 캘린더가 항공편 3시간 전과 1시간 전, 체크인 30분 전에 알려줘요.",
-      keyEventsNone: "날짜가 있는 다가오는 항공편, 체크인, 예약이 없어요."
+      keyEventsNone: "날짜가 있는 다가오는 항공편, 체크인, 예약이 없어요.",
+      offlineNextDays: "{days} 지도 {n}개 지역 저장 중…",
+      notBookedYet: "아직 예약 안 함",
+      nNights: "{n}박",
+      saveOfflineShort: "오프라인 저장",
+      saveNext2: "다음 2일 오프라인 저장"
     },
     es: {
       language: "Idioma",
@@ -4304,7 +4332,12 @@
       dirTransit: "Trenes y buses",
       keyEventsAdd: "Añadir vuelos y check-ins al calendario ({n})",
       keyEventsNote: "El calendario del móvil te avisa 3 h y 1 h antes de los vuelos y 30 min antes de los check-ins, aunque MapPin esté cerrado.",
-      keyEventsNone: "No hay vuelos, check-ins ni reservas con fecha próximos."
+      keyEventsNone: "No hay vuelos, check-ins ni reservas con fecha próximos.",
+      offlineNextDays: "Guardando {n} zonas del mapa para {days}…",
+      notBookedYet: "Sin reservar",
+      nNights: "{n} noches",
+      saveOfflineShort: "Guardar sin conexión",
+      saveNext2: "Guardar los próximos 2 días sin conexión"
     },
     fr: {
       language: "Langue",
@@ -4810,7 +4843,12 @@
       dirTransit: "Trains et bus",
       keyEventsAdd: "Ajouter vols et arrivées à l’hôtel au calendrier ({n})",
       keyEventsNote: "Le calendrier du téléphone vous prévient 3 h et 1 h avant les vols, et 30 min avant les arrivées, même MapPin fermé.",
-      keyEventsNone: "Aucun vol, arrivée ou réservation datée à venir."
+      keyEventsNone: "Aucun vol, arrivée ou réservation datée à venir.",
+      offlineNextDays: "Enregistrement de {n} zones de carte pour {days}…",
+      notBookedYet: "Pas encore réservé",
+      nNights: "{n} nuits",
+      saveOfflineShort: "Hors ligne",
+      saveNext2: "Enregistrer les 2 prochains jours hors ligne"
     },
     de: {
       language: "Sprache",
@@ -5316,7 +5354,12 @@
       dirTransit: "Bahn & Bus",
       keyEventsAdd: "Flüge & Check-ins zum Kalender hinzufügen ({n})",
       keyEventsNote: "Der Kalender erinnert dich 3 h und 1 h vor Flügen und 30 Min. vor Check-ins, auch wenn MapPin geschlossen ist.",
-      keyEventsNone: "Keine anstehenden Flüge, Check-ins oder Buchungen mit Datum."
+      keyEventsNone: "Keine anstehenden Flüge, Check-ins oder Buchungen mit Datum.",
+      offlineNextDays: "{n} Kartenbereiche für {days} werden gespeichert…",
+      notBookedYet: "Noch nicht gebucht",
+      nNights: "{n} Nächte",
+      saveOfflineShort: "Offline speichern",
+      saveNext2: "Nächste 2 Tage offline speichern"
     }
   };
 
@@ -6032,7 +6075,8 @@
     fixed: ['fixedtime', 'fixed', 'booked', 'reservation', 'reserved'],
     openinghours: ['openinghours', 'openinghour', 'openhours'],
     daytitle: ['daytitle', 'dayname', 'daylabel', 'daytheme'],
-    skipped: ['skipped', 'skip', 'missed']
+    skipped: ['skipped', 'skip', 'missed'],
+    done: ['done', 'completed', 'visited', 'ticked']
   };
 
   function normKey(k) { return String(k || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -6046,7 +6090,7 @@
       for (const alias of COLUMN_ALIASES[field]) if (alias in normMap) return normMap[alias];
       return null;
     };
-    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'skipped', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
+    ['name', 'address', 'day', 'date', 'time', 'category', 'notes', 'lat', 'lng', 'coords', 'city', 'country', 'link', 'order', 'colour', 'cost', 'stay', 'fixed', 'openinghours', 'daytitle', 'skipped', 'done', 'spent', 'currency', 'bookingref', 'bookinglink'].forEach(f => {
       let col = resolve(f);
       if (col && f === 'address' && used.name === col) {
         col = COLUMN_ALIASES.address.filter(a => a !== 'location').map(a => normMap[a]).find(Boolean) || null;
@@ -6146,6 +6190,7 @@
         stay: (() => { const v = parseInt(get(item, 'stay')); return isNaN(v) ? null : v; })(),
         fixedTime: /^(y|yes|true|1|x|✓|✔|booked|fixed)$/i.test(get(item, 'fixed')),
         skipped: /^(y|yes|true|1|x|✓|✔|skipped|missed)$/i.test(get(item, 'skipped')) || undefined,
+        done: /^(y|yes|true|1|x|✓|✔|done|visited)$/i.test(get(item, 'done')) || undefined,
         hours: get(item, 'openinghours') || undefined,
         hoursChecked: !!get(item, 'openinghours'),
         _dayTitle: dayTitle, _catGiven: !!catRaw
@@ -9401,7 +9446,7 @@
       'Group': stopToGroup[item.id] && GROUPS[stopToGroup[item.id]] ? GROUPS[stopToGroup[item.id]].name : '',
       'Cost': typeof item.cost === 'number' ? item.cost : '', 'Stay (min)': typeof item.stay === 'number' ? item.stay : '',
       'Fixed time': item.fixedTime ? 'yes' : '', 'Opening hours': item.hours || '',
-      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || '', 'Skipped': item.skipped ? 'yes' : ''
+      'Spent': typeof item.spent === 'number' ? item.spent : '', 'Currency': item.currency || (TRIP.currency && TRIP.currency !== CURRENCY ? TRIP.currency : ''), 'Booking ref': item.bookingRef || '', 'Booking link': item.bookingUrl || '', 'Skipped': item.skipped ? 'yes' : '', 'Done': item.done ? 'yes' : ''
     }));
     const csv = Papa.unparse(exportData);
     shareFile('MapPin_Itinerary.csv', '﻿' + csv, 'text/csv;charset=utf-8').then(r => { if (r === 'shared' && IS_NATIVE) showToast(t('fileReady'), { ms: 2000 }); }).catch(() => {});
@@ -9522,7 +9567,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.8';
+  const APP_VERSION = '1.4.9';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -10603,7 +10648,7 @@
       ? `https://www.google.com/maps/dir/?api=1${from && hasCoords(from) ? `&origin=${from.lat},${from.lng}` : ''}&destination=${s.lat},${s.lng}&travelmode=${directionsMode(from, s)}&hl=${LANG}`
       : googleSearchUrl({ name: s.cleanTitle || s.title, address: s.address });
     loadTodayPhoto(s);
-    panel.innerHTML = head + arrivalBannerHtml() + todayDotsHtml(list) + `
+    panel.innerHTML = head + arrivalBannerHtml() + (effectiveDayIsToday() ? notBookedHtml(todayDay) : '') + todayDotsHtml(list) + `
       <div class="tp-stop" onclick="focusTodayStop()">
         <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
         <div class="tp-info">
@@ -12867,9 +12912,13 @@
     const line = s => `<div class="tpt-row"><i class="fa-solid ${categoryIcon(s.category)}"></i>${s.time ? `<b>${escapeHtml(s.time)}</b>` : ''}<span>${escapeHtml(s.cleanTitle || s.title)}</span></div>`;
     return `<div class="tp-tomorrow">
       <div class="tpt-label">${escapeHtml(t('tomorrowLabel'))} · ${escapeHtml(getDayTitle(next))}${iso ? ` · ${escapeHtml(formatDateShort(iso))}` : ''}</div>
+      ${notBookedHtml(next)}
       <div class="tpt-first">${escapeHtml(t('tomorrowStarts'))}</div>${line(first)}
       ${key.length ? `<div class="tpt-first">${escapeHtml(t('tomorrowAlso'))}</div>${key.map(line).join('')}` : ''}
-      <button class="btn btn-secondary tpt-open" onclick="todaySwitchDay(1)">${escapeHtml(t('tomorrowOpen'))} <i class="fa-solid fa-chevron-right"></i></button>
+      <div class="tpt-btns">
+        <button class="btn btn-secondary tpt-open" onclick="todaySwitchDay(1)">${escapeHtml(t('tomorrowOpen'))} <i class="fa-solid fa-chevron-right"></i></button>
+        <button class="btn btn-secondary tpt-open" onclick="saveNextDaysOffline(${next})"><i class="fa-solid fa-download"></i> ${escapeHtml(t('saveOfflineShort'))}</button>
+      </div>
     </div>`;
   }
 
@@ -13047,7 +13096,7 @@
           <i class="fa-solid ${categoryIcon(s.category)} bk-icon"></i>
           <div class="bk-main" onclick="closeBookings(); revealStop(${s.id}, true)">
             <div class="bk-name">${escapeHtml(s.cleanTitle || s.title)}</div>
-            ${s.time ? `<div class="bk-time"><i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}</div>` : ''}
+            <div class="bk-time">${s.time ? `<i class="fa-regular fa-clock"></i> ${escapeHtml(s.time)}` : ''}${bookingDetails(s) ? `${s.time ? ' · ' : ''}${escapeHtml(bookingDetails(s))}` : ''}</div>
           </div>
           ${s.bookingRef ? `<button class="bk-ref" onclick="copyBookingRef(${s.id})" title="${escapeHtml(t('copyRef'))}"><span>${escapeHtml(s.bookingRef)}</span> <i class="fa-regular fa-copy"></i></button>` : ''}
           ${s.bookingUrl ? `<a class="bk-link" href="${escapeHtml(s.bookingUrl)}" target="_blank" rel="noopener" aria-label="${escapeHtml(t('openBooking'))}"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
@@ -13103,6 +13152,56 @@
     if (!n) return '';
     return `<button class="btn btn-primary bk-cal" onclick="addKeyEventsToCalendar()"><i class="fa-regular fa-calendar-plus"></i> ${escapeHtml(t('keyEventsAdd', { n }))}</button>
       <p class="settings-note bk-cal-note">${escapeHtml(t('keyEventsNote'))}</p>`;
+  }
+
+  /* ---------- 1.4.9: save the next two days for offline (each town on its own, so travel days stay small) ---------- */
+  function placeClusters(stops, km = 12) {
+    const groups = [];
+    stops.filter(hasCoords).forEach(s => {
+      const g = groups.find(g => g.some(o => distMeters([o.lat, o.lng], [s.lat, s.lng]) < km * 1000));
+      if (g) g.push(s); else groups.push([s]);
+    });
+    return groups;
+  }
+  async function saveNextDaysOffline(fromDay) {
+    closeMenus(); closeAppMenu();
+    const days = getAllDays();
+    const start = fromDay !== undefined ? fromDay : (todayDayNumber() !== null ? todayDayNumber() : (activeDay !== 'all' ? activeDay : days[0]));
+    const pick = days.slice(Math.max(0, days.indexOf(start)), Math.max(0, days.indexOf(start)) + 2);
+    const stops = rawData.filter(s => pick.includes(s.day) && !isSkipped(s));
+    // Airports and long journeys are left out of the map areas; towns are what you walk around
+    const areas = placeClusters(stops).filter(g => g.length > 1 || !FLIGHT_RE.test(g[0].title || ''));
+    if (!areas.length) { showToast(t('offlineNoStops'), { ms: 3500 }); return; }
+    showToast(t('offlineNextDays', { n: areas.length, days: pick.map(getDayTitle).join(' + ') }), { ms: 4000 });
+    for (const g of areas) {
+      const pts = g.map(s => [s.lat, s.lng]);
+      let b = L.latLngBounds(pts);
+      if (pts.length === 1) b = L.latLngBounds([pts[0][0] - 0.01, pts[0][1] - 0.012], [pts[0][0] + 0.01, pts[0][1] + 0.012]);
+      await saveOfflineArea(b.pad(0.25));
+    }
+  }
+
+  /* ---------- Not booked yet ---------- */
+  const NOT_BOOKED_RE = /\b(not booked|unbooked|to book|need to book|book (ahead|now|soon))\b/i;
+  function notBookedStops(day) {
+    return dayDisplayOrder(day).filter(s => !isSkipped(s) && NOT_BOOKED_RE.test(`${s.title || ''} ${s.desc || ''}`));
+  }
+  function notBookedHtml(day) {
+    const list = notBookedStops(day);
+    if (!list.length) return '';
+    return `<div class="tp-notbooked"><i class="fa-solid fa-triangle-exclamation"></i> <span>${escapeHtml(t('notBookedYet'))}: ${list.map(s => `<a onclick="closeMenus(); revealStop(${s.id}, true)">${escapeHtml(s.cleanTitle || s.title)}</a>`).join(', ')}</span></div>`;
+  }
+
+  /* ---------- Booking details read from the notes: where it was booked and for how many nights ---------- */
+  const BOOKED_VIA_RE = /\b(Agoda|Booking\.com|Expedia|Hotels\.com|Airbnb|Trip\.com|Rakuten(?: Travel)?|Jalan|JTB|Klook|KKday|Peach|Jetstar|ANA|JAL|Qantas|Zipair|Skyscanner)\b/i;
+  function bookingDetails(s) {
+    const text = `${s.title || ''} ${s.desc || ''}`;
+    const via = (text.match(BOOKED_VIA_RE) || [])[1];
+    const n = text.match(/\b(\d+)\s*(?:more\s+)?nights?\b/i);
+    const bits = [];
+    if (via) bits.push(via);
+    if (n) bits.push(t('nNights', { n: Number(n[1]) }));
+    return bits.join(' · ');
   }
 
   /* ===== 99-boot.js ===== */
