@@ -1390,6 +1390,23 @@
     .day-chip .today-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); flex-shrink: 0; }
     .tp-back-today { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 13px; border: 1px solid #10b981;
       background: rgba(16,185,129,0.14); color: #10b981; font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+    /* 1.4.6: on the trip */
+    .tp-tomorrow { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--tint); border: 1px solid var(--panel-border); }
+    .tpt-label { font-size: 12px; font-weight: 800; color: var(--accent-blue); text-transform: uppercase; letter-spacing: .03em; }
+    .tpt-first { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 8px; }
+    .tpt-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-main); margin-top: 4px; min-width: 0; }
+    .tpt-row i { width: 16px; text-align: center; color: var(--text-muted); flex-shrink: 0; }
+    .tpt-row b { font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .tpt-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tpt-open { margin-top: 10px; width: 100%; justify-content: center; }
+    .tp-arrive { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 8px; border-radius: 12px;
+      background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.5); font-size: 14px; color: var(--text-main); }
+    .tp-arrive > i { color: #10b981; }
+    .tp-arrive > span { flex: 1 1 60%; font-weight: 600; }
+    .tp-arrive .btn { height: 34px; }
+    .tp-arrive-off { background: none; border: 0; color: var(--text-muted); font-size: 12px; text-decoration: underline; cursor: pointer; padding: 4px; }
+    /* The trip summary makes way for the day's stops while Today is on (phones) */
+    @media (max-width: 820px) and (min-height: 521px), (max-height: 520px) { html.today-on #trip-summary { display: none; } }
   </style>
 </head>
 <body>
@@ -2211,7 +2228,17 @@
       privateTripLabel: "Private",
       copyLink: "Copy link",
       linkCopied: "Link copied",
-      autoRefreshLabel: "Update automatically when MapPin opens"
+      autoRefreshLabel: "Update automatically when MapPin opens",
+      tomorrowLabel: "Tomorrow",
+      tomorrowStarts: "Starts with",
+      tomorrowAlso: "Also",
+      tomorrowOpen: "See tomorrow",
+      tripLastDay: "That was the last day of the trip",
+      arrivedAsk: "You’re at {name}. Mark it done?",
+      arriveNotNow: "Not now",
+      arriveStopAsking: "Stop asking",
+      arriveTurnedOff: "OK, MapPin won’t ask. Turn it back on in Settings.",
+      arrivalsSetting: "Ask to mark a stop done when I’m there"
     },
     ja: {
       language: "言語",
@@ -2687,7 +2714,17 @@
       privateTripLabel: "プライベート",
       copyLink: "リンクをコピー",
       linkCopied: "リンクをコピーしました",
-      autoRefreshLabel: "MapPin を開いたときに自動で更新"
+      autoRefreshLabel: "MapPin を開いたときに自動で更新",
+      tomorrowLabel: "明日",
+      tomorrowStarts: "最初の予定",
+      tomorrowAlso: "ほかに",
+      tomorrowOpen: "明日を見る",
+      tripLastDay: "今日が旅行の最終日でした",
+      arrivedAsk: "{name} にいます。完了にしますか？",
+      arriveNotNow: "あとで",
+      arriveStopAsking: "今後は聞かない",
+      arriveTurnedOff: "今後は聞きません。設定でオンに戻せます。",
+      arrivalsSetting: "スポットに着いたら完了にするか聞く"
     },
     zh: {
       language: "语言",
@@ -3163,7 +3200,17 @@
       privateTripLabel: "私人",
       copyLink: "复制链接",
       linkCopied: "已复制链接",
-      autoRefreshLabel: "打开 MapPin 时自动更新"
+      autoRefreshLabel: "打开 MapPin 时自动更新",
+      tomorrowLabel: "明天",
+      tomorrowStarts: "第一站",
+      tomorrowAlso: "另外",
+      tomorrowOpen: "查看明天",
+      tripLastDay: "今天是行程的最后一天",
+      arrivedAsk: "你在 {name}。标记为完成？",
+      arriveNotNow: "稍后",
+      arriveStopAsking: "不再询问",
+      arriveTurnedOff: "好的，不再询问。可在设置中重新开启。",
+      arrivalsSetting: "到达地点时询问是否标记完成"
     },
     ko: {
       language: "언어",
@@ -3639,7 +3686,17 @@
       privateTripLabel: "비공개",
       copyLink: "링크 복사",
       linkCopied: "링크를 복사했어요",
-      autoRefreshLabel: "MapPin을 열 때 자동으로 업데이트"
+      autoRefreshLabel: "MapPin을 열 때 자동으로 업데이트",
+      tomorrowLabel: "내일",
+      tomorrowStarts: "첫 일정",
+      tomorrowAlso: "그 밖에",
+      tomorrowOpen: "내일 보기",
+      tripLastDay: "오늘이 여행 마지막 날이었어요",
+      arrivedAsk: "{name}에 있어요. 완료로 표시할까요?",
+      arriveNotNow: "나중에",
+      arriveStopAsking: "그만 묻기",
+      arriveTurnedOff: "이제 묻지 않을게요. 설정에서 다시 켤 수 있어요.",
+      arrivalsSetting: "장소에 도착하면 완료할지 묻기"
     },
     es: {
       language: "Idioma",
@@ -4120,7 +4177,17 @@
       privateTripLabel: "Privado",
       copyLink: "Copiar enlace",
       linkCopied: "Enlace copiado",
-      autoRefreshLabel: "Actualizar automáticamente al abrir MapPin"
+      autoRefreshLabel: "Actualizar automáticamente al abrir MapPin",
+      tomorrowLabel: "Mañana",
+      tomorrowStarts: "Empieza con",
+      tomorrowAlso: "También",
+      tomorrowOpen: "Ver mañana",
+      tripLastDay: "Era el último día del viaje",
+      arrivedAsk: "Estás en {name}. ¿Marcar como hecho?",
+      arriveNotNow: "Ahora no",
+      arriveStopAsking: "No preguntar más",
+      arriveTurnedOff: "Vale, MapPin no preguntará. Puedes activarlo en Ajustes.",
+      arrivalsSetting: "Preguntar si marcar una parada al llegar"
     },
     fr: {
       language: "Langue",
@@ -4601,7 +4668,17 @@
       privateTripLabel: "Privé",
       copyLink: "Copier le lien",
       linkCopied: "Lien copié",
-      autoRefreshLabel: "Mettre à jour automatiquement à l’ouverture de MapPin"
+      autoRefreshLabel: "Mettre à jour automatiquement à l’ouverture de MapPin",
+      tomorrowLabel: "Demain",
+      tomorrowStarts: "Commence par",
+      tomorrowAlso: "Aussi",
+      tomorrowOpen: "Voir demain",
+      tripLastDay: "C’était le dernier jour du voyage",
+      arrivedAsk: "Vous êtes à {name}. Marquer comme fait ?",
+      arriveNotNow: "Plus tard",
+      arriveStopAsking: "Ne plus demander",
+      arriveTurnedOff: "D’accord, MapPin ne demandera plus. Réactivez-le dans les réglages.",
+      arrivalsSetting: "Proposer de marquer une étape à l’arrivée"
     },
     de: {
       language: "Sprache",
@@ -5082,7 +5159,17 @@
       privateTripLabel: "Privat",
       copyLink: "Link kopieren",
       linkCopied: "Link kopiert",
-      autoRefreshLabel: "Beim Öffnen von MapPin automatisch aktualisieren"
+      autoRefreshLabel: "Beim Öffnen von MapPin automatisch aktualisieren",
+      tomorrowLabel: "Morgen",
+      tomorrowStarts: "Beginnt mit",
+      tomorrowAlso: "Außerdem",
+      tomorrowOpen: "Morgen ansehen",
+      tripLastDay: "Das war der letzte Tag der Reise",
+      arrivedAsk: "Du bist bei {name}. Als erledigt markieren?",
+      arriveNotNow: "Später",
+      arriveStopAsking: "Nicht mehr fragen",
+      arriveTurnedOff: "OK, MapPin fragt nicht mehr. In den Einstellungen wieder einschalten.",
+      arrivalsSetting: "Beim Ankommen fragen, ob ein Stopp erledigt ist"
     }
   };
 
@@ -9257,7 +9344,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.5';
+  const APP_VERSION = '1.4.6';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -9440,6 +9527,19 @@
   /* ---------- My location ---------- */
   let meMarker = null, meCircle = null;
 
+  // Your blue dot: moved in place when it already exists (so a live position doesn't flicker)
+  function placeMe(lat, lng, accuracy) {
+    if (!map) return;
+    const r = Math.min(accuracy || 30, 500);
+    if (meMarker && meCircle) { meMarker.setLatLng([lat, lng]); meCircle.setLatLng([lat, lng]); meCircle.setRadius(r); return; }
+    meCircle = L.circle([lat, lng], { radius: r, color: '#2563eb', weight: 1, fillOpacity: 0.12, interactive: false }).addTo(map);
+    meMarker = L.marker([lat, lng], {
+      icon: L.divIcon({ className: '', html: '<div class="me-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }), zIndexOffset: 7000
+    }).addTo(map);
+    if (meMarker.bindTooltip) meMarker.bindTooltip(t('youAreHere'));
+    meMarker.on('click', () => { const ll = meMarker.getLatLng(); handleMapPlaceClick({ lat: ll.lat, lng: ll.lng }); });
+  }
+
   async function locateMe(opts = {}) {
     const btn = $('locate-btn');
     btn.classList.add('busy');
@@ -9455,14 +9555,7 @@
           : rej(new Error('unavailable')));
       }
       const { latitude: lat, longitude: lng, accuracy } = pos.coords;
-      if (meMarker) map.removeLayer(meMarker);
-      if (meCircle) map.removeLayer(meCircle);
-      meCircle = L.circle([lat, lng], { radius: Math.min(accuracy || 30, 500), color: '#2563eb', weight: 1, fillOpacity: 0.12, interactive: false }).addTo(map);
-      meMarker = L.marker([lat, lng], {
-        icon: L.divIcon({ className: '', html: '<div class="me-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }), zIndexOffset: 7000
-      }).addTo(map);
-      if (meMarker.bindTooltip) meMarker.bindTooltip(t('youAreHere'));
-      meMarker.on('click', () => handleMapPlaceClick({ lat, lng }));
+      placeMe(lat, lng, accuracy);
       if (opts.startup) { map.setView([lat, lng], 15); userMovedMap = true; pendingFitAll = false; }
       else map.flyTo([lat, lng], Math.max(map.getZoom(), 16), { duration: 0.8 });
     } catch (e) {
@@ -9886,6 +9979,7 @@
         <p class="settings-note">${escapeHtml(t('currencyHint'))}${FX && FX.at ? ' ' + escapeHtml(t('ratesAsOf', { d: new Date(FX.at).toLocaleDateString(LANG) })) : ''} <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates by Exchange Rate API</a></p>
         ${tempUnitSettingHtml()}
         ${autoTodaySettingHtml()}
+        ${arrivalsSettingHtml()}
         <div class="settings-row"><span>${escapeHtml(t('checkHours'))}</span>${switchHtml(checkHoursOn, 'toggleCheckHours()', t('checkHours'))}</div>
         <p class="settings-note">${escapeHtml(t('checkHoursHint'))}</p>
       </div>
@@ -10241,10 +10335,12 @@
     if (isPortraitPhone()) setSheet('min');
     else if (phoneLayoutMQ.matches) $('sidebar').scrollTop = 0;
     focusTodayStop();
+    startArrivalWatch();
   }
 
   function exitToday() {
     todayMode = false;
+    stopArrivalWatch();
     document.documentElement.classList.remove('today-on');
     const p = $('today-panel');
     if (p) p.style.display = 'none';
@@ -10311,6 +10407,7 @@
     if (!s) {
       panel.innerHTML = head + `
         <div class="tp-done"><i class="fa-solid fa-flag-checkered"></i> ${escapeHtml(t('allDoneToday'))}</div>
+        ${tomorrowPreviewHtml()}
         <div class="tp-actions">
           <button class="btn btn-secondary" onclick="todayStep(-1)" ${list.length ? '' : 'disabled'}><i class="fa-solid fa-chevron-left"></i></button>
           <button class="btn btn-primary tp-grow" onclick="exitToday()">${escapeHtml(t('close'))}</button>
@@ -10328,7 +10425,7 @@
       ? `https://www.google.com/maps/dir/?api=1${from && hasCoords(from) ? `&origin=${from.lat},${from.lng}` : ''}&destination=${s.lat},${s.lng}&travelmode=${directionsMode(from, s)}&hl=${LANG}`
       : googleSearchUrl({ name: s.cleanTitle || s.title, address: s.address });
     loadTodayPhoto(s);
-    panel.innerHTML = head + todayDotsHtml(list) + `
+    panel.innerHTML = head + arrivalBannerHtml() + todayDotsHtml(list) + `
       <div class="tp-stop" onclick="focusTodayStop()">
         <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
         <div class="tp-info">
@@ -12555,6 +12652,118 @@
     delete TRIP.sourceUrl; delete TRIP.sourceAt; delete TRIP.sourceHash; delete TRIP.autoRefresh;
     scheduleAutosave();
     renderImportLink();
+  }
+
+  /* ===== 32-on-trip.js ===== */
+  /* =========================================================
+     1.4.6: on the trip. Tomorrow at a glance once today is done, and
+     "you're here, mark it done?" when you've stayed at a stop for a few minutes.
+     ========================================================= */
+
+  /* ---------- Tomorrow at a glance ---------- */
+  function tomorrowPreviewHtml() {
+    const days = getAllDays();
+    const next = days[days.indexOf(todayDay) + 1];
+    if (next === undefined) return `<div class="tp-tomorrow"><div class="tpt-label">${escapeHtml(t('tripLastDay'))}</div></div>`;
+    const list = dayDisplayOrder(next);
+    if (!list.length) return '';
+    const first = list[0];
+    const iso = typeof dayDateIso === 'function' ? dayDateIso(next) : null;
+    const todayHotel = todayStops().filter(s => /hotel/i.test(s.category || '')).map(s => normKey(s.cleanTitle || s.title));
+    // Things worth knowing tonight: journeys, a new hotel and anything at a fixed time
+    const key = list.filter(s => s !== first && (s.fixedTime || /transport|flight/i.test(s.category || '') ||
+      (/hotel/i.test(s.category || '') && !todayHotel.includes(normKey(s.cleanTitle || s.title))))).slice(0, 3);
+    const line = s => `<div class="tpt-row"><i class="fa-solid ${categoryIcon(s.category)}"></i>${s.time ? `<b>${escapeHtml(s.time)}</b>` : ''}<span>${escapeHtml(s.cleanTitle || s.title)}</span></div>`;
+    return `<div class="tp-tomorrow">
+      <div class="tpt-label">${escapeHtml(t('tomorrowLabel'))} · ${escapeHtml(getDayTitle(next))}${iso ? ` · ${escapeHtml(formatDateShort(iso))}` : ''}</div>
+      <div class="tpt-first">${escapeHtml(t('tomorrowStarts'))}</div>${line(first)}
+      ${key.length ? `<div class="tpt-first">${escapeHtml(t('tomorrowAlso'))}</div>${key.map(line).join('')}` : ''}
+      <button class="btn btn-secondary tpt-open" onclick="todaySwitchDay(1)">${escapeHtml(t('tomorrowOpen'))} <i class="fa-solid fa-chevron-right"></i></button>
+    </div>`;
+  }
+
+  /* ---------- Arrived at a stop? (only while MapPin is open, in Today mode, on today's date) ---------- */
+  const ARRIVE_MS = 3 * 60 * 1000;
+  let arriveWatch = null, arriveNative = false, nearSince = {}, arrivalAsk = null;
+  const arrivalDismissed = new Set();
+  const arrivalsOn = () => loadPref('mappin_arrivals', '1') === '1';
+
+  async function startArrivalWatch() {
+    if (arriveWatch !== null || !todayMode || !arrivalsOn() || !effectiveDayIsToday() || document.hidden) return;
+    const Geo = IS_NATIVE ? capPlugin('Geolocation') : null;
+    try {
+      if (Geo) {
+        const p = await Geo.checkPermissions();
+        if (!p || (p.location !== 'granted' && p.coarseLocation !== 'granted')) return; // never asks by itself
+        arriveNative = true;
+        arriveWatch = await Geo.watchPosition({ enableHighAccuracy: true, maximumAge: 20000 }, (pos) => { if (pos) onArrivePos(pos); });
+      } else if (navigator.geolocation && navigator.permissions && navigator.permissions.query) {
+        const p = await navigator.permissions.query({ name: 'geolocation' });
+        if (p.state !== 'granted' || !todayMode) return;
+        arriveNative = false;
+        arriveWatch = navigator.geolocation.watchPosition(onArrivePos, () => {}, { enableHighAccuracy: true, maximumAge: 20000, timeout: 60000 });
+      }
+    } catch (e) { arriveWatch = null; }
+  }
+  function stopArrivalWatch() {
+    if (arriveWatch === null) return;
+    try {
+      if (arriveNative) { const Geo = capPlugin('Geolocation'); if (Geo) Geo.clearWatch({ id: arriveWatch }); }
+      else navigator.geolocation.clearWatch(arriveWatch);
+    } catch (e) {}
+    arriveWatch = null; nearSince = {};
+  }
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stopArrivalWatch(); else setTimeout(startArrivalWatch, 500); });
+
+  function onArrivePos(pos) {
+    const c = pos.coords || {};
+    if (typeof c.latitude !== 'number') return;
+    placeMe(c.latitude, c.longitude, c.accuracy);
+    const acc = c.accuracy || 50;
+    if (acc > 150 || !todayMode || !effectiveDayIsToday()) return; // too vague to tell
+    const R = Math.max(80, acc), now = Date.now();
+    let ask = null;
+    todayStops().forEach(s => {
+      if (s.done || !hasCoords(s) || arrivalDismissed.has(s.id) || /hotel/i.test(s.category || '')) { delete nearSince[s.id]; return; }
+      const d = distMeters([c.latitude, c.longitude], [s.lat, s.lng]);
+      if (d <= R) {
+        nearSince[s.id] = nearSince[s.id] || now;
+        if (now - nearSince[s.id] >= ARRIVE_MS && !ask) ask = s.id;
+      } else if (d > R * 1.5) delete nearSince[s.id];
+    });
+    if (ask !== null && arrivalAsk !== ask) {
+      arrivalAsk = ask;
+      try { if (navigator.vibrate) navigator.vibrate(15); } catch (e) {}
+      renderTodayPanel();
+    }
+  }
+
+  function arrivalBannerHtml() {
+    const s = arrivalAsk !== null && rawData.find(x => x.id === arrivalAsk);
+    if (!s || s.done) { arrivalAsk = null; return ''; }
+    return `<div class="tp-arrive"><i class="fa-solid fa-location-dot"></i>
+      <span>${escapeHtml(t('arrivedAsk', { name: s.cleanTitle || s.title }))}</span>
+      <button class="btn btn-success" onclick="arrivalYes()"><i class="fa-solid fa-check"></i> ${escapeHtml(t('markDone'))}</button>
+      <button class="btn btn-ghost" onclick="arrivalNo()">${escapeHtml(t('arriveNotNow'))}</button>
+      <button class="tp-arrive-off" onclick="arrivalOff()">${escapeHtml(t('arriveStopAsking'))}</button></div>`;
+  }
+  function arrivalYes() {
+    const id = arrivalAsk; arrivalAsk = null;
+    arrivalDismissed.add(id);
+    const i = todayStops().findIndex(s => s.id === id);
+    if (i === -1) { renderTodayPanel(); return; }
+    todayIdx = i;
+    todayMarkDone();
+  }
+  function arrivalNo() { if (arrivalAsk !== null) arrivalDismissed.add(arrivalAsk); arrivalAsk = null; renderTodayPanel(); }
+  function arrivalOff() {
+    savePref('mappin_arrivals', '0'); arrivalAsk = null; stopArrivalWatch(); renderTodayPanel();
+    showToast(t('arriveTurnedOff'), { ms: 4000 });
+  }
+  function setArrivals(on) { savePref('mappin_arrivals', on ? '1' : '0'); if (on) startArrivalWatch(); else stopArrivalWatch(); }
+  function toggleArrivals() { setArrivals(!arrivalsOn()); renderSettings(); }
+  function arrivalsSettingHtml() {
+    return `<div class="settings-row"><span>${escapeHtml(t('arrivalsSetting'))}</span>${switchHtml(arrivalsOn(), 'toggleArrivals()', t('arrivalsSetting'))}</div>`;
   }
 
   /* ===== 99-boot.js ===== */

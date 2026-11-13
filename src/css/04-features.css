@@ -487,3 +487,20 @@ html.card-dragging, html.card-dragging body, html.card-dragging #sidebar, html.c
 .day-chip .today-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); flex-shrink: 0; }
 .tp-back-today { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 13px; border: 1px solid #10b981;
   background: rgba(16,185,129,0.14); color: #10b981; font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+/* 1.4.6: on the trip */
+.tp-tomorrow { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--tint); border: 1px solid var(--panel-border); }
+.tpt-label { font-size: 12px; font-weight: 800; color: var(--accent-blue); text-transform: uppercase; letter-spacing: .03em; }
+.tpt-first { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 8px; }
+.tpt-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-main); margin-top: 4px; min-width: 0; }
+.tpt-row i { width: 16px; text-align: center; color: var(--text-muted); flex-shrink: 0; }
+.tpt-row b { font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.tpt-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tpt-open { margin-top: 10px; width: 100%; justify-content: center; }
+.tp-arrive { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 8px; border-radius: 12px;
+  background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.5); font-size: 14px; color: var(--text-main); }
+.tp-arrive > i { color: #10b981; }
+.tp-arrive > span { flex: 1 1 60%; font-weight: 600; }
+.tp-arrive .btn { height: 34px; }
+.tp-arrive-off { background: none; border: 0; color: var(--text-muted); font-size: 12px; text-decoration: underline; cursor: pointer; padding: 4px; }
+/* The trip summary makes way for the day's stops while Today is on (phones) */
+@media (max-width: 820px) and (min-height: 521px), (max-height: 520px) { html.today-on #trip-summary { display: none; } }

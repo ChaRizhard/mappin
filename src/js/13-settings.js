@@ -93,6 +93,7 @@
         <p class="settings-note">${escapeHtml(t('currencyHint'))}${FX && FX.at ? ' ' + escapeHtml(t('ratesAsOf', { d: new Date(FX.at).toLocaleDateString(LANG) })) : ''} <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates by Exchange Rate API</a></p>
         ${tempUnitSettingHtml()}
         ${autoTodaySettingHtml()}
+        ${arrivalsSettingHtml()}
         <div class="settings-row"><span>${escapeHtml(t('checkHours'))}</span>${switchHtml(checkHoursOn, 'toggleCheckHours()', t('checkHours'))}</div>
         <p class="settings-note">${escapeHtml(t('checkHoursHint'))}</p>
       </div>

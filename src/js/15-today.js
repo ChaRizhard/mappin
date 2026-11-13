@@ -46,10 +46,12 @@
     if (isPortraitPhone()) setSheet('min');
     else if (phoneLayoutMQ.matches) $('sidebar').scrollTop = 0;
     focusTodayStop();
+    startArrivalWatch();
   }
 
   function exitToday() {
     todayMode = false;
+    stopArrivalWatch();
     document.documentElement.classList.remove('today-on');
     const p = $('today-panel');
     if (p) p.style.display = 'none';
@@ -116,6 +118,7 @@
     if (!s) {
       panel.innerHTML = head + `
         <div class="tp-done"><i class="fa-solid fa-flag-checkered"></i> ${escapeHtml(t('allDoneToday'))}</div>
+        ${tomorrowPreviewHtml()}
         <div class="tp-actions">
           <button class="btn btn-secondary" onclick="todayStep(-1)" ${list.length ? '' : 'disabled'}><i class="fa-solid fa-chevron-left"></i></button>
           <button class="btn btn-primary tp-grow" onclick="exitToday()">${escapeHtml(t('close'))}</button>
@@ -133,7 +136,7 @@
       ? `https://www.google.com/maps/dir/?api=1${from && hasCoords(from) ? `&origin=${from.lat},${from.lng}` : ''}&destination=${s.lat},${s.lng}&travelmode=${directionsMode(from, s)}&hl=${LANG}`
       : googleSearchUrl({ name: s.cleanTitle || s.title, address: s.address });
     loadTodayPhoto(s);
-    panel.innerHTML = head + todayDotsHtml(list) + `
+    panel.innerHTML = head + arrivalBannerHtml() + todayDotsHtml(list) + `
       <div class="tp-stop" onclick="focusTodayStop()">
         <div class="card-number" style="background:${getStopColour(s)}">${s.done ? '<i class="fa-solid fa-check"></i>' : todayIdx + 1}</div>
         <div class="tp-info">

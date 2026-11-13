@@ -494,7 +494,17 @@
       privateTripLabel: "Private",
       copyLink: "Copy link",
       linkCopied: "Link copied",
-      autoRefreshLabel: "Update automatically when MapPin opens"
+      autoRefreshLabel: "Update automatically when MapPin opens",
+      tomorrowLabel: "Tomorrow",
+      tomorrowStarts: "Starts with",
+      tomorrowAlso: "Also",
+      tomorrowOpen: "See tomorrow",
+      tripLastDay: "That was the last day of the trip",
+      arrivedAsk: "You’re at {name}. Mark it done?",
+      arriveNotNow: "Not now",
+      arriveStopAsking: "Stop asking",
+      arriveTurnedOff: "OK, MapPin won’t ask. Turn it back on in Settings.",
+      arrivalsSetting: "Ask to mark a stop done when I’m there"
     },
     ja: {
       language: "言語",
@@ -970,7 +980,17 @@
       privateTripLabel: "プライベート",
       copyLink: "リンクをコピー",
       linkCopied: "リンクをコピーしました",
-      autoRefreshLabel: "MapPin を開いたときに自動で更新"
+      autoRefreshLabel: "MapPin を開いたときに自動で更新",
+      tomorrowLabel: "明日",
+      tomorrowStarts: "最初の予定",
+      tomorrowAlso: "ほかに",
+      tomorrowOpen: "明日を見る",
+      tripLastDay: "今日が旅行の最終日でした",
+      arrivedAsk: "{name} にいます。完了にしますか？",
+      arriveNotNow: "あとで",
+      arriveStopAsking: "今後は聞かない",
+      arriveTurnedOff: "今後は聞きません。設定でオンに戻せます。",
+      arrivalsSetting: "スポットに着いたら完了にするか聞く"
     },
     zh: {
       language: "语言",
@@ -1446,7 +1466,17 @@
       privateTripLabel: "私人",
       copyLink: "复制链接",
       linkCopied: "已复制链接",
-      autoRefreshLabel: "打开 MapPin 时自动更新"
+      autoRefreshLabel: "打开 MapPin 时自动更新",
+      tomorrowLabel: "明天",
+      tomorrowStarts: "第一站",
+      tomorrowAlso: "另外",
+      tomorrowOpen: "查看明天",
+      tripLastDay: "今天是行程的最后一天",
+      arrivedAsk: "你在 {name}。标记为完成？",
+      arriveNotNow: "稍后",
+      arriveStopAsking: "不再询问",
+      arriveTurnedOff: "好的，不再询问。可在设置中重新开启。",
+      arrivalsSetting: "到达地点时询问是否标记完成"
     },
     ko: {
       language: "언어",
@@ -1922,7 +1952,17 @@
       privateTripLabel: "비공개",
       copyLink: "링크 복사",
       linkCopied: "링크를 복사했어요",
-      autoRefreshLabel: "MapPin을 열 때 자동으로 업데이트"
+      autoRefreshLabel: "MapPin을 열 때 자동으로 업데이트",
+      tomorrowLabel: "내일",
+      tomorrowStarts: "첫 일정",
+      tomorrowAlso: "그 밖에",
+      tomorrowOpen: "내일 보기",
+      tripLastDay: "오늘이 여행 마지막 날이었어요",
+      arrivedAsk: "{name}에 있어요. 완료로 표시할까요?",
+      arriveNotNow: "나중에",
+      arriveStopAsking: "그만 묻기",
+      arriveTurnedOff: "이제 묻지 않을게요. 설정에서 다시 켤 수 있어요.",
+      arrivalsSetting: "장소에 도착하면 완료할지 묻기"
     },
     es: {
       language: "Idioma",
@@ -2403,7 +2443,17 @@
       privateTripLabel: "Privado",
       copyLink: "Copiar enlace",
       linkCopied: "Enlace copiado",
-      autoRefreshLabel: "Actualizar automáticamente al abrir MapPin"
+      autoRefreshLabel: "Actualizar automáticamente al abrir MapPin",
+      tomorrowLabel: "Mañana",
+      tomorrowStarts: "Empieza con",
+      tomorrowAlso: "También",
+      tomorrowOpen: "Ver mañana",
+      tripLastDay: "Era el último día del viaje",
+      arrivedAsk: "Estás en {name}. ¿Marcar como hecho?",
+      arriveNotNow: "Ahora no",
+      arriveStopAsking: "No preguntar más",
+      arriveTurnedOff: "Vale, MapPin no preguntará. Puedes activarlo en Ajustes.",
+      arrivalsSetting: "Preguntar si marcar una parada al llegar"
     },
     fr: {
       language: "Langue",
@@ -2884,7 +2934,17 @@
       privateTripLabel: "Privé",
       copyLink: "Copier le lien",
       linkCopied: "Lien copié",
-      autoRefreshLabel: "Mettre à jour automatiquement à l’ouverture de MapPin"
+      autoRefreshLabel: "Mettre à jour automatiquement à l’ouverture de MapPin",
+      tomorrowLabel: "Demain",
+      tomorrowStarts: "Commence par",
+      tomorrowAlso: "Aussi",
+      tomorrowOpen: "Voir demain",
+      tripLastDay: "C’était le dernier jour du voyage",
+      arrivedAsk: "Vous êtes à {name}. Marquer comme fait ?",
+      arriveNotNow: "Plus tard",
+      arriveStopAsking: "Ne plus demander",
+      arriveTurnedOff: "D’accord, MapPin ne demandera plus. Réactivez-le dans les réglages.",
+      arrivalsSetting: "Proposer de marquer une étape à l’arrivée"
     },
     de: {
       language: "Sprache",
@@ -3365,7 +3425,17 @@
       privateTripLabel: "Privat",
       copyLink: "Link kopieren",
       linkCopied: "Link kopiert",
-      autoRefreshLabel: "Beim Öffnen von MapPin automatisch aktualisieren"
+      autoRefreshLabel: "Beim Öffnen von MapPin automatisch aktualisieren",
+      tomorrowLabel: "Morgen",
+      tomorrowStarts: "Beginnt mit",
+      tomorrowAlso: "Außerdem",
+      tomorrowOpen: "Morgen ansehen",
+      tripLastDay: "Das war der letzte Tag der Reise",
+      arrivedAsk: "Du bist bei {name}. Als erledigt markieren?",
+      arriveNotNow: "Später",
+      arriveStopAsking: "Nicht mehr fragen",
+      arriveTurnedOff: "OK, MapPin fragt nicht mehr. In den Einstellungen wieder einschalten.",
+      arrivalsSetting: "Beim Ankommen fragen, ob ein Stopp erledigt ist"
     }
   };
 

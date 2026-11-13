@@ -77,3 +77,8 @@ Do it once in the **Home Screen app** (iPhone) or the **installed app** (Android
 ## 1.4.5 checks
 - Scroll the day chips far to the right: Today stays pinned on the left; today's day chip has a green dot; the chosen day scrolls into view.
 - In Today mode, swipe to another day: a green "Today" button appears in the card; tapping it (or the Today chip) jumps back to today.
+
+## 1.4.6 checks
+- Finish today's stops in Today mode: a "Tomorrow" card shows the first stop and any journeys, new hotel or fixed times, with See tomorrow.
+- With location allowed, stay at one of today's stops for 3 minutes with MapPin open: it asks "You're at …. Mark it done?" (Done / Not now / Stop asking; also in Settings). Hotels are skipped.
+- In Today mode on a phone, the trip summary card is hidden to give the day more room.

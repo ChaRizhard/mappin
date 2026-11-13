@@ -1,7 +1,7 @@
   /* =========================================================
      APP / PLATFORM
      ========================================================= */
-  const APP_VERSION = '1.4.5';
+  const APP_VERSION = '1.4.6';
   const IS_NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
   // Native plugins (installed in the phone app project); null in a normal browser
@@ -184,6 +184,19 @@
   /* ---------- My location ---------- */
   let meMarker = null, meCircle = null;
 
+  // Your blue dot: moved in place when it already exists (so a live position doesn't flicker)
+  function placeMe(lat, lng, accuracy) {
+    if (!map) return;
+    const r = Math.min(accuracy || 30, 500);
+    if (meMarker && meCircle) { meMarker.setLatLng([lat, lng]); meCircle.setLatLng([lat, lng]); meCircle.setRadius(r); return; }
+    meCircle = L.circle([lat, lng], { radius: r, color: '#2563eb', weight: 1, fillOpacity: 0.12, interactive: false }).addTo(map);
+    meMarker = L.marker([lat, lng], {
+      icon: L.divIcon({ className: '', html: '<div class="me-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }), zIndexOffset: 7000
+    }).addTo(map);
+    if (meMarker.bindTooltip) meMarker.bindTooltip(t('youAreHere'));
+    meMarker.on('click', () => { const ll = meMarker.getLatLng(); handleMapPlaceClick({ lat: ll.lat, lng: ll.lng }); });
+  }
+
   async function locateMe(opts = {}) {
     const btn = $('locate-btn');
     btn.classList.add('busy');
@@ -199,14 +212,7 @@
           : rej(new Error('unavailable')));
       }
       const { latitude: lat, longitude: lng, accuracy } = pos.coords;
-      if (meMarker) map.removeLayer(meMarker);
-      if (meCircle) map.removeLayer(meCircle);
-      meCircle = L.circle([lat, lng], { radius: Math.min(accuracy || 30, 500), color: '#2563eb', weight: 1, fillOpacity: 0.12, interactive: false }).addTo(map);
-      meMarker = L.marker([lat, lng], {
-        icon: L.divIcon({ className: '', html: '<div class="me-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }), zIndexOffset: 7000
-      }).addTo(map);
-      if (meMarker.bindTooltip) meMarker.bindTooltip(t('youAreHere'));
-      meMarker.on('click', () => handleMapPlaceClick({ lat, lng }));
+      placeMe(lat, lng, accuracy);
       if (opts.startup) { map.setView([lat, lng], 15); userMovedMap = true; pendingFitAll = false; }
       else map.flyTo([lat, lng], Math.max(map.getZoom(), 16), { duration: 0.8 });
     } catch (e) {
