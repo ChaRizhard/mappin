@@ -1456,6 +1456,12 @@
     .tpw-bits { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; font-size: 13px; color: var(--text-muted); }
     .tpw-bits b { color: var(--text-main); font-size: 15px; margin-right: 3px; }
     .tpw-copy { margin-top: 8px; height: 32px; font-size: 12px; }
+
+    /* Today on a phone held upright: the card + search header leave little room, so the whole sheet scrolls instead of a tiny inner list */
+    @media (max-width: 820px) and (min-height: 521px) {
+      html.today-on sidebar { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+      html.today-on sidebar .timeline-container { flex: none; overflow: visible; min-height: 0; }
+    }
   </style>
 </head>
 <body>
